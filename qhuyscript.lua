@@ -432,7 +432,7 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
 	vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
 end)
 local A =
-	"https://raw.githubusercontent.com/obiiyeuem/vthangsitink/refs/heads/main/zzzz.lua"
+	https://raw.githubusercontent.com/obiiyeuem/vthangsitink/refs/heads/main/zzzz.lua
 Main = guardUI(A.CreateMain({ Title = "Blox Fruits", Desc = " - Quang Huy Hub" }), "Main")
 PageShop = Main.CreatePage({ Page_Name = "Shop", Page_Title = "Shop" })
 getgenv().Options = A.Options
