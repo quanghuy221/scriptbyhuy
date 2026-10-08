@@ -414,7 +414,7 @@ getgenv().ExploitReq = (syn and syn.request)
 	or requests
 getgenv().request = getgenv().request or getgenv().ExploitReq
 if getgenv().LoadScript then
-	return print("Double UI")
+	return print("Execute roi dung execute nua lag may | By Quang Huy Hub")
 end
 getgenv().CheckPlaceId = game.PlaceId == 100117331123089 and 100117331123089 or 7449423635
 getgenv().CheckPlaceId2 = game.PlaceId == 4442272183 and 4442272183 or 79091703265657
@@ -432,7 +432,7 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
 	vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
 end)
 local A =
-	"Quang Huy Hub"
+	"https://raw.githubusercontent.com/obiiyeuem/vthangsitink/refs/heads/main/zzzz.lua"
 Main = guardUI(A.CreateMain({ Title = "Blox Fruits", Desc = " - Quang Huy Hub" }), "Main")
 PageShop = Main.CreatePage({ Page_Name = "Shop", Page_Title = "Shop" })
 getgenv().Options = A.Options
