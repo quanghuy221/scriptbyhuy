@@ -6432,7 +6432,7 @@ SettingFarmMainSection.CreateSlider(
 	end
 )
 SettingFarmMainSection.CreateLabel({
-	Title = "Recommended: 350. If you\226\128\153re farming spots close to each other, use a higher speed",
+	Title = "Recommended: 170. If you\226\128\153re farming spots close to each other, use a higher speed. Cause Ban! Use Carefully!",
 })
 SettingSkillMain =
 	Main.CreatePage({ Page_Name = "Hold and Select Skill", Page_Title = "Setting Hold and Select Skill" })
