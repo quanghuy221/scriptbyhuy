@@ -1264,7 +1264,7 @@ do
 	end)
 
 	-- ---------- Toggle ở đầu tab Status And Server ----------
-	local SectionStatusUI = PageStatusAndServer.CreateSection("BananaCat Status UI")
+	local SectionStatusUI = PageStatusAndServer.CreateSection("Quang Huy Hub Status UI")
 	SectionStatusUI.CreateToggle({
 		Title = "Show Quang Huy Hub Status UI",
 		Desc = "Show what the script is doing at the top of the screen",
@@ -1274,6 +1274,287 @@ do
 		gui.Enabled = v
 	end)
 end
+
+-- ==================== BIẾN CỤC BỘ ĐỘC LẬP (TRÁNH TRÙNG LẮP) ====================
+local qhStopTweenInstance = nil
+local TWEEN_TOGGLE_KEY = "QuangHuy_StopTween_Toggle_Key"
+
+-- Hàm khởi tạo UI Stop Tween (chạy khi BẬT Toggle)
+local function CreateQuangHuyStopTweenPanel()
+	if qhStopTweenInstance then
+		qhStopTweenInstance:Destroy()
+		qhStopTweenInstance = nil
+	end
+
+	local TweenService = game:GetService("TweenService")
+	local UserInputService = game:GetService("UserInputService")
+	local CoreGui = game:GetService("CoreGui")
+	local Players = game:GetService("Players")
+
+	local safeParent = (gethui and gethui()) or CoreGui or Players.LocalPlayer:WaitForChild("PlayerGui")
+
+	-- Xóa UI cũ nếu còn tồn tại trong PlayerGui/CoreGui
+	if safeParent:FindFirstChild("QuangHuy_StopTween_Panel") then
+		safeParent["QuangHuy_StopTween_Panel"]:Destroy()
+	end
+
+	-- ScreenGui chính
+	local qhScreenGui = Instance.new("ScreenGui")
+	qhScreenGui.Name = "QuangHuy_StopTween_Panel"
+	qhScreenGui.ResetOnSpawn = false
+	qhScreenGui.Parent = safeParent
+
+	-- Main Frame
+	local qhMainFrame = Instance.new("Frame")
+	qhMainFrame.Name = "QH_MainFrame"
+	qhMainFrame.Size = UDim2.new(0, 310, 0, 160)
+	qhMainFrame.Position = UDim2.new(0.5, -155, 0.5, -80)
+	qhMainFrame.BackgroundColor3 = Color3.fromRGB(15, 17, 23)
+	qhMainFrame.BorderSizePixel = 0
+	qhMainFrame.Parent = qhScreenGui
+
+	local qhCorner = Instance.new("UICorner")
+	qhCorner.CornerRadius = UDim.new(0, 14)
+	qhCorner.Parent = qhMainFrame
+
+	local qhStroke = Instance.new("UIStroke")
+	qhStroke.Color = Color3.fromRGB(50, 55, 65)
+	qhStroke.Thickness = 1.2
+	qhStroke.Parent = qhMainFrame
+
+	-- TopBar
+	local qhTopBar = Instance.new("Frame")
+	qhTopBar.Name = "QH_TopBar"
+	qhTopBar.Size = UDim2.new(1, 0, 0, 40)
+	qhTopBar.BackgroundColor3 = Color3.fromRGB(25, 28, 36)
+	qhTopBar.BorderSizePixel = 0
+	qhTopBar.Parent = qhMainFrame
+
+	local qhTopBarCorner = Instance.new("UICorner")
+	qhTopBarCorner.CornerRadius = UDim.new(0, 14)
+	qhTopBarCorner.Parent = qhTopBar
+
+	local qhTitle = Instance.new("TextLabel")
+	qhTitle.Size = UDim2.new(1, -80, 1, 0)
+	qhTitle.Position = UDim2.new(0, 14, 0, 0)
+	qhTitle.BackgroundTransparency = 1
+	qhTitle.Text = "QUANG HUY STOP TWEEN"
+	qhTitle.TextColor3 = Color3.fromRGB(240, 243, 250)
+	qhTitle.TextSize = 12
+	qhTitle.Font = Enum.Font.GothamBold
+	qhTitle.TextXAlignment = Enum.TextXAlignment.Left
+	qhTitle.Parent = qhTopBar
+
+	-- Cụm nút thao tác
+	local qhBtnContainer = Instance.new("Frame")
+	qhBtnContainer.Size = UDim2.new(0, 64, 1, 0)
+	qhBtnContainer.Position = UDim2.new(1, -68, 0, 0)
+	qhBtnContainer.BackgroundTransparency = 1
+	qhBtnContainer.Parent = qhTopBar
+
+	-- Nút Thu Gọn (-)
+	local qhMinBtn = Instance.new("TextButton")
+	qhMinBtn.Size = UDim2.new(0, 26, 0, 26)
+	qhMinBtn.Position = UDim2.new(0, 0, 0.5, -13)
+	qhMinBtn.BackgroundColor3 = Color3.fromRGB(35, 38, 48)
+	qhMinBtn.Text = "-"
+	qhMinBtn.TextColor3 = Color3.fromRGB(200, 205, 220)
+	qhMinBtn.TextSize = 16
+	qhMinBtn.Font = Enum.Font.GothamBold
+	qhMinBtn.AutoButtonColor = false
+	qhMinBtn.Parent = qhBtnContainer
+
+	local qhMinCorner = Instance.new("UICorner")
+	qhMinCorner.CornerRadius = UDim.new(0, 6)
+	qhMinCorner.Parent = qhMinBtn
+
+	-- Nút Đóng (X)
+	local qhCloseBtn = Instance.new("TextButton")
+	qhCloseBtn.Size = UDim2.new(0, 26, 0, 26)
+	qhCloseBtn.Position = UDim2.new(0, 32, 0.5, -13)
+	qhCloseBtn.BackgroundColor3 = Color3.fromRGB(220, 50, 60)
+	qhCloseBtn.Text = "×"
+	qhCloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+	qhCloseBtn.TextSize = 18
+	qhCloseBtn.Font = Enum.Font.GothamBold
+	qhCloseBtn.AutoButtonColor = false
+	qhCloseBtn.Parent = qhBtnContainer
+
+	local qhCloseCorner = Instance.new("UICorner")
+	qhCloseCorner.CornerRadius = UDim.new(0, 6)
+	qhCloseCorner.Parent = qhCloseBtn
+
+	-- Content
+	local qhContent = Instance.new("Frame")
+	qhContent.Name = "QH_Content"
+	qhContent.Size = UDim2.new(1, -28, 1, -50)
+	qhContent.Position = UDim2.new(0, 14, 0, 44)
+	qhContent.BackgroundTransparency = 1
+	qhContent.Parent = qhMainFrame
+
+	-- Nút STOP TWEEN
+	local qhStopBtn = Instance.new("TextButton")
+	qhStopBtn.Name = "QH_StopBtn"
+	qhStopBtn.Size = UDim2.new(1, 0, 0, 48)
+	qhStopBtn.Position = UDim2.new(0, 0, 0.5, -24)
+	qhStopBtn.BackgroundColor3 = Color3.fromRGB(22, 24, 30)
+	qhStopBtn.Text = "🛑 STOP TWEEN"
+	qhStopBtn.TextColor3 = Color3.fromRGB(240, 243, 250)
+	qhStopBtn.TextSize = 15
+	qhStopBtn.Font = Enum.Font.GothamBlack
+	qhStopBtn.AutoButtonColor = false
+	qhStopBtn.Parent = qhContent
+
+	local qhStopBtnCorner = Instance.new("UICorner")
+	qhStopBtnCorner.CornerRadius = UDim.new(0, 12)
+	qhStopBtnCorner.Parent = qhStopBtn
+
+	local qhStopBtnStroke = Instance.new("UIStroke")
+	qhStopBtnStroke.Color = Color3.fromRGB(0, 255, 200)
+	qhStopBtnStroke.Thickness = 1.5
+	qhStopBtnStroke.Transparency = 0.3
+	qhStopBtnStroke.Parent = qhStopBtn
+
+	-- Kéo thả UI
+	local isDragging = false
+	local dragStartPos, startFramePos
+
+	qhTopBar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			isDragging = true
+			dragStartPos = input.Position
+			startFramePos = qhMainFrame.Position
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			isDragging = false
+		end
+	end)
+
+	UserInputService.InputChanged:Connect(function(input)
+		if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+			local delta = input.Position - dragStartPos
+			qhMainFrame.Position = UDim2.new(
+				startFramePos.X.Scale,
+				startFramePos.X.Offset + delta.X,
+				startFramePos.Y.Scale,
+				startFramePos.Y.Offset + delta.Y
+			)
+		end
+	end)
+
+	-- Thu gọn & Tắt tab
+	local isMinimized = false
+	local normalSize = UDim2.new(0, 310, 0, 160)
+	local minSize = UDim2.new(0, 310, 0, 40)
+
+	qhMinBtn.MouseButton1Click:Connect(function()
+		isMinimized = not isMinimized
+		qhContent.Visible = not isMinimized
+
+		TweenService:Create(qhMainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
+			Size = isMinimized and minSize or normalSize
+		}):Play()
+	end)
+
+	qhCloseBtn.MouseButton1Click:Connect(function()
+		local closeTween = TweenService:Create(qhMainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Size = UDim2.new(0, 0, 0, 0),
+			BackgroundTransparency = 1
+		})
+		closeTween:Play()
+		closeTween.Completed:Connect(function()
+			if qhStopTweenInstance == qhScreenGui then
+				qhStopTweenInstance = nil
+			end
+			qhScreenGui:Destroy()
+		end)
+	end)
+
+	-- Hover Effect
+	qhStopBtn.MouseEnter:Connect(function()
+		TweenService:Create(qhStopBtn, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = UDim2.new(1, 4, 0, 50),
+			Position = UDim2.new(0, -2, 0.5, -25)
+		}):Play()
+		TweenService:Create(qhStopBtnStroke, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Transparency = 0
+		}):Play()
+	end)
+
+	qhStopBtn.MouseLeave:Connect(function()
+		TweenService:Create(qhStopBtn, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = UDim2.new(1, 0, 0, 48),
+			Position = UDim2.new(0, 0, 0.5, -24)
+		}):Play()
+		TweenService:Create(qhStopBtnStroke, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Transparency = 0.3
+		}):Play()
+	end)
+
+	-- Action khi bấm Stop Tween
+	qhStopBtn.MouseButton1Click:Connect(function()
+		local clickTween = TweenService:Create(qhStopBtn, TweenInfo.new(0.06, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0.96, 0, 0, 44),
+			Position = UDim2.new(0.02, 0, 0.5, -22)
+		})
+		clickTween:Play()
+		clickTween.Completed:Connect(function()
+			TweenService:Create(qhStopBtn, TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+				Size = UDim2.new(1, 0, 0, 48),
+				Position = UDim2.new(0, 0, 0.5, -24)
+			}):Play()
+		end)
+
+		getgenv().noclip = false
+
+		pcall(function()
+			if rawget(_G, "TweenManager") and TweenManager.CancelCurrent then
+				TweenManager.CancelCurrent()
+			elseif getgenv().TweenManager and getgenv().TweenManager.CancelCurrent then
+				getgenv().TweenManager.CancelCurrent()
+			elseif TweenManager and TweenManager.CancelCurrent then
+				TweenManager.CancelCurrent()
+			end
+		end)
+	end)
+
+	qhStopTweenInstance = qhScreenGui
+end
+
+-- Hàm hủy UI Stop Tween (chạy khi TẮT Toggle)
+local function RemoveQuangHuyStopTweenPanel()
+	if qhStopTweenInstance then
+		qhStopTweenInstance:Destroy()
+		qhStopTweenInstance = nil
+	end
+
+	local safeParent = (gethui and gethui()) or game:GetService("CoreGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+	if safeParent:FindFirstChild("QuangHuy_StopTween_Panel") then
+		safeParent["QuangHuy_StopTween_Panel"]:Destroy()
+	end
+end
+
+-- ==================== TẠO TOGGLE TRONG HUB (KHÔNG TRÙNG MÃ) ====================
+local SectionStopTweenUI = PageStatusAndServer.CreateSection("Quang Huy Stop Tween Control")
+
+SectionStopTweenUI.CreateToggle({
+	Title = "Show Quang Huy Stop Tween Panel",
+	Desc = "Hiển thị Dừng bay. Quang Huy Hub",
+	Default = Settings[TWEEN_TOGGLE_KEY] ~= false,
+}, function(state)
+	if SaveSettings then
+		SaveSettings(TWEEN_TOGGLE_KEY, state)
+	end
+
+	if state then
+		CreateQuangHuyStopTweenPanel()
+	else
+		RemoveQuangHuyStopTweenPanel()
+	end
+end)
 -- ===================== end BananaCat Status UI =====================
 SectionStatus = PageStatusAndServer.CreateSection("Status")
 TimerLabel = SectionStatus.CreateLabel({ Title = "Timer" })
