@@ -1,3 +1,5 @@
+print("Cam on ban da su dung Quang Huy Hub. Cam on ban da ung ho!.Toi se lien tuc update nen moi nguoi yen tam sai nhe")
+
 if getgenv().__BF_LOADED == game.JobId then
 	return getgenv().__BF_RESULT
 end
