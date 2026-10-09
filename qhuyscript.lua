@@ -6426,13 +6426,13 @@ SettingFarmMainSection.CreateToggle(
 	end
 )
 SettingFarmMainSection.CreateSlider(
-	{ Title = "Speed Tween ", Min = 0, Max = 1000, Default = Settings["Speed Tween "] or 300, Precise = true },
+	{ Title = "Speed Tween ", Min = 0, Max = 1000, Default = Settings["Speed Tween "] or 170, Precise = true },
 	function(I)
 		SaveSettings("Speed Tween ", I)
 	end
 )
 SettingFarmMainSection.CreateLabel({
-	Title = "Recommended: 350. If you\226\128\153re farming spots close to each other, use a higher speed",
+	Title = "Recommended: 170. If you\226\128\153re farming spots close to each other, use a higher speed",
 })
 SettingSkillMain =
 	Main.CreatePage({ Page_Name = "Hold and Select Skill", Page_Title = "Setting Hold and Select Skill" })
