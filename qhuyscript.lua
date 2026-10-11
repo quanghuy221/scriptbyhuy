@@ -1,4 +1,4 @@
-print("Cam on ban da su dung Quang Huy Hub. Cam on ban da ung ho!.Toi se lien tuc update nen moi nguoi yen tam sai nhe")
+print("Cam on ban da su dung Banana Hub Cracked by QH Dev")
 
 if getgenv().__BF_LOADED == game.JobId then
 	return getgenv().__BF_RESULT
@@ -435,7 +435,7 @@ game:GetService("Players").LocalPlayer.Idled:connect(function()
 end)
 local A =
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/refs/heads/main/zzzz.lua"))()
-Main = guardUI(A.CreateMain({ Title = "Blox Fruits", Desc = " - Quang Huy Hub" }), "Main")
+Main = guardUI(A.CreateMain({ Title = "Blox Fruits", Desc = " - Cracked By QH Dev" }), "Main")
 PageShop = Main.CreatePage({ Page_Name = "Shop", Page_Title = "Shop" })
 getgenv().Options = A.Options
 SectionShopMisc = PageShop.CreateSection("Misc Shop")
