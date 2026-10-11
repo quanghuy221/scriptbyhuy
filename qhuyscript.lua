@@ -1,4 +1,13 @@
-
+--[[
+          __      __      __      __      __      __
+     ____/  \____/  \____/  \____/  \____/  \____
+   /  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  \
+  /   Bacon Guard v0.42.0 | FORGE Protection | Build 292d4a860350
+ /    https://baconbossscript.vercel.app/
+ \  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  /
+  \____  ____  ____  ____  ____  ____  ____  ____  ____/
+       \/    \/    \/    \/    \/    \/    \/
+]]
                   local _A={}_A[1]=(function()local function _D(_N,_T)if type(_N)~="table"or type(_N[1])~="function"then error("BG:0",0)end local _I=_N[1](1)local _F=0 local _B={8,16,24,32}local _W={256,65536,16777216,4294967296}local _K={255,65535,16777215,4294967295}local function _w()local _M=buffer.readu8(_I,_F)_F+=1 return _M end local function _M()local _Y=buffer.readu32(_I,_F)_F+=4 return _Y end local function _Y()local _X=0 local _O=1 while true do local _h=_w()_X+=bit32.band(_h,127)*_O if _h<128 then return _X end _O*=128 end end if _M()~=2294538614 then error("BG:1",0)end local _X=_M()local _O=1 local _h=0
             for _z=8,buffer.len(_I)-1 do _O=(_O+buffer.readu8(_I,_z))%65521 _h=(_h+_O)%65521 end if _h*65536+_O~=_X then error("BG:2",0)end local _O=bit32.bxor(834170877,bit32.lrotate(899112134,15),3520617777,2294538614,_X)local _X={}local _h={}local _z={}local _J=_w()if _J~=19 then error("BG:3",0)end local _J=_Y()local _l=_Y()local _y=_Y()if _y+1~=_N[2]then error("BG:4",0)end local _y={}local _x={}for _s=0,_J-1 do local _J=_w()if _J>1 then error("BG:5",0)end local _w={index=_s,paged=_J==1,metadataSegmentIndex=_Y(),metadataLength=_Y(),metadataChecksum=_M(),pageDescriptors={},loaded=false,}if _w.metadataSegmentIndex<2 or _w.
        metadataSegmentIndex>_N[2]or _x[_w.metadataSegmentIndex]then error("BG:6",0)end _x[_w.metadataSegmentIndex]=true local _J=_Y()for _v=0,_J-1 do local _J=_Y()local _d=_Y()local _Y=_M()if _J<2 or _J>_N[2]or _x[_J]then error("BG:7",0)end _x[_J]=true _w.pageDescriptors[_v]={_J,_d,_Y,false}end _y[_s]=_w end if _F~=buffer.len(_I)then error("BG:8",0)end local function _I(_F,_w,_M)local _Y=_N[1](_F)if buffer.len(_Y)~=_w then error("BG:9",0)end local _F=1 local _w=0 for _J=0,buffer.len(_Y)-1 do _F=(_F+buffer.readu8(_Y,_J))%65521 _w=(_w+_F)%65521 end if _w*65536+_F~=_M then error("BG:a",0)end return _Y end local function _F(_w,_M)if _M==-1 then return _w.compactStream end
