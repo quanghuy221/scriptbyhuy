@@ -17185,6 +17185,29 @@ function BuyMeleeGate(melee)
 end
 
 print("[BananaCat] Secret Quest (39) module loaded — section ở đầu Farming Other")
+-- ================================================================-- Halloween features ported from Topi Halloween section.
+-- Existing Banana Halloween Event features above are intentionally kept.
+-- ================================================================
+-- Halloween features ported from Topi Halloween section.
+-- Existing Banana Halloween Event features above are intentionally kept.
+-- ================================================================
+-- Halloween features ported from Topi Halloween section.
+-- Existing Banana Halloween Event features above are intentionally kept.
+-- ================================================================
+-- Halloween features ported from Topi Halloween section.
+-- Existing Banana Halloween Event features above are intentionally kept.
+-- ================================================================
+-- Halloween features ported from Topi Halloween section.
+-- Existing Banana Halloween Event features above are intentionally kept.
+-- ================================================================
+-- Halloween features ported from Topi Halloween section.
+-- Existing Banana Halloween Event features above are intentionally kept.
+-- ================================================================
+-- Halloween features ported from Topi Halloween section.
+-- Existing Banana Halloween Event features above are intentionally kept.
+-- ================================================================
+-- Halloween features ported from Topi Halloween section.
+-- Existing Banana Halloween Event features above are intentionally kept.
 -- ================================================================
 -- Halloween features ported from Topi Halloween section.
 -- Existing Banana Halloween Event features above are intentionally kept.
@@ -17212,11 +17235,14 @@ do
 		return 15
 	end
 
+	-- [FIX] Lấy tâm thực sự của bí ngô, kể cả khi Pivot bị đặt sai trên nóc nhà
 	local function pivotOf(o)
 		if not o or not o.Parent then
 			return nil
 		end
 		if o:IsA("Model") then
+			local ok, cf = pcall(function() return o:GetBoundingBox() end)
+			if ok and cf then return cf end
 			return o:GetPivot()
 		elseif o:IsA("BasePart") then
 			return o.CFrame
@@ -17493,11 +17519,35 @@ do
 		local startT = tick()
 		local standDir
 		local lastAttackT = 0 
+		
+		-- [TỐI ƯU] Đo kích thước bí ngô 1 lần duy nhất
+		local size = Vector3.new(10, 10, 10)
+		if p:IsA("Model") then
+			local ok, ext = pcall(function() return p:GetExtentsSize() end)
+			if ok then size = ext end
+		elseif p:IsA("BasePart") then
+			size = p.Size
+		end
+		local maxRadius = math.max(size.X, size.Y, size.Z) / 2
+		local standDist = math.max(PUMPKIN_SIDE_DIST, maxRadius + 3)
+		
+		local standCFrame = nil
+		local lastFlyCall = 0
+
 		repeat
 			task.wait()
 			if not Settings[HW_KEY] or not stackOk() then
 				return
 			end
+			
+			-- [TỐI ƯU] Nếu bị choáng (Stun) thì đứng im chờ hết choáng
+			local ch = game.Players.LocalPlayer.Character
+			local stun = ch and ch:FindFirstChild("Stun")
+			if stun and stun.Value ~= 0 then
+				task.wait(0.5)
+				continue 
+			end
+			
 			if lastAttackT > 0 and HWI.got >= lastAttackT then
 				HWI.skip[p] = tick() + HWI.time 
 				return
@@ -17512,31 +17562,25 @@ do
 			end
 			equipMelee()
 			
-			-- FIX LỖI KẸT BÍ NGÔ TO: Tính toán bán kính bí ngô để đứng bên ngoài
-			local size = Vector3.new(10, 10, 10)
-			if p:IsA("Model") then
-				local ok, ext = pcall(function() return p:GetExtentsSize() end)
-				if ok then size = ext end
-			elseif p:IsA("BasePart") then
-				size = p.Size
-			end
-			local maxRadius = math.max(size.X, size.Y, size.Z) / 2
-			-- Điểm đứng = Bán kính bí ngô + 3 studs (đảm bảo đứng bên ngoài không bị kẹt)
-			local standDist = math.max(PUMPKIN_SIDE_DIST, maxRadius + 3)
-
 			if not standDir then
 				local d = hrp.Position - cf.Position
 				d = Vector3.new(d.X, 0, d.Z)
 				standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
 			end
-			local stand = CFrame.new(cf.Position + standDir * standDist)
 			
-			-- Điều kiện: Tới đúng điểm stand HOẶC đã bay sát mép bí ngô (do bị vật cản chặn)
-			local distToCenter = (hrp.Position - cf.Position).Magnitude
-			if (hrp.Position - stand.Position).Magnitude <= PUMPKIN_HOLD_TOL or distToCenter <= standDist + 3 then
-				pcall(function()
-					toTarget(hrp.CFrame)
-				end)
+			if not standCFrame then
+				local standPos = Vector3.new(
+					cf.Position.X + standDir.X * standDist,
+					cf.Position.Y, 
+					cf.Position.Z + standDir.Z * standDist
+				)
+				standCFrame = CFrame.new(standPos)
+			end
+			
+			local distToStand = (hrp.Position - standCFrame.Position).Magnitude
+			
+			if distToStand <= PUMPKIN_HOLD_TOL + 2 then
+				-- Đã vào tầm: CHỈ ĐÁNH
 				local beforeAt = getgenv().__PumpkinAttackAt
 				pumpkinHuntAttack(p)
 				local afterAt = getgenv().__PumpkinAttackAt
@@ -17544,11 +17588,24 @@ do
 					lastAttackT = afterAt
 				end
 			else
-				pcall(function()
-					toTarget(stand)
-				end)
+				-- [FIX RỚT ĐỘT NGỘT] Kiểm tra xem nhân vật có đang bị rớt xuống dưới không
+				-- Nếu rớt xuống dưới standCFrame quá 5 studs -> Bay lên lại ngay lập tức (không đợi 0.35s)
+				local isFalling = hrp.Position.Y < standCFrame.Position.Y - 5
+				local flyCooldown = isFalling and 0.05 or 0.35
+				
+				if tick() - lastFlyCall > flyCooldown then
+					lastFlyCall = tick()
+					pcall(function()
+						toTarget(standCFrame)
+					end)
+				end
 			end
 		until not p.Parent or tick() - startT > 12
+		
+		-- [FIX GIẬT LÙI CỰC MẠNH] Cho bí ngô này nghỉ 3 giây để Server kịp xóa
+		if p and p.Parent then
+			HWI.skip[p] = tick() + 3 
+		end
 	end
 
 	HalloweenSection.CreateToggle(
@@ -17572,6 +17629,9 @@ do
 						local p = nearestPumpkin()
 						if p then
 							farmPumpkin(p)
+							task.wait(0.1) 
+						else
+							task.wait(0.5) 
 						end
 					end)
 					if not ok then
@@ -17581,7 +17641,6 @@ do
 			end)
 		end
 	)
-
 	HalloweenSection.CreateToggle(
 		{ Title = "Kill Aura Jack O' Lantern", Desc = "While farming Jack O' Lantern, kill Jack O' Lantern within 300 studs with the existing kill aura logic (needs Auto Farm Pumpkin Hunt)", Default = Settings["Kill Aura Jack O' Lantern"] or false },
 		function(state)
