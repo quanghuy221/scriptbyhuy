@@ -17185,24 +17185,6 @@ function BuyMeleeGate(melee)
 end
 
 print("[BananaCat] Secret Quest (39) module loaded — section ở đầu Farming Other")
--- ================================================================-- Halloween features ported from Topi Halloween section.
--- Existing Banana Halloween Event features above are intentionally kept.
--- ================================================================
--- Halloween features ported from Topi Halloween section.
--- Existing Banana Halloween Event features above are intentionally kept.
--- ================================================================
--- Halloween features ported from Topi Halloween section.
--- Existing Banana Halloween Event features above are intentionally kept.
--- ================================================================
--- Halloween features ported from Topi Halloween section.
--- Existing Banana Halloween Event features above are intentionally kept.
--- ================================================================
--- Halloween features ported from Topi Halloween section.
--- Existing Banana Halloween Event features above are intentionally kept.
--- ================================================================
--- Halloween features ported from Topi Halloween section.
--- Existing Banana Halloween Event features above are intentionally kept.
--- ================================================================
 -- Halloween features ported from Topi Halloween section.
 -- Existing Banana Halloween Event features above are intentionally kept.
 -- ================================================================
@@ -17215,10 +17197,10 @@ print("[BananaCat] Secret Quest (39) module loaded — section ở đầu Farmin
 HalloweenSection = FarmotherMain.CreateSection("Halloween")
 do
 	local HW_KEY = "Auto Farm Pumpkin Hunt"
-	local PUMPKIN_SIDE_DIST = 5 -- đứng cạnh pumpkin (song song, cùng độ cao) cách 5 stud
-	local PUMPKIN_HOLD_TOL = 3 -- tới trong khoảng này của điểm đứng thì giữ tween + float, đứng im tại chỗ -- 3
-	getgenv().__PumpkinHitRange = 30 -- 30
-	local JACK_RANGE = 800 -- giới hạn khoảng cách tìm/đánh mob (Pumpkin Hunt + Pumpkin Snowman)
+	local PUMPKIN_SIDE_DIST = 5 
+	local PUMPKIN_HOLD_TOL = 3 
+	getgenv().__PumpkinHitRange = 30 
+	local JACK_RANGE = 800 
 	local HW_MOBS = { jackolantern = true, pumpkinsnowman = true }
 
 	local function normName(s)
@@ -17230,16 +17212,13 @@ do
 		return ch and ch:FindFirstChild("HumanoidRootPart")
 	end
 
-	-- Compatibility helper: Topi uses a fixed 15-stud fruit-farm offset.
 	local function FruitFarmY()
 		return 15
 	end
 
-	-- [FIX] Lấy tâm thực sự của bí ngô, kể cả khi Pivot bị đặt sai trên nóc nhà
+	-- Lấy tâm thực của bí ngô (tránh Pivot bị đặt sai trên trời)
 	local function pivotOf(o)
-		if not o or not o.Parent then
-			return nil
-		end
+		if not o or not o.Parent then return nil end
 		if o:IsA("Model") then
 			local ok, cf = pcall(function() return o:GetBoundingBox() end)
 			if ok and cf then return cf end
@@ -17253,9 +17232,7 @@ do
 	local function collectPumpkins()
 		local list = {}
 		local root = workspace:FindFirstChild("PumpkinHunt")
-		if not root then
-			return list
-		end
+		if not root then return list end
 		for _, c in ipairs(root:GetChildren()) do
 			if c:IsA("Model") or c:IsA("BasePart") then
 				table.insert(list, c)
@@ -17270,22 +17247,18 @@ do
 		return list
 	end
 
-	-- ===== Phát hiện thông báo nhận Candy Corn / Pumpkin Bits => đổi pumpkin khác =====
+	-- Phát hiện thông báo nhận đồ
 	local HWI = { got = 0, time = 60 }
-	HWI.skip = setmetatable({}, { __mode = "k" }) -- [pumpkin] = tick() hết hạn bỏ qua
+	HWI.skip = setmetatable({}, { __mode = "k" })
 	function HWI.check(t)
-		if type(t) ~= "string" or t == "" then
-			return
-		end
+		if type(t) ~= "string" or t == "" then return end
 		t = t:gsub("<[^>]->", ""):gsub("{[^}]-}", ""):lower()
 		if t:find("obtained", 1, true) and (t:find("candy corn", 1, true) or t:find("pumpkin bits", 1, true)) then
 			HWI.got = tick()
 		end
 	end
 	function HWI.hook(o)
-		if not (o:IsA("TextLabel") or o:IsA("TextButton")) then
-			return
-		end
+		if not (o:IsA("TextLabel") or o:IsA("TextButton")) then return end
 		pcall(HWI.check, o.Text)
 		local c = o:GetPropertyChangedSignal("Text"):Connect(function()
 			pcall(HWI.check, o.Text)
@@ -17294,18 +17267,13 @@ do
 	end
 	pcall(function()
 		local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 10)
-		if not pg then
-			return
-		end
+		if not pg then return end
 		if getgenv().__PumpkinItemConn then
-			pcall(function()
-				getgenv().__PumpkinItemConn:Disconnect()
-			end)
+			pcall(function() getgenv().__PumpkinItemConn:Disconnect() end)
 		end
 		getgenv().__PumpkinItemConn = getgenv().__BF_Track(pg.DescendantAdded:Connect(function(o)
 			pcall(HWI.hook, o)
 		end))
-		-- label đã có sẵn: chỉ hook Text changed (không xét text cũ để tránh báo giả)
 		for _, o in ipairs(pg:GetDescendants()) do
 			if o:IsA("TextLabel") or o:IsA("TextButton") then
 				getgenv().__BF_Track(o:GetPropertyChangedSignal("Text"):Connect(function()
@@ -17317,9 +17285,7 @@ do
 
 	local function nearestPumpkin()
 		local hrp = getHRP()
-		if not hrp then
-			return nil
-		end
+		if not hrp then return nil end
 		local best, bestD = nil, math.huge
 		local now = tick()
 		for _, p in ipairs(collectPumpkins()) do
@@ -17339,12 +17305,9 @@ do
 		return best
 	end
 
-	-- chỉ lấy Jack O' Lantern / Pumpkin Snowman trong JACK_RANGE stud quanh player
 	local function findJackMob()
 		local hrp = getHRP()
-		if not hrp then
-			return nil
-		end
+		if not hrp then return nil end
 		local best, bestD = nil, JACK_RANGE
 		local enemies = workspace:FindFirstChild("Enemies")
 		if enemies then
@@ -17360,12 +17323,9 @@ do
 		return best
 	end
 
-	-- equip melee giống logic phá mây
 	local lastEquip = 0
 	local function equipMelee()
-		if tick() - lastEquip < 0.3 then
-			return
-		end
+		if tick() - lastEquip < 0.3 then return end
 		lastEquip = tick()
 		pcall(function()
 			local lp = game:GetService("Players").LocalPlayer
@@ -17378,8 +17338,7 @@ do
 		end)
 	end
 
-	local HW_CLICK_DELAY = 0.3 -- delay giữa mỗi lần click (giây)
-	-- click y hệt logic phá mây (VirtualInputManager)
+	local HW_CLICK_DELAY = 0.3
 	local CLICK_UDIM = UDim2.new(0.15, 0, 0.15, 0)
 	local function doClick()
 		local vim = game:GetService("VirtualInputManager")
@@ -17390,14 +17349,11 @@ do
 		vim:SendMouseButtonEvent(x, y, 0, false, game, 1)
 	end
 
-	-- click vào vị trí pumpkin trên màn hình (fallback: điểm cố định nếu pumpkin ngoài màn hình)
 	local function clickAtWorld(worldPos)
 		local cam = workspace.CurrentCamera
 		local vim = game:GetService("VirtualInputManager")
 		local v, onScreen = cam:WorldToViewportPoint(worldPos)
-		if not onScreen or v.Z <= 0 then
-			return doClick()
-		end
+		if not onScreen or v.Z <= 0 then return doClick() end
 		vim:SendMouseButtonEvent(v.X, v.Y, 0, true, game, 1)
 		vim:SendMouseButtonEvent(v.X, v.Y, 0, false, game, 1)
 	end
@@ -17409,20 +17365,15 @@ do
 	local function farmJackMob(mob)
 		repeat
 			task.wait()
-			if not Settings[HW_KEY] or not stackOk() then
-				return
-			end
+			if not Settings[HW_KEY] or not stackOk() then return end
 			local hrp = getHRP()
 			if not hrp or (mob:FindFirstChild("HumanoidRootPart") and (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > JACK_RANGE) then
 				return
 			end
-			-- Kill Aura Jack O' Lantern: dùng logic Kill Aura có sẵn (Humanoid:ChangeState(Dead), bán kính 300 stud như Kill Aura Raid)
 			if Settings["Kill Aura Jack O' Lantern"] and normName(mob.Name) == "jackolantern" then
 				pcall(function()
 					local enemies = workspace:FindFirstChild("Enemies")
-					if not enemies then
-						return
-					end
+					if not enemies then return end
 					for _, m in ipairs(enemies:GetChildren()) do
 						local r = m:FindFirstChild("HumanoidRootPart")
 						local h = m:FindFirstChild("Humanoid")
@@ -17444,16 +17395,11 @@ do
 		until not IsMobAlive(mob)
 	end
 
-	-- Pumpkin Hunt-specific attack: reuse Banana's native melee attack pipeline.
-	-- No VirtualInputManager mouse clicks are used here.
 	local pumpkinAttackBusy = false
 	local pumpkinAttackAt = 0
-	-- Remote đánh trực tiếp vào pumpkin (AttackFunction chỉ quét Enemies/Characters nên không trúng pumpkin)
 	local pumpkinRemotes
 	local function getPumpkinRemotes()
-		if pumpkinRemotes then
-			return pumpkinRemotes
-		end
+		if pumpkinRemotes then return pumpkinRemotes end
 		pcall(function()
 			local Net = game:GetService("ReplicatedStorage").Modules.Net
 			pumpkinRemotes = {
@@ -17464,13 +17410,10 @@ do
 		return pumpkinRemotes
 	end
 
-	-- gom các BasePart của pumpkin trong __PumpkinHitRange stud quanh người chơi
 	local function pumpkinHitParts(p)
 		local hrp = getHRP()
 		local parts = {}
-		if not p or not p.Parent or not hrp then
-			return parts
-		end
+		if not p or not p.Parent or not hrp then return parts end
 		local range = getgenv().__PumpkinHitRange or 40
 		local function add(o)
 			if o:IsA("BasePart") and (o.Position - hrp.Position).Magnitude <= range then
@@ -17485,17 +17428,13 @@ do
 	end
 
 	local function pumpkinHuntAttack(target)
-		if pumpkinAttackBusy or tick() - pumpkinAttackAt < 0.12 then
-			return
-		end
+		if pumpkinAttackBusy or tick() - pumpkinAttackAt < 0.12 then return end
 		pumpkinAttackBusy = true
 		pumpkinAttackAt = tick()
 		getgenv().__PumpkinAttackAt = pumpkinAttackAt
 		pcall(function()
 			equipMelee()
-			-- đánh mob (Jack O' Lantern / Snowman) xung quanh bằng pipeline gốc
 			AttackFunction(30)
-			-- đánh trực tiếp pumpkin: RegisterAttack + RegisterHit lên từng part
 			local ch = game.Players.LocalPlayer.Character
 			local stun = ch and ch:FindFirstChild("Stun")
 			if target and not (stun and stun.Value ~= 0) then
@@ -17520,7 +17459,6 @@ do
 		local standDir
 		local lastAttackT = 0 
 		
-		-- [TỐI ƯU] Đo kích thước bí ngô 1 lần duy nhất
 		local size = Vector3.new(10, 10, 10)
 		if p:IsA("Model") then
 			local ok, ext = pcall(function() return p:GetExtentsSize() end)
@@ -17533,14 +17471,13 @@ do
 		
 		local standCFrame = nil
 		local lastFlyCall = 0
+		local lastDist = math.huge
+		local stuckStart = 0
 
 		repeat
 			task.wait()
-			if not Settings[HW_KEY] or not stackOk() then
-				return
-			end
+			if not Settings[HW_KEY] or not stackOk() then return end
 			
-			-- [TỐI ƯU] Nếu bị choáng (Stun) thì đứng im chờ hết choáng
 			local ch = game.Players.LocalPlayer.Character
 			local stun = ch and ch:FindFirstChild("Stun")
 			if stun and stun.Value ~= 0 then
@@ -17552,14 +17489,11 @@ do
 				HWI.skip[p] = tick() + HWI.time 
 				return
 			end
-			if findJackMob() then
-				return
-			end
+			if findJackMob() then return end
+			
 			local hrp = getHRP()
 			local cf = pivotOf(p)
-			if not hrp or not cf then
-				return
-			end
+			if not hrp or not cf then return end
 			equipMelee()
 			
 			if not standDir then
@@ -17578,9 +17512,24 @@ do
 			end
 			
 			local distToStand = (hrp.Position - standCFrame.Position).Magnitude
+			local distToCenter = (hrp.Position - cf.Position).Magnitude
 			
-			if distToStand <= PUMPKIN_HOLD_TOL + 2 then
-				-- Đã vào tầm: CHỈ ĐÁNH
+			if distToStand > 5 then
+				if math.abs(distToStand - lastDist) < 0.5 then
+					if stuckStart == 0 then stuckStart = tick() end
+				else
+					stuckStart = 0
+				end
+				lastDist = distToStand
+			else
+				stuckStart = 0
+				lastDist = distToStand
+			end
+			
+			local isStuck = (stuckStart > 0) and (tick() - stuckStart > 1.5)
+			local canAttack = (distToStand <= PUMPKIN_HOLD_TOL + 3) or (isStuck and distToCenter <= (getgenv().__PumpkinHitRange or 30))
+			
+			if canAttack then
 				local beforeAt = getgenv().__PumpkinAttackAt
 				pumpkinHuntAttack(p)
 				local afterAt = getgenv().__PumpkinAttackAt
@@ -17588,21 +17537,22 @@ do
 					lastAttackT = afterAt
 				end
 			else
-				-- [FIX RỚT ĐỘT NGỘT] Kiểm tra xem nhân vật có đang bị rớt xuống dưới không
-				-- Nếu rớt xuống dưới standCFrame quá 5 studs -> Bay lên lại ngay lập tức (không đợi 0.35s)
-				local isFalling = hrp.Position.Y < standCFrame.Position.Y - 5
-				local flyCooldown = isFalling and 0.05 or 0.35
-				
-				if tick() - lastFlyCall > flyCooldown then
+				if tick() - lastFlyCall > 0.15 then
 					lastFlyCall = tick()
-					pcall(function()
-						toTarget(standCFrame)
-					end)
+					local targetCFrame = standCFrame
+					
+					if distToStand > 12 then
+						local highPos = standCFrame.Position + Vector3.new(0, 15, 0)
+						if (hrp.Position - highPos).Magnitude > 5 then
+							targetCFrame = CFrame.new(highPos)
+						end
+					end
+					
+					pcall(function() toTarget(targetCFrame) end)
 				end
 			end
 		until not p.Parent or tick() - startT > 12
 		
-		-- [FIX GIẬT LÙI CỰC MẠNH] Cho bí ngô này nghỉ 3 giây để Server kịp xóa
 		if p and p.Parent then
 			HWI.skip[p] = tick() + 3 
 		end
@@ -17612,15 +17562,11 @@ do
 		{ Title = "Auto Farm Pumpkin Hunt", Desc = "Fly to nearest pumpkin, then kill Jack O' Lantern / Pumpkin Snowman (800 studs)", Default = Settings[HW_KEY] or false },
 		function(state)
 			SaveSettings(HW_KEY, state)
-			if not state then
-				return
-			end
+			if not state then return end
 			spawn(function()
 				while Settings[HW_KEY] and task.wait() do
 					local ok, err = pcall(function()
-						if not stackOk() then
-							return
-						end
+						if not stackOk() then return end
 						local mob = findJackMob()
 						if mob then
 							farmJackMob(mob)
