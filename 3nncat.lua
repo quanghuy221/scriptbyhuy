@@ -17858,9 +17858,11 @@ do
 		vim:SendMouseButtonEvent(x, y, 0, false, game, 1)
 	end
 
-	-- [FIX NẰM NGANG] Tạo CFrame đứng thẳng để giữ thăng bằng
+	-- [FIX NẰM NGANG] Tạo CFrame đứng thẳng để giữ thăng bằng, không bị ngửa
 	local function getUprightHover(hrp)
-		return CFrame.new(hrp.Position) * CFrame.Angles(0, hrp.CFrame.LookVector.Z, 0)
+		local look = Vector3.new(hrp.CFrame.LookVector.X, 0, hrp.CFrame.LookVector.Z)
+		if look.Magnitude < 0.1 then look = Vector3.new(0, 0, -1) else look = look.Unit end
+		return CFrame.lookAt(hrp.Position, hrp.Position + look)
 	end
 
 	-- Tọa độ trung tâm các đảo để ép game load nhà cửa (chống StreamingEnabled)
@@ -18337,9 +18339,9 @@ do
 			
 			if sc then
 				sawDialogue, goneAt = true, nil
-				if tick() - lastFlyCall > 0.2 then 
+				if tick() - lastFlyCall > 0.25 then 
 					lastFlyCall = tick()
-					if distToStand > 2 then pcall(toTarget, standCFrame) end
+					if distToStand > 3 then pcall(toTarget, standCFrame) end
 				end
 				if opt and tick() - lastClick >= TT.CLICK_DELAY then lastClick = tick(); pcall(clickGui, opt) end
 			elseif sawDialogue then
@@ -18350,9 +18352,9 @@ do
 					return
 				end
 			else
-				if tick() - lastFlyCall > 0.2 then 
+				if tick() - lastFlyCall > 0.25 then 
 					lastFlyCall = tick()
-					if distToStand > 2 then pcall(toTarget, standCFrame) end
+					if distToStand > 3 then pcall(toTarget, standCFrame) end
 				end
 				
 				if distToStand <= 8 then
@@ -18392,7 +18394,7 @@ do
 			task.wait()
 			local hrp = getHRP()
 			if not hrp or (hrp.Position - pos).Magnitude <= 8 then return end
-			if tick() - lastFly > 0.2 then lastFly = tick(); pcall(toTarget, CFrame.new(pos)) end
+			if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, CFrame.new(pos)) end
 		end
 	end
 
@@ -18436,7 +18438,7 @@ do
 					hoverCFrame = nil
 				else 
 					if not hoverCFrame then hoverCFrame = getUprightHover(hrp) end
-					if tick() - lastFly > 0.2 then lastFly = tick(); pcall(toTarget, hoverCFrame) end
+					if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, hoverCFrame) end
 				end
 			end
 		end
@@ -18473,7 +18475,7 @@ do
 					dir = dir.Magnitude > 0.1 and dir.Unit or Vector3.new(0, 0, 1)
 					stand = CFrame.lookAt(cf.Position + dir * 3, cf.Position)
 				end
-				if tick() - lastFly > 0.2 then lastFly = tick(); pcall(toTarget, stand) end
+				if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, stand) end
 				local _, o1 = getDialogue()
 				if o1 then
 					if tick() - lastOpt >= TT.CLICK_DELAY then lastOpt = tick(); pcall(clickGui, o1) end
@@ -18530,7 +18532,7 @@ do
 			end
 			if not best then
 				if not hoverCFrame then hoverCFrame = getUprightHover(hrp) end
-				if tick() - lastFly > 0.2 then lastFly = tick(); pcall(toTarget, hoverCFrame) end
+				if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, hoverCFrame) end
 			else
 				hoverCFrame = nil
 				visited[best] = true
@@ -18538,7 +18540,7 @@ do
 				while ttValid(tok) and best.Parent and tick() - t1 < SWITCH do
 					local cf = pivotOf(best)
 					if not getHRP() or not cf then break end
-					if tick() - lastFly > 0.2 then lastFly = tick(); pcall(toTarget, CFrame.new(cf.Position)) end
+					if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, CFrame.new(cf.Position)) end
 					task.wait()
 				end
 			end
@@ -18564,10 +18566,8 @@ do
 							ttSetActive(false) 
 							if getgenv().__TT_LastState ~= "Wait" then
 								getgenv().__TT_LastState = "Wait"
-								print("[TrickOrTreat] Chưa tới giờ (Phút 10-59). Đang đứng chờ (Nhường quyền cho script khác)...")
+								print("[TrickOrTreat] Chưa tới giờ (Phút 10-59). Đang nhường quyền hoàn toàn cho các chức năng khác...")
 							end
-							local rh = getHRP()
-							if rh then pcall(toTarget, getUprightHover(rh)) end
 							task.wait(1)
 							return
 						end
