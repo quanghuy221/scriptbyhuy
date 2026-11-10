@@ -17858,6 +17858,11 @@ do
 		vim:SendMouseButtonEvent(x, y, 0, false, game, 1)
 	end
 
+	-- [FIX NẰM NGANG] Tạo CFrame đứng thẳng để giữ thăng bằng
+	local function getUprightHover(hrp)
+		return CFrame.new(hrp.Position) * CFrame.Angles(0, hrp.CFrame.LookVector.Z, 0)
+	end
+
 	-- Tọa độ trung tâm các đảo để ép game load nhà cửa (chống StreamingEnabled)
 	local function getIslandCenter()
 		if game.PlaceId == getgenv().CheckPlaceId3 then
@@ -18300,7 +18305,8 @@ do
 
 	local function runDoor(door, tok)
 		local t0 = tick()
-		local stand, standList, standIdx, switches, arrived, goneAt
+		local standCFrame = nil 
+		local standList, standIdx, switches, arrived, goneAt
 		local sawDialogue = false
 		local lastE, lastClick, lastScreen = 0, 0, 0
 		local lastFlyCall = 0 
@@ -18312,19 +18318,29 @@ do
 			local mob = findAnyMob()
 			if mob then
 				farmTTMob(mob, tok)
-				t0, arrived = tick(), nil
+				t0, arrived, standCFrame = tick(), nil, nil
 				continue
 			end
+			
 			if not standList then standList, standIdx, switches = ttPickStandDirs(door, cf, hrp), 1, 0 end
-			stand = CFrame.lookAt(cf.Position + standList[standIdx] * TT.STAND_DIST, cf.Position)
+			
+			if not standCFrame then
+				standCFrame = CFrame.lookAt(cf.Position + standList[standIdx] * TT.STAND_DIST, cf.Position)
+			end
+			
+			local distToStand = (hrp.Position - standCFrame.Position).Magnitude
 			local sc, opt = getDialogue()
 			if not opt and getDialogueFrame() and tick() - lastScreen >= TT.CLICK_DELAY then
 				lastScreen = tick()
 				pcall(doClick)
 			end
+			
 			if sc then
 				sawDialogue, goneAt = true, nil
-				if tick() - lastFlyCall > 0.1 then lastFlyCall = tick(); pcall(toTarget, stand) end
+				if tick() - lastFlyCall > 0.2 then 
+					lastFlyCall = tick()
+					if distToStand > 2 then pcall(toTarget, standCFrame) end
+				end
 				if opt and tick() - lastClick >= TT.CLICK_DELAY then lastClick = tick(); pcall(clickGui, opt) end
 			elseif sawDialogue then
 				goneAt = goneAt or tick()
@@ -18334,8 +18350,12 @@ do
 					return
 				end
 			else
-				if tick() - lastFlyCall > 0.1 then lastFlyCall = tick(); pcall(toTarget, stand) end
-				if (hrp.Position - stand.Position).Magnitude <= 8 then
+				if tick() - lastFlyCall > 0.2 then 
+					lastFlyCall = tick()
+					if distToStand > 2 then pcall(toTarget, standCFrame) end
+				end
+				
+				if distToStand <= 8 then
 					arrived = arrived or tick()
 					if ttBusyAt >= arrived then return end
 					local doorPrompt = door:FindFirstChildWhichIsA("ProximityPrompt", true)
@@ -18348,6 +18368,7 @@ do
 						switches = switches + 1
 						if switches >= #standList then return end
 						standIdx = standIdx % #standList + 1
+						standCFrame = nil 
 						arrived = nil
 					end
 				else arrived = nil end
@@ -18371,7 +18392,7 @@ do
 			task.wait()
 			local hrp = getHRP()
 			if not hrp or (hrp.Position - pos).Magnitude <= 8 then return end
-			if tick() - lastFly > 0.1 then lastFly = tick(); pcall(toTarget, CFrame.new(pos)) end
+			if tick() - lastFly > 0.2 then lastFly = tick(); pcall(toTarget, CFrame.new(pos)) end
 		end
 	end
 
@@ -18403,14 +18424,20 @@ do
 
 	local function sceneFight(oldPos, tok)
 		local lastFly = 0
+		local hoverCFrame = nil 
 		while ttValid(tok) do
 			task.wait(0.1)
 			local hrp = getHRP()
 			if hrp then
 				if not getgenv().__TTInRealm() and (hrp.Position - oldPos).Magnitude < TT.SCENE_FAR then return end
 				local mob = findAnyMob()
-				if mob then farmTTMob(mob, tok, true)
-				else if tick() - lastFly > 0.1 then lastFly = tick(); pcall(toTarget, hrp.CFrame) end end
+				if mob then 
+					farmTTMob(mob, tok, true)
+					hoverCFrame = nil
+				else 
+					if not hoverCFrame then hoverCFrame = getUprightHover(hrp) end
+					if tick() - lastFly > 0.2 then lastFly = tick(); pcall(toTarget, hoverCFrame) end
+				end
 			end
 		end
 	end
@@ -18446,7 +18473,7 @@ do
 					dir = dir.Magnitude > 0.1 and dir.Unit or Vector3.new(0, 0, 1)
 					stand = CFrame.lookAt(cf.Position + dir * 3, cf.Position)
 				end
-				if tick() - lastFly > 0.1 then lastFly = tick(); pcall(toTarget, stand) end
+				if tick() - lastFly > 0.2 then lastFly = tick(); pcall(toTarget, stand) end
 				local _, o1 = getDialogue()
 				if o1 then
 					if tick() - lastOpt >= TT.CLICK_DELAY then lastOpt = tick(); pcall(clickGui, o1) end
@@ -18482,6 +18509,7 @@ do
 		local visited = setmetatable({}, { __mode = "k" })
 		local startT = tick()
 		local lastFly = 0
+		local hoverCFrame = nil 
 		while ttValid(tok) and tick() - startT < TIMEOUT do
 			task.wait()
 			local hrp = getHRP()
@@ -18501,14 +18529,16 @@ do
 				table.clear(visited)
 			end
 			if not best then
-				if tick() - lastFly > 0.1 then lastFly = tick(); pcall(toTarget, hrp.CFrame) end
+				if not hoverCFrame then hoverCFrame = getUprightHover(hrp) end
+				if tick() - lastFly > 0.2 then lastFly = tick(); pcall(toTarget, hoverCFrame) end
 			else
+				hoverCFrame = nil
 				visited[best] = true
 				local t1 = tick()
 				while ttValid(tok) and best.Parent and tick() - t1 < SWITCH do
 					local cf = pivotOf(best)
 					if not getHRP() or not cf then break end
-					if tick() - lastFly > 0.1 then lastFly = tick(); pcall(toTarget, CFrame.new(cf.Position)) end
+					if tick() - lastFly > 0.2 then lastFly = tick(); pcall(toTarget, CFrame.new(cf.Position)) end
 					task.wait()
 				end
 			end
@@ -18530,18 +18560,18 @@ do
 				while Settings[TT.KEY] and getgenv().__TrickTreatToken == tok do
 					task.wait(0.1)
 					local ok, err = pcall(function()
-						-- CHƯA TỚI GIỜ: TRẢ QUYỀN LẠI CHO CÁC CHỨC NĂNG KHÁC ĐANG BẬT
 						if not ttInWindow(true) then
 							ttSetActive(false) 
 							if getgenv().__TT_LastState ~= "Wait" then
 								getgenv().__TT_LastState = "Wait"
-								print("[TrickOrTreat] Chưa tới giờ (Phút 10-59). Nhường quyền cho các chức năng khác đang bật...")
+								print("[TrickOrTreat] Chưa tới giờ (Phút 10-59). Đang đứng chờ (Nhường quyền cho script khác)...")
 							end
+							local rh = getHRP()
+							if rh then pcall(toTarget, getUprightHover(rh)) end
 							task.wait(1)
 							return
 						end
 						
-						-- ĐÚNG GIỜ: BẮT ĐẦU TRICK OR TREAT
 						if getgenv().__TT_LastState ~= "Active" then
 							getgenv().__TT_LastState = "Active"
 							print("[TrickOrTreat] Đã tới giờ Trick Or Treat (Phút 00-09). Bắt đầu tìm cửa!")
@@ -18552,7 +18582,7 @@ do
 						if getgenv().__TTInRealm() then
 							ttSetActive(true)
 							local rmob = findAnyMob()
-							if rmob then farmTTMob(rmob, tok) else local rh = getHRP(); if rh then pcall(toTarget, rh.CFrame) end end
+							if rmob then farmTTMob(rmob, tok) else local rh = getHRP(); if rh then pcall(toTarget, getUprightHover(rh)) end end
 							return
 						end
 						if ttGhostChase(tok) then return end
@@ -18560,20 +18590,19 @@ do
 						local sceneDoor, sceneWin = findSceneDoor()
 						local door = (not sceneDoor) and nearestDoor() or nil
 						
-						-- NẾU KHÔNG THẤY CỬA (Do ở xa bị StreamingEnabled) -> BAY TỚI ĐẢO TRUNG TÂM ĐỂ LOAD MAP
 						if not sceneDoor and not door then
 							ttSetActive(true)
 							local icf = getIslandCenter()
 							if icf then
 								if not getgenv().__TTLoggedDoor then
 									getgenv().__TTLoggedDoor = true
-									print("[TrickOrTreat] Không thấy cửa (đang ở xa). Đang bay tới Đảo Trung Tâm để load map...")
+									print("[TrickOrTreat] Không thấy cửa (đang ở xa). Đang bay tới Đảo Trung Tâm để tìm cửa...")
 								end
 								pcall(toTarget, icf)
 								task.wait(0.5)
 							else
 								local rh = getHRP()
-								if rh then pcall(toTarget, rh.CFrame) end
+								if rh then pcall(toTarget, getUprightHover(rh)) end
 								task.wait(1)
 							end
 							return
