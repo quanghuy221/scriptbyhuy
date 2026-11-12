@@ -17772,9 +17772,7 @@ do
 		end
 	)
 
-HalloweenSection = FarmotherMain.CreateSection("Halloween")
-do
-	-- ===== Auto Trick Or Treat (Perfect Optimized) =====
+
 	local TT = {
 		KEY = "Auto Trick Or Treat",
 		REVISIT = 120,
@@ -19090,7 +19088,121 @@ end
 	end, function(e)
 		warn("[SummonBoss] init: " .. tostring(e))
 	end)
-end
+
+
+
+	local RS = game:GetService("ReplicatedStorage")
+	
+	HalloweenSection.CreateButton(
+		{ 
+			Title = "Random Halloween Fruit", 
+			Desc = "Bấm để quay 1 lượt Random Fruit sự kiện Halloween" 
+		},
+		function()
+			spawn(function()
+				print("[HalloweenGacha] Bạn vừa bấm nút. Bắt đầu random")
+				
+				local lp = game:GetService("Players").LocalPlayer
+				local pg = lp:FindFirstChild("PlayerGui")
+				
+				-- BƯỚC 1: DỌN DẸP BẢNG QUAY CŨ (NẾU CÓ)
+				local sw = pg and pg:FindFirstChild("SpinnerWindow")
+				if sw and sw.Enabled then
+					if sw.AboveSpinner and sw.AboveSpinner.Navigation and sw.AboveSpinner.Navigation.CloseButton.Visible then
+						print("[HalloweenGacha] Phát hiện bảng quay cũ, đang đóng lại...")
+						pcall(function()
+							if Spinner and Spinner.Close then Spinner:Close()
+							else sw.AboveSpinner.Navigation.CloseButton:Activate() end
+						end)
+						task.wait(1.5) -- Đợi game xử lý việc đóng
+					end
+				end
+				
+				-- BƯỚC 2: BẮN PAYLOAD TỪ XA (COBALT)
+				print("[HalloweenGacha] Đang random")
+				pcall(function()
+					local Net = require(RS.Modules.Net)
+					local Event = Net:RemoteFunction("GachaNetworkRF")
+					
+					-- Bọc Timeout 3s: Nếu server lag hoặc hết lượt, tự hủy để không treo Hub
+					local thread = task.spawn(function()
+						Event:InvokeServer({
+							Context = "Purchase",
+							BoxName = "Halloween26Gacha"
+						})
+					end)
+					
+					task.wait(3) 
+					if coroutine.status(thread) == "suspended" then
+						pcall(task.cancel, thread)
+						print("[HalloweenGacha] Server không phản hồi (Quá 3s). Có thể do lag hoặc hết lượt.")
+					else
+						print("[HalloweenGacha] Server đã phản hồi lệnh quay!")
+					end
+				end)
+				
+				task.wait(1.5) -- Đợi 1.5s xem bảng quay có bật lên không
+				
+				-- BƯỚC 3: ĐỢI QUAY XONG VÀ TỰ ĐỘNG TẮT BẢNG
+				local sw2 = pg and pg:FindFirstChild("SpinnerWindow")
+				if sw2 and sw2.Enabled then
+					print("[HalloweenGacha] Bảng quay đã mở! Đang đợi random xong...")
+					
+					local timeout = tick() + 10 -- Chờ tối đa 10s
+					while tick() < timeout do
+						if sw2.AboveSpinner and sw2.AboveSpinner.Navigation and sw2.AboveSpinner.Navigation.CloseButton.Visible then
+							pcall(function()
+								if Spinner and Spinner.Close then Spinner:Close()
+								else sw2.AboveSpinner.Navigation.CloseButton:Activate() end
+							end)
+							print("[HalloweenGacha] Đã quay xong và tự động tắt bảng quay.")
+							break
+						end
+						task.wait(0.5)
+					end
+				else
+					print("[HalloweenGacha] Không thấy bảng quay hiện lên (Có thể bạn đã hết lượt).")
+				end
+				
+				print("[HalloweenGacha] Hoàn tất random.")
+			end)
+		end
+	)
+
+
+	
+
+
+	local STORE_KEY = "Auto Store Fruit"
+
+	HalloweenSection.CreateToggle(
+		{ 
+			Title = "Auto Store Fruit", 
+			Desc = "Tự động cất trái Random fruit Halloween vào kho", 
+			Default = Settings[STORE_KEY] or false 
+		},
+		function(state)
+			SaveSettings(STORE_KEY, state)
+			if not state then return end
+			
+			spawn(function()
+				while Settings[STORE_KEY] and task.wait(2) do
+					local ok, err = pcall(function()
+						local t = game:GetService("Players").LocalPlayer
+						-- Gọi lại chính xác hàm StoreFruit gốc của bạn
+						if StoreFruit then
+							StoreFruit(t.Backpack)
+							StoreFruit(t.Character)
+						end
+					end)
+					
+					if not ok then warn("[AutoStoreFruit] " .. tostring(err)) end
+				end
+			end)
+		end
+	)
+
+
 
 FishingSection = FarmotherMain.CreateSection("Fishing")
 FishingSection.CreateToggle(
