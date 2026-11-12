@@ -1,4 +1,4 @@
-print("Cam on ban da su dung Banana Hub Cracked by QH Dev! Neu ban phat hien loi xin hay bao cao cho chung toi hoac nguoi lam video nha! Cam on moi nguoi da tin dung!")
+print("Cam on ban da su dung Banana Hub Cracked by QH Dev (huydev14)! Neu ban phat hien loi xin hay bao cao cho chung toi hoac nguoi lam video nha! Cam on moi nguoi da tin dung!")
 
 if getgenv().__BF_LOADED == game.JobId then
 	return getgenv().__BF_RESULT
@@ -17184,7 +17184,7 @@ function BuyMeleeGate(melee)
 	return false
 end
 
-print("[BananaCat] Secret Quest đã load. Sử dụng ở Farming Other.")
+print("[BananaCat] Secret Quest (39) module loaded — section ở đầu Farming Other")
 -- Halloween features ported from Topi Halloween section.
 -- Existing Banana Halloween Event features above are intentionally kept.
 -- ================================================================
@@ -17195,15 +17195,15 @@ print("[BananaCat] Secret Quest đã load. Sử dụng ở Farming Other.")
 -- Existing Banana Halloween Event features above are intentionally kept.
 -- ================================================================
 
-
+HalloweenSection = FarmotherMain.CreateSection("Halloween")
+do
 	-- =====================================================================
-	-- AUTO FARM PUMPKIN HUNT (BẢN HOÀN HẢO - KHÔNG BUG, KHÔNG GIẬT)
+	-- PHẦN 1: CÁC HÀM DÙNG CHUNG (SHARED UTILS) - CHỐNG LỖI 200 LOCAL
 	-- =====================================================================
-	local HW_KEY = "Auto Farm Pumpkin Hunt"
+	local JACK_RANGE = 800
 	local PUMPKIN_SIDE_DIST = 5
 	local PUMPKIN_HOLD_TOL = 3
 	getgenv().__PumpkinHitRange = 30
-	local JACK_RANGE = 800
 	local HW_MOBS = { jackolantern = true, pumpkinsnowman = true }
 
 	local function normName(s) return (string.lower(tostring(s or "")):gsub("[^%w]", "")) end
@@ -17213,16 +17213,13 @@ print("[BananaCat] Secret Quest đã load. Sử dụng ở Farming Other.")
 	end
 	local function FruitFarmY() return 15 end
 
-	-- Tâm thực của bí ngô (Chống bay lên nóc nhà)
 	local function pivotOf(o)
 		if not o or not o.Parent then return nil end
 		if o:IsA("Model") then
 			local ok, cf = pcall(function() return o:GetBoundingBox() end)
 			if ok and cf then return cf end
 			return o:GetPivot()
-		elseif o:IsA("BasePart") then
-			return o.CFrame
-		end
+		elseif o:IsA("BasePart") then return o.CFrame end
 		return nil
 	end
 
@@ -17231,8 +17228,7 @@ print("[BananaCat] Secret Quest đã load. Sử dụng ở Farming Other.")
 		local root = workspace:FindFirstChild("PumpkinHunt")
 		if not root then return list end
 		for _, c in ipairs(root:GetChildren()) do
-			if c:IsA("Model") or c:IsA("BasePart") then
-				table.insert(list, c)
+			if c:IsA("Model") or c:IsA("BasePart") then table.insert(list, c)
 			elseif c:IsA("Folder") then
 				for _, cc in ipairs(c:GetChildren()) do
 					if cc:IsA("Model") or cc:IsA("BasePart") then table.insert(list, cc) end
@@ -17240,70 +17236,6 @@ print("[BananaCat] Secret Quest đã load. Sử dụng ở Farming Other.")
 			end
 		end
 		return list
-	end
-
-	-- Phát hiện thông báo nhận Candy/Pumpkin Bits để đổi mục tiêu
-	local HWI = { got = 0, time = 60 }
-	HWI.skip = setmetatable({}, { __mode = "k" })
-	function HWI.check(t)
-		if type(t) ~= "string" or t == "" then return end
-		t = t:gsub("<[^>]->", ""):gsub("{[^}]-}", ""):lower()
-		if t:find("obtained", 1, true) and (t:find("candy corn", 1, true) or t:find("pumpkin bits", 1, true)) then
-			HWI.got = tick()
-		end
-	end
-	function HWI.hook(o)
-		if not (o:IsA("TextLabel") or o:IsA("TextButton")) then return end
-		pcall(HWI.check, o.Text)
-		local c = o:GetPropertyChangedSignal("Text"):Connect(function() pcall(HWI.check, o.Text) end)
-		getgenv().__BF_Track(c)
-	end
-	pcall(function()
-		local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 10)
-		if not pg then return end
-		if getgenv().__PumpkinItemConn then pcall(function() getgenv().__PumpkinItemConn:Disconnect() end) end
-		getgenv().__PumpkinItemConn = getgenv().__BF_Track(pg.DescendantAdded:Connect(function(o) pcall(HWI.hook, o) end))
-		for _, o in ipairs(pg:GetDescendants()) do
-			if o:IsA("TextLabel") or o:IsA("TextButton") then
-				getgenv().__BF_Track(o:GetPropertyChangedSignal("Text"):Connect(function() pcall(HWI.check, o.Text) end))
-			end
-		end
-	end)
-
-	local function nearestPumpkin()
-		local hrp = getHRP()
-		if not hrp then return nil end
-		local best, bestD = nil, math.huge
-		local now = tick()
-		for _, p in ipairs(collectPumpkins()) do
-			local skipUntil = HWI.skip[p]
-			if skipUntil and now >= skipUntil then
-				HWI.skip[p] = nil
-				skipUntil = nil
-			end
-			local cf = not skipUntil and pivotOf(p)
-			if cf then
-				local d = (cf.Position - hrp.Position).Magnitude
-				if d < bestD then best, bestD = p, d end
-			end
-		end
-		return best
-	end
-
-	local function findJackMob()
-		local hrp = getHRP()
-		if not hrp then return nil end
-		local best, bestD = nil, JACK_RANGE
-		local enemies = workspace:FindFirstChild("Enemies")
-		if enemies then
-			for _, m in ipairs(enemies:GetChildren()) do
-				if HW_MOBS[normName(m.Name)] and IsMobAlive(m) then
-					local d = (m.HumanoidRootPart.Position - hrp.Position).Magnitude
-					if d <= bestD then best, bestD = m, d end
-				end
-			end
-		end
-		return best
 	end
 
 	local lastEquip = 0
@@ -17321,38 +17253,7 @@ print("[BananaCat] Secret Quest đã load. Sử dụng ở Farming Other.")
 
 	local function stackOk() return StackFarmOther ~= false and not getgenv().__TrickTreatActive end
 
-	local function farmJackMob(mob)
-		repeat
-			task.wait()
-			if not Settings[HW_KEY] or not stackOk() then return end
-			local hrp = getHRP()
-			if not hrp or (mob:FindFirstChild("HumanoidRootPart") and (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > JACK_RANGE) then return end
-			
-			if Settings["Kill Aura Jack O' Lantern"] and normName(mob.Name) == "jackolantern" then
-				pcall(function()
-					local enemies = workspace:FindFirstChild("Enemies")
-					if not enemies then return end
-					for _, m in ipairs(enemies:GetChildren()) do
-						local r = m:FindFirstChild("HumanoidRootPart")
-						local h = m:FindFirstChild("Humanoid")
-						if r and h and normName(m.Name) == "jackolantern" and IsMobAlive(m) and (r.Position - hrp.Position).Magnitude <= 300 then
-							h:ChangeState(Enum.HumanoidStateType.Dead)
-						end
-					end
-				end)
-			end
-			pcall(function()
-				UsedualFlock()
-				ClickM1(mob)
-				if Settings["Select Weapon"] == "Blox Fruit" then
-					toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, FruitFarmY(), 0))
-				else
-					toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, BuddhaFarmY(), 0))
-				end
-			end)
-		until not IsMobAlive(mob)
-	end
-
+	-- Các hàm đánh bí ngô dùng chung cho cả Farm Bí Ngô và Farm Snowman
 	local pumpkinAttackBusy = false
 	local pumpkinAttackAt = 0
 	local pumpkinRemotes
@@ -17406,1735 +17307,1454 @@ print("[BananaCat] Secret Quest đã load. Sử dụng ở Farming Other.")
 		pumpkinAttackBusy = false
 	end
 
-	local function farmPumpkin(p)
-		local startT = tick()
-		local lastAttackT = 0 
+	-- =====================================================================
+	-- PHẦN 2: AUTO FARM PUMPKIN HUNT
+	-- =====================================================================
+	do
+		local HW_KEY = "Auto Farm Pumpkin Hunt"
+		local HWI = { got = 0, time = 60, skip = setmetatable({}, { __mode = "k" }) }
 		
-		-- Đo kích thước bí ngô 1 lần duy nhất
-		local size = Vector3.new(10, 10, 10)
-		if p:IsA("Model") then
-			local ok, ext = pcall(function() return p:GetExtentsSize() end)
-			if ok then size = ext end
-		elseif p:IsA("BasePart") then
-			size = p.Size
-		end
-		local maxRadius = math.max(size.X, size.Y, size.Z) / 2
-		local standDist = math.max(PUMPKIN_SIDE_DIST, maxRadius + 3)
-		
-		local standCFrame = nil
-		local lastFlyCall = 0
-		local lastDist = math.huge
-		local stuckStart = 0
-
-		repeat
-			task.wait()
-			if not Settings[HW_KEY] or not stackOk() then return end
-			
-			local ch = game.Players.LocalPlayer.Character
-			local stun = ch and ch:FindFirstChild("Stun")
-			if stun and stun.Value ~= 0 then
-				task.wait(0.5)
-				continue 
-			end
-			
-			if lastAttackT > 0 and HWI.got >= lastAttackT then
-				HWI.skip[p] = tick() + HWI.time 
-				return
-			end
-			if findJackMob() then return end
-			
-			local hrp = getHRP()
-			local cf = pivotOf(p)
-			if not hrp or not cf then return end
-			equipMelee()
-			
-			-- KHÓA TỌA ĐỘ ĐỨNG (Chống giật lên xuống)
-			if not standCFrame then
-				local d = hrp.Position - cf.Position
-				d = Vector3.new(d.X, 0, d.Z)
-				local standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
-				local standPos = Vector3.new(
-					cf.Position.X + standDir.X * standDist,
-					cf.Position.Y, 
-					cf.Position.Z + standDir.Z * standDist
-				)
-				standCFrame = CFrame.new(standPos)
-			end
-			
-			local distToStand = (hrp.Position - standCFrame.Position).Magnitude
-			local distToCenter = (hrp.Position - cf.Position).Magnitude
-			
-			-- KIỂM TRA KẸT TƯỜNG (Chống kẹt cửa sổ)
-			if distToStand > 5 then
-				if math.abs(distToStand - lastDist) < 0.5 then
-					if stuckStart == 0 then stuckStart = tick() end
-				else
-					stuckStart = 0
-				end
-				lastDist = distToStand
-			else
-				stuckStart = 0
-				lastDist = distToStand
-			end
-			
-			local isStuck = (stuckStart > 0) and (tick() - stuckStart > 1.5)
-			local canAttack = (distToStand <= PUMPKIN_HOLD_TOL + 3) or (isStuck and distToCenter <= 30)
-			
-			if canAttack then
-				local beforeAt = getgenv().__PumpkinAttackAt
-				pumpkinHuntAttack(p)
-				local afterAt = getgenv().__PumpkinAttackAt
-				if afterAt and afterAt ~= beforeAt then
-					lastAttackT = afterAt
-				end
-			else
-				-- BAY CỰC MƯỢT (Giới hạn 0.2s/lần)
-				if tick() - lastFlyCall > 0.2 then 
-					lastFlyCall = tick()
-					pcall(toTarget, standCFrame)
-				end
-			end
-		until not p.Parent or tick() - startT > 12
-		
-		-- Blacklist nếu đánh 12s không vỡ
-		if p and p.Parent then HWI.skip[p] = tick() + 3 end
-	end
-
-	HalloweenSection.CreateToggle(
-		{ Title = "Auto Farm Pumpkin Hunt", Desc = "Tự động bay tới đánh bí ngô (Bản hoàn hảo - Không Bug)", Default = Settings[HW_KEY] or false },
-		function(state)
-			SaveSettings(HW_KEY, state)
-			if not state then return end
-			spawn(function()
-				while Settings[HW_KEY] and task.wait() do
-					local ok, err = pcall(function()
-						if not stackOk() then return end
-						local mob = findJackMob()
-						if mob then farmJackMob(mob) return end
-						local p = nearestPumpkin()
-						if p then farmPumpkin(p) else task.wait(0.5) end
-					end)
-					if not ok then warn("[PumpkinHunt] " .. tostring(err)) end
-				end
-			end)
-		end
-	)
-
-
-	HalloweenSection.CreateToggle(
-		{ Title = "Kill Aura Jack O' Lantern", Desc = "While farming Jack O' Lantern, kill Jack O' Lantern within 300 studs with the existing kill aura logic (needs Auto Farm Pumpkin Hunt)", Default = Settings["Kill Aura Jack O' Lantern"] or false },
-		function(state)
-			SaveSettings("Kill Aura Jack O' Lantern", state)
-		end
-	)
-
-	-- ===== Auto Farm Pumpkin Snowman (chỉ PumpkinPatch + mob Pumpkin Snowman) =====
-	local SN_KEY = "Auto Farm Pumpkin Snowman"
-	local SNHOP_KEY = "Auto Hop Find Pumpkin Patch"
-	local SN_GRACE = 6 -- không thấy patch/snowman liên tục bấy nhiêu giây mới hop (tránh hop nhầm khi map chưa stream xong)
-	getgenv().__PSnowToken = getgenv().__PSnowToken or 0
-	getgenv().__PSnowHopToken = getgenv().__PSnowHopToken or 0
-
-	local function findPatch()
-		local root = workspace:FindFirstChild("PumpkinHunt")
-		local p = root and root:FindFirstChild("PumpkinPatch")
-		if p and pivotOf(p) then
-			return p
-		end
-		return nil
-	end
-
-	-- chỉ Pumpkin Snowman, trong JACK_RANGE stud quanh player
-	local function findSnowMob()
-		local hrp = getHRP()
-		local enemies = workspace:FindFirstChild("Enemies")
-		if not hrp or not enemies then
-			return nil
-		end
-		local best, bestD = nil, JACK_RANGE
-		for _, m in ipairs(enemies:GetChildren()) do
-			if normName(m.Name) == "pumpkinsnowman" and IsMobAlive(m) then
-				local d = (m.HumanoidRootPart.Position - hrp.Position).Magnitude
-				if d <= bestD then
-					best, bestD = m, d
-				end
+		local function checkHWI(t)
+			if type(t) ~= "string" or t == "" then return end
+			t = t:gsub("<[^>]->", ""):gsub("{[^}]-}", ""):lower()
+			if t:find("obtained", 1, true) and (t:find("candy corn", 1, true) or t:find("pumpkin bits", 1, true)) then
+				HWI.got = tick()
 			end
 		end
-		return best
-	end
-
-	local function snValid(tok)
-		return Settings[SN_KEY] and getgenv().__PSnowToken == tok and stackOk()
-	end
-
-	local function farmSnowMob(mob, tok)
-		repeat
-			task.wait()
-			if not snValid(tok) then
-				return
-			end
-			local hrp = getHRP()
-			if not hrp or not mob:FindFirstChild("HumanoidRootPart") or (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > JACK_RANGE then
-				return
-			end
-			pcall(function()
-				UsedualFlock()
-				ClickM1(mob)
-				if Settings["Select Weapon"] == "Blox Fruit" then
-					toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, FruitFarmY(), 0))
-				else
-					toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, BuddhaFarmY(), 0))
-				end
-			end)
-		until not IsMobAlive(mob)
-	end
-
-	local function farmPatch(p, tok)
-		local startT = tick()
-		local standDir
-		repeat
-			task.wait()
-			if not snValid(tok) then
-				return
-			end
-			if findSnowMob() then
-				return -- có Pumpkin Snowman thì ưu tiên đánh mob trước
-			end
-			local hrp = getHRP()
-			local cf = pivotOf(p)
-			if not hrp or not cf then
-				return
-			end
-			equipMelee()
-			-- điểm đứng: cạnh pumpkin PUMPKIN_SIDE_DIST stud (mặt phẳng ngang, cùng Y với pumpkin), hướng chốt 1 lần theo phía player đang tới
-			if not standDir then
-				local d = hrp.Position - cf.Position
-				d = Vector3.new(d.X, 0, d.Z)
-				standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
-			end
-			local stand = CFrame.new(cf.Position + standDir * PUMPKIN_SIDE_DIST)
-			if (hrp.Position - stand.Position).Magnitude <= PUMPKIN_HOLD_TOL then
-				-- tới điểm đứng: giữ float + noclip, đứng im tại chỗ (không bám theo nữa)
-				pcall(function()
-					toTarget(hrp.CFrame)
-				end)
-				pumpkinHuntAttack(p)
-			else
-				-- chưa tới: fly tới điểm đứng
-				pcall(function()
-					toTarget(stand)
-				end)
-			end
-		until not p.Parent or tick() - startT > 12
-	end
-
-	HalloweenSection.CreateToggle(
-		{ Title = "Auto Farm Pumpkin Snowman", Desc = "Only fly to PumpkinHunt.PumpkinPatch and kill Pumpkin Snowman", Default = Settings[SN_KEY] or false },
-		function(state)
-			SaveSettings(SN_KEY, state)
-			getgenv().__PSnowToken = getgenv().__PSnowToken + 1
-			if not state then
-				return
-			end
-			local tok = getgenv().__PSnowToken
-			spawn(function()
-				while snValid(tok) or (Settings[SN_KEY] and getgenv().__PSnowToken == tok) do
-					task.wait()
-					local ok, err = pcall(function()
-						if not stackOk() then
-							return
-						end
-						local mob = findSnowMob()
-						if mob then
-							farmSnowMob(mob, tok)
-							return
-						end
-						local patch = findPatch()
-						if patch then
-							farmPatch(patch, tok)
-						end
-					end)
-					if not ok then
-						warn("[PumpkinSnowman] " .. tostring(err))
-					end
-				end
-			end)
+		local function hookHWI(o)
+			if not (o:IsA("TextLabel") or o:IsA("TextButton")) then return end
+			pcall(checkHWI, o.Text)
+			local c = o:GetPropertyChangedSignal("Text"):Connect(function() pcall(checkHWI, o.Text) end)
+			getgenv().__BF_Track(c)
 		end
-	)
-
-	-- hop chỉ chạy khi đang bật Auto Farm Pumpkin Snowman; chỉ hop khi server không có cả PumpkinPatch lẫn Pumpkin Snowman
-	HalloweenSection.CreateToggle(
-		{ Title = "Auto Hop Find Pumpkin Patch", Desc = "Needs Auto Farm Pumpkin Snowman. Hop server when no PumpkinPatch and no Pumpkin Snowman", Default = Settings[SNHOP_KEY] or false },
-		function(state)
-			SaveSettings(SNHOP_KEY, state)
-			getgenv().__PSnowHopToken = getgenv().__PSnowHopToken + 1
-			if not state then
-				return
-			end
-			local tok = getgenv().__PSnowHopToken
-			local function hasTarget()
-				return (findPatch() or findSnowMob()) ~= nil
-			end
-			spawn(function()
-				local missingSince
-				while Settings[SNHOP_KEY] and getgenv().__PSnowHopToken == tok do
-					task.wait(0.5)
-					local ok, err = pcall(function()
-						if not Settings[SN_KEY] or not stackOk() or not game:IsLoaded() or not getHRP() then
-							missingSince = nil
-							return
-						end
-						if hasTarget() then
-							missingSince = nil
-							return
-						end
-						missingSince = missingSince or tick()
-						if tick() - missingSince < SN_GRACE then
-							return
-						end
-						HopServer(nil, function()
-							return not Settings[SNHOP_KEY] or not Settings[SN_KEY] or getgenv().__PSnowHopToken ~= tok
-								or not stackOk() or hasTarget()
-						end)
-						missingSince = nil
-					end)
-					if not ok then
-						warn("[PumpkinPatchHop] " .. tostring(err))
-					end
-				end
-			end)
-		end
-	)
-
-
-	local TT = {
-		KEY = "Auto Trick Or Treat",
-		REVISIT = 120,
-		CLICK_DELAY = 0.3,
-		PUMPKIN_CLICK = true,
-		PUMPKIN_RANGE = 180,
-		PUMPKIN_COOLDOWN = 3,
-		STAND_DIST = 3,
-		SIDE_SWITCH = 3,
-		WINDOW_MIN = 10,
-		MOB_RANGE = 200,
-		WATER_Y = 0,
-		WATER_MIN_Y = 3,
-		MOB_TIMEOUT = 60,
-		SPACE_DELAY = 0.1,
-		SCENE_FAR = 500,
-		SCENE_KNOCK = 6,
-		SCENE_RETRY = 6,
-		IGNORE_TIME = getgenv().TT_IGNORE_TIME or false
-	}
-	
-	-- Biến phụ trợ dùng chung
-	local ttVisited = {}
-	getgenv().__TrickTreatToken = getgenv().__TrickTreatToken or 0
-	local ttBusyAt = 0
-	local HW_MOBS = { jackolantern = true, pumpkinsnowman = true }
-
-	local function normName(s) return (string.lower(tostring(s or "")):gsub("[^%w]", "")) end
-	local function getHRP()
-		local ch = game.Players.LocalPlayer.Character
-		return ch and ch:FindFirstChild("HumanoidRootPart")
-	end
-	local function FruitFarmY() return 15 end
-
-	local function pivotOf(o)
-		if not o or not o.Parent then return nil end
-		if o:IsA("Model") then
-			local ok, cf = pcall(function() return o:GetBoundingBox() end)
-			if ok and cf then return cf end
-			return o:GetPivot()
-		elseif o:IsA("BasePart") then return o.CFrame end
-		return nil
-	end
-
-	local function collectPumpkins()
-		local list = {}
-		local root = workspace:FindFirstChild("PumpkinHunt")
-		if not root then return list end
-		for _, c in ipairs(root:GetChildren()) do
-			if c:IsA("Model") or c:IsA("BasePart") then
-				table.insert(list, c)
-			elseif c:IsA("Folder") then
-				for _, cc in ipairs(c:GetChildren()) do
-					if cc:IsA("Model") or cc:IsA("BasePart") then table.insert(list, cc) end
-				end
-			end
-		end
-		return list
-	end
-
-	local lastEquip = 0
-	local function equipMelee()
-		if tick() - lastEquip < 0.3 then return end
-		lastEquip = tick()
 		pcall(function()
-			local lp = game:GetService("Players").LocalPlayer
-			local char = lp.Character
-			local hum = char and char:FindFirstChildOfClass("Humanoid")
-			local tool = NameWeapon and NameWeapon("Melee", true)
-			if hum and tool and not hum.Sit and tool.Parent ~= char then hum:EquipTool(tool) end
+			local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 10)
+			if not pg then return end
+			if getgenv().__PumpkinItemConn then pcall(function() getgenv().__PumpkinItemConn:Disconnect() end) end
+			getgenv().__PumpkinItemConn = getgenv().__BF_Track(pg.DescendantAdded:Connect(function(o) pcall(hookHWI, o) end))
+			for _, o in ipairs(pg:GetDescendants()) do
+				if o:IsA("TextLabel") or o:IsA("TextButton") then
+					getgenv().__BF_Track(o:GetPropertyChangedSignal("Text"):Connect(function() pcall(checkHWI, o.Text) end))
+				end
+			end
 		end)
-	end
 
-	local CLICK_UDIM = UDim2.new(0.15, 0, 0.15, 0)
-	local function doClick()
-		local vim = game:GetService("VirtualInputManager")
-		local vp = workspace.CurrentCamera.ViewportSize
-		local x = vp.X * CLICK_UDIM.X.Scale + CLICK_UDIM.X.Offset
-		local y = vp.Y * CLICK_UDIM.Y.Scale + CLICK_UDIM.Y.Offset
-		vim:SendMouseButtonEvent(x, y, 0, true, game, 1)
-		vim:SendMouseButtonEvent(x, y, 0, false, game, 1)
-	end
-
-	-- [FIX NẰM NGANG] Tạo CFrame đứng thẳng để giữ thăng bằng, không bị ngửa
-	local function getUprightHover(hrp)
-		local look = Vector3.new(hrp.CFrame.LookVector.X, 0, hrp.CFrame.LookVector.Z)
-		if look.Magnitude < 0.1 then look = Vector3.new(0, 0, -1) else look = look.Unit end
-		return CFrame.lookAt(hrp.Position, hrp.Position + look)
-	end
-
-	-- Tọa độ trung tâm các đảo để ép game load nhà cửa (chống StreamingEnabled)
-	local function getIslandCenter()
-		if game.PlaceId == getgenv().CheckPlaceId3 then
-			return CFrame.new(-703.16748, 9.55188751, 1575.1864)
-		elseif game.PlaceId == getgenv().CheckPlaceId2 then
-			return CFrame.new(-385.250916, 73.0458984, 297.388397)
-		elseif game.PlaceId == getgenv().CheckPlaceId then
-			return CFrame.new(-12548, 337, -7481)
-		end
-		return CFrame.new(0, 100, 0)
-	end
-
-	local ttPumpkinClicked = setmetatable({}, { __mode = "k" })
-	local function ttClickPumpkin()
-		if not TT.PUMPKIN_CLICK then return false end
-		local hrp = getHRP()
-		if not hrp then return false end
-		local best, bestD, bestPos
-		local now = tick()
-		for _, pumpkin in ipairs(collectPumpkins()) do
-			local cf = pivotOf(pumpkin)
-			local last = ttPumpkinClicked[pumpkin] or 0
-			if cf and now - last >= TT.PUMPKIN_COOLDOWN then
-				local dist = (cf.Position - hrp.Position).Magnitude
-				if dist <= TT.PUMPKIN_RANGE and (not bestD or dist < bestD) then
-					best, bestD, bestPos = pumpkin, dist, cf.Position
-				end
-			end
-		end
-		if best and bestPos then
-			local cam = workspace.CurrentCamera
-			if not cam then return false end
-			local screenPos, onScreen = cam:WorldToViewportPoint(bestPos)
-			if not onScreen or screenPos.Z <= 0 then return false end
-			ttPumpkinClicked[best] = now
-			local vim = game:GetService("VirtualInputManager")
-			vim:SendMouseButtonEvent(screenPos.X, screenPos.Y, 0, true, game, 1)
-			vim:SendMouseButtonEvent(screenPos.X, screenPos.Y, 0, false, game, 1)
-			return true
-		end
-		return false
-	end
-
-	getgenv().__TTMatchingRun = getgenv().__TTMatchingRun or false
-	getgenv().__TTMatchingSolver = function(tok)
-		if getgenv().__TTMatchingRun then return end
-		getgenv().__TTMatchingRun = true
-		task.spawn(function()
-			local function visibleCards()
-				local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-				if not pg then return nil end
-				local groups = {}
-				for _, o in ipairs(pg:GetDescendants()) do
-					if o:IsA("GuiButton") and o.Visible and o.AbsoluteSize.X >= 45 and o.AbsoluteSize.Y >= 70 then
-						local ratio = o.AbsoluteSize.X / math.max(o.AbsoluteSize.Y, 1)
-						if ratio >= 0.38 and ratio <= 0.82 then
-							local par = o.Parent
-							groups[par] = groups[par] or {}
-							table.insert(groups[par], o)
-						end
-					end
-				end
-				local best
-				for _, list in pairs(groups) do
-					if #list == 10 and (not best or list[1].AbsoluteSize.Y > best[1].AbsoluteSize.Y) then best = list end
-				end
-				if not best then
-					for _, list in pairs(groups) do
-						if #list > 10 then
-							table.sort(list, function(a,b)
-								if math.abs(a.AbsolutePosition.Y-b.AbsolutePosition.Y) > 25 then return a.AbsolutePosition.Y < b.AbsolutePosition.Y end
-								return a.AbsolutePosition.X < b.AbsolutePosition.X
-							end)
-							local pick = {}
-							for n=1,10 do pick[n]=list[n] end
-							best = pick
-							break
-						end
-					end
-				end
-				if best then
-					table.sort(best, function(a,b)
-						if math.abs(a.AbsolutePosition.Y-b.AbsolutePosition.Y) > 25 then return a.AbsolutePosition.Y < b.AbsolutePosition.Y end
-						return a.AbsolutePosition.X < b.AbsolutePosition.X
-					end)
-				end
-				return best
-			end
-			local function signature(card)
-				local parts = {}
-				local function add(o)
-					if o:IsA("ImageLabel") or o:IsA("ImageButton") then
-						if o.Image and o.Image ~= "" then parts[#parts+1] = "I:"..o.Image end
-					elseif o:IsA("TextLabel") or o:IsA("TextButton") then
-						if o.Text and o.Text ~= "" then parts[#parts+1] = "T:"..o.Text end
-					end
-				end
-				add(card)
-				for _, d in ipairs(card:GetDescendants()) do add(d) end
-				table.sort(parts)
-				return table.concat(parts, "|")
-			end
-			local function clickCard(card)
-				if not card or not card.Parent then return end
-				if firesignal then
-					pcall(function() firesignal(card.Activated) end)
-					pcall(function() firesignal(card.MouseButton1Click) end)
-				end
-				local pos = card.AbsolutePosition + card.AbsoluteSize/2
-				local vim = game:GetService("VirtualInputManager")
-				pcall(function()
-					vim:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 1)
-					vim:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 1)
-				end)
-			end
-			local currentCards, backs, known, matched = nil, {}, {}, {}
-			local phase, first, second, phaseAt = "idle", nil, nil, 0
-			local cooldown = 0
-			while Settings[TT.KEY] and getgenv().__TrickTreatToken == tok do
-				task.wait(0.15)
-				local cards = visibleCards()
-				if cards and #cards == 10 then
-					local changed = not currentCards or cards[1] ~= currentCards[1]
-					if changed then
-						currentCards, backs, known, matched = cards, {}, {}, {}
-						for i,c in ipairs(cards) do backs[i] = signature(c) end
-						phase, first, second = "idle", nil, nil
-					end
-					if tick() >= cooldown then
-						if phase == "idle" then
-							local a,b
-							for i=1,10 do
-								if known[i] and not matched[i] then
-									for j=i+1,10 do
-										if known[j] == known[i] and not matched[j] then a,b=i,j; break end
-									end
-								end
-								if a then break end
-							end
-							if a then
-								clickCard(cards[a]); task.wait(0.25); clickCard(cards[b])
-								matched[a], matched[b] = true, true
-								cooldown = tick()+1
-							else
-								for i=1,10 do
-									if not matched[i] and not known[i] then a=i; break end
-								end
-								if a then first=a; clickCard(cards[a]); phase="one"; phaseAt=tick() end
-							end
-						elseif phase == "one" and tick()-phaseAt >= 0.45 then
-							if cards[first] and cards[first].Parent then
-								local sig=signature(cards[first])
-								if sig ~= backs[first] then known[first]=sig end
-							end
-							local a
-							for i=1,10 do if i~=first and not matched[i] and not known[i] then a=i; break end end
-							if not a then for i=1,10 do if i~=first and not matched[i] then a=i; break end end end
-							if a then second=a; clickCard(cards[a]); phase="two"; phaseAt=tick() else phase="idle" end
-						elseif phase == "two" and tick()-phaseAt >= 0.55 then
-							local sig1=signature(cards[first])
-							local sig2=signature(cards[second])
-							if sig1 ~= backs[first] then known[first]=sig1 end
-							if sig2 ~= backs[second] then known[second]=sig2 end
-							if known[first] and known[first]==known[second] then
-								matched[first], matched[second]=true,true
-								phase="idle"; cooldown=tick()+0.6
-							else phase="hide"; phaseAt=tick() end
-						elseif phase == "hide" and tick()-phaseAt >= 1.2 then phase="idle"; cooldown=tick()+0.2 end
-					end
-				else currentCards=nil; phase="idle" end
-			end
-			getgenv().__TTMatchingRun=false
-		end)
-	end
-
-	local TT_SKIP_TEXTS = { "still busy with another door", "nobody is home" }
-	local function ttIsBusyText(txt)
-		if type(txt) ~= "string" then return false end
-		local low = string.lower(txt)
-		for _, pat in ipairs(TT_SKIP_TEXTS) do if string.find(low, pat, 1, true) then return true end end
-		return false
-	end
-	local function ttHookLabel(o)
-		if not o:IsA("TextLabel") then return end
-		if ttIsBusyText(o.Text) then ttBusyAt = tick() end
-		o:GetPropertyChangedSignal("Text"):Connect(function()
-			if ttIsBusyText(o.Text) then ttBusyAt = tick() end
-		end)
-	end
-	local function ttEnsureBusyHook()
-		if getgenv().__TrickTreatBusyConn then pcall(function() getgenv().__TrickTreatBusyConn:Disconnect() end) end
-		local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
-		getgenv().__TrickTreatBusyConn = pg.DescendantAdded:Connect(function(o) pcall(ttHookLabel, o) end)
-	end
-
-	local function collectDoors()
-		local list = {}
-		local map = workspace:FindFirstChild("Map")
-		if not map then return list end
-		for _, island in ipairs(map:GetChildren()) do
-			local decor = island:FindFirstChild("HalloweenDecor")
-			if decor then
-				for _, d in ipairs(decor:GetDescendants()) do
-					if d.Name == "HalloweenDoor" and (d:IsA("Model") or d:IsA("BasePart")) then table.insert(list, d) end
-				end
-			end
-		end
-		local extraRoots = { { "Turtle", "IslandModel", "HalloweenHotel" }, { "Dressrosa", "Dressrosa" } }
-		for _, path in ipairs(extraRoots) do
-			local node = map
-			for _, name in ipairs(path) do node = node and node:FindFirstChild(name) end
-			if node then
-				for _, d in ipairs(node:GetChildren()) do
-					if d.Name == "HalloweenDoor" and (d:IsA("Model") or d:IsA("BasePart")) then table.insert(list, d) end
-				end
-			end
-		end
-		return list
-	end
-
-	local function nearestDoor()
-		local hrp = getHRP()
-		if not hrp then return nil end
-		local best, bestD = nil, math.huge
-		for _, d in ipairs(collectDoors()) do
-			if (ttVisited[d] or 0) < tick() then
-				local cf = pivotOf(d)
+		local function nearestPumpkin()
+			local hrp = getHRP()
+			if not hrp then return nil end
+			local best, bestD = nil, math.huge
+			local now = tick()
+			for _, p in ipairs(collectPumpkins()) do
+				local skipUntil = HWI.skip[p]
+				if skipUntil and now >= skipUntil then HWI.skip[p] = nil; skipUntil = nil end
+				local cf = not skipUntil and pivotOf(p)
 				if cf then
-					local dist = (cf.Position - hrp.Position).Magnitude
-					if dist < bestD then best, bestD = d, dist end
+					local d = (cf.Position - hrp.Position).Magnitude
+					if d < bestD then best, bestD = p, d end
 				end
 			end
+			return best
 		end
-		return best
-	end
 
-	local function ttPickStandDirs(door, cf, hrp)
-		local params = RaycastParams.new()
-		params.FilterType = Enum.RaycastFilterType.Exclude
-		params.FilterDescendantsInstances = { game:GetService("Players").LocalPlayer.Character, door }
-		params.IgnoreWater = true
-		local raw = { cf.LookVector, -cf.LookVector, cf.RightVector, -cf.RightVector }
-		local cands = {}
-		for _, v in ipairs(raw) do
-			local d = Vector3.new(v.X, 0, v.Z)
-			if d.Magnitude > 0.1 then
-				d = d.Unit
-				local dup = false
-				for _, c in ipairs(cands) do if c.dir:Dot(d) > 0.99 then dup = true; break end end
-				if not dup then
-					local pos = cf.Position + d * TT.STAND_DIST
-					local score = 0
-					pcall(function()
-						local up = workspace:Raycast(pos + Vector3.new(0, 2, 0), Vector3.new(0, 60, 0), params)
-						if up and up.Instance.Transparency < 1 then score = score + 2 end
-						local toDoor = (cf.Position - pos) * 0.8
-						if workspace:Raycast(pos, toDoor, params) then score = score + 3 end
-					end)
-					score = score + (hrp.Position - pos).Magnitude * 0.001
-					table.insert(cands, { dir = d, score = score })
-				end
-			end
-		end
-		table.sort(cands, function(a, b) return a.score < b.score end)
-		local out = {}
-		for _, c in ipairs(cands) do table.insert(out, c.dir) end
-		if #out == 0 then out[1] = Vector3.new(0, 0, 1) end
-		return out
-	end
-
-	local PPS = game:GetService("ProximityPromptService")
-	local ttShownPrompts = getgenv().__TTShownPrompts
-	if not ttShownPrompts then
-		ttShownPrompts = setmetatable({}, { __mode = "k" })
-		getgenv().__TTShownPrompts = ttShownPrompts
-	end
-	for _, c in ipairs(getgenv().__TTPromptConns or {}) do pcall(function() c:Disconnect() end) end
-	getgenv().__TTPromptConns = {
-		PPS.PromptShown:Connect(function(pr) ttShownPrompts[pr] = true end),
-		PPS.PromptHidden:Connect(function(pr) ttShownPrompts[pr] = nil end),
-	}
-
-	local function promptShown(door)
-		local prompt = door and door:FindFirstChildWhichIsA("ProximityPrompt", true)
-		if not prompt then return false end
-		pcall(function() prompt.RequiresLineOfSight = false end)
-		return ttShownPrompts[prompt] == true and prompt.Enabled
-	end
-
-	local function pressE(door)
-		if not door or not door.Parent then return false end
-		local vim = game:GetService("VirtualInputManager")
-		local prompt = door:FindFirstChildWhichIsA("ProximityPrompt", true)
-		local hold = prompt and math.max(0, prompt.HoldDuration) or 0
-		local fired = false
-		if prompt and prompt.Enabled then
-			pcall(function()
-				prompt.RequiresLineOfSight = false
-				prompt.MaxActivationDistance = math.max(prompt.MaxActivationDistance, 18)
-			end)
-			pcall(function() prompt:InputHoldBegin(); fired = true end)
-			if fireproximityprompt then pcall(fireproximityprompt, prompt, math.max(hold + 0.15, 0.25)); fired = true end
-		end
-		pcall(function() vim:SendKeyEvent(true, Enum.KeyCode.E, false, game) end)
-		task.wait(math.max(hold, 0.15) + 0.05)
-		pcall(function() vim:SendKeyEvent(false, Enum.KeyCode.E, false, game) end)
-		if prompt then pcall(function() prompt:InputHoldEnd() end) end
-		return fired or prompt == nil
-	end
-
-	local function getDialogue()
-		local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-		local dg = pg and pg:FindFirstChild("DialogueGui")
-		if not dg or (dg:IsA("ScreenGui") and not dg.Enabled) then return nil end
-		local fallbackSc
-		for _, ol in ipairs(dg:GetDescendants()) do
-			if ol.Name == "optionsList" then
-				local sc = ol:FindFirstChild("scroller")
-				if sc then
-					fallbackSc = fallbackSc or sc
-					for _, o in ipairs(sc:GetChildren()) do
-						if o:IsA("GuiObject") and string.find(o.Name, "option1", 1, true) and not string.find(o.Name, "option1%d")
-							and o.Visible and o.AbsoluteSize.X > 0 and o.AbsoluteSize.Y > 0 then return sc, o end
+		local function findJackMob()
+			local hrp = getHRP()
+			if not hrp then return nil end
+			local best, bestD = nil, JACK_RANGE
+			local enemies = workspace:FindFirstChild("Enemies")
+			if enemies then
+				for _, m in ipairs(enemies:GetChildren()) do
+					if HW_MOBS[normName(m.Name)] and IsMobAlive(m) then
+						local d = (m.HumanoidRootPart.Position - hrp.Position).Magnitude
+						if d <= bestD then best, bestD = m, d end
 					end
 				end
 			end
+			return best
 		end
-		return fallbackSc, nil
-	end
 
-	local function getDialogueFrame()
-		local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-		local dg = pg and pg:FindFirstChild("DialogueGui")
-		if not dg or (dg:IsA("ScreenGui") and not dg.Enabled) then return nil end
-		for _, c in ipairs(dg:GetChildren()) do
-			if string.sub(c.Name, 1, 6) == "table:" and (not c:IsA("GuiObject") or c.Visible) then return c end
-		end
-		return nil
-	end
-
-	local function clickGui(o)
-		local btn = o:IsA("GuiButton") and o or o:FindFirstChildWhichIsA("GuiButton", true)
-		if btn and firesignal then
-			for _, sig in ipairs({ "MouseButton1Click", "Activated" }) do pcall(function() firesignal(btn[sig]) end) end
-		end
-		local vim = game:GetService("VirtualInputManager")
-		local pos = o.AbsolutePosition + o.AbsoluteSize / 2
-		local sg = o:FindFirstAncestorWhichIsA("ScreenGui")
-		if sg and not sg.IgnoreGuiInset then pos = pos + (game:GetService("GuiService"):GetGuiInset()) end
-		vim:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 1)
-		vim:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 1)
-	end
-
-	local ttWinCache, ttWinAt = true, 0
-	local function ttInWindow(fresh)
-		if TT.IGNORE_TIME then return true end
-		if fresh or tick() - ttWinAt > 1 then
-			ttWinAt = tick()
-			ttWinCache = (tonumber(os.date("%M")) or 0) < TT.WINDOW_MIN
-		end
-		return ttWinCache
-	end
-	
-	getgenv().__TT_CheckTime = ttInWindow
-
-	-- [QUAN TRỌNG] Trả lại quyền cho các chức năng khác khi hết giờ
-	local function ttSetActive(v)
-		if v then
-			StackFarm = false
-			StackFarmOther = false
-			pcall(BananaOwner, TT.KEY)
-		else
-			StackFarm = true
-			StackFarmOther = true
-		end
-		getgenv().__TrickTreatActive = v and true or nil
-	end
-
-	local function ttValid(tok)
-		return Settings[TT.KEY] and getgenv().__TrickTreatToken == tok and ttInWindow()
-	end
-
-	local ttIgnoreMob = setmetatable({}, { __mode = "k" })
-	local function findAnyMob()
-		local hrp = getHRP()
-		local enemies = workspace:FindFirstChild("Enemies")
-		if not hrp or not enemies then return nil end
-		local boss = enemies:FindFirstChild("Hellfire Gas")
-		if boss and IsMobAlive(boss) then return boss end
-		local best, bestD = nil, TT.MOB_RANGE
-		for _, m in ipairs(enemies:GetChildren()) do
-			if (ttIgnoreMob[m] or 0) < tick() and not HW_MOBS[normName(m.Name)] and IsMobAlive(m) then
-				local d = (m.HumanoidRootPart.Position - hrp.Position).Magnitude
-				if d <= bestD then best, bestD = m, d end
-			end
-		end
-		return best
-	end
-
-	local function pressSpace()
-		local vim = game:GetService("VirtualInputManager")
-		vim:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
-		task.wait(0.03)
-		vim:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
-	end
-
-	local function farmTTMob(mob, tok, spamSpace, noRange)
-		local isBoss = mob.Name == "Hellfire Gas"
-		noRange = noRange or isBoss
-		local startT = tick()
-		local lastSpace = 0
-		repeat
-			task.wait()
-			if not ttValid(tok) then return end
-			if spamSpace and tick() - lastSpace >= TT.SPACE_DELAY then
-				lastSpace = tick()
-				task.spawn(pcall, pressSpace)
-			end
-			if not isBoss and tick() - startT > TT.MOB_TIMEOUT then
-				ttIgnoreMob[mob] = tick() + 30
-				return
-			end
-			local hrp = getHRP()
-			if not hrp or not mob:FindFirstChild("HumanoidRootPart") then return end
-			if not noRange and (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > TT.MOB_RANGE then return end
-			pcall(function()
-				UsedualFlock()
-				ClickM1(mob)
-				local r = mob.HumanoidRootPart
-				local fy = Settings["Select Weapon"] == "Blox Fruit" and FruitFarmY() or BuddhaFarmY()
-				local tcf = r.CFrame * CFrame.new(0, fy, 0)
-				if r.Position.Y < TT.WATER_Y then
-					local p = tcf.Position
-					tcf = CFrame.new(p.X, math.max(p.Y, TT.WATER_MIN_Y), p.Z) * (tcf - p)
+		local function farmJackMob(mob)
+			repeat
+				task.wait()
+				if not Settings[HW_KEY] or not stackOk() then return end
+				local hrp = getHRP()
+				if not hrp or (mob:FindFirstChild("HumanoidRootPart") and (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > JACK_RANGE) then return end
+				
+				if Settings["Kill Aura Jack O' Lantern"] and normName(mob.Name) == "jackolantern" then
+					pcall(function()
+						local enemies = workspace:FindFirstChild("Enemies")
+						if not enemies then return end
+						for _, m in ipairs(enemies:GetChildren()) do
+							local r, h = m:FindFirstChild("HumanoidRootPart"), m:FindFirstChild("Humanoid")
+							if r and h and normName(m.Name) == "jackolantern" and IsMobAlive(m) and (r.Position - hrp.Position).Magnitude <= 300 then
+								h:ChangeState(Enum.HumanoidStateType.Dead)
+							end
+						end
+					end)
 				end
-				toTarget(tcf)
-			end)
-		until not IsMobAlive(mob)
-	end
+				pcall(function()
+					UsedualFlock()
+					ClickM1(mob)
+					if Settings["Select Weapon"] == "Blox Fruit" then
+						toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, FruitFarmY(), 0))
+					else
+						toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, BuddhaFarmY(), 0))
+					end
+				end)
+			until not IsMobAlive(mob)
+		end
 
-	local function runDoor(door, tok)
-		local t0 = tick()
-		local standCFrame = nil 
-		local standList, standIdx, switches, arrived, goneAt
-		local sawDialogue = false
-		local lastE, lastClick, lastScreen = 0, 0, 0
-		local lastFlyCall = 0 
-		while ttValid(tok) do
-			task.wait()
-			local hrp = getHRP()
-			local cf = pivotOf(door)
-			if not hrp or not cf then return end
-			local mob = findAnyMob()
-			if mob then
-				farmTTMob(mob, tok)
-				t0, arrived, standCFrame = tick(), nil, nil
-				continue
-			end
+		local function farmPumpkin(p)
+			local startT = tick()
+			local standDir
+			local lastAttackT = 0 
 			
-			if not standList then standList, standIdx, switches = ttPickStandDirs(door, cf, hrp), 1, 0 end
+			local size = Vector3.new(10, 10, 10)
+			if p:IsA("Model") then
+				local ok, ext = pcall(function() return p:GetExtentsSize() end)
+				if ok then size = ext end
+			elseif p:IsA("BasePart") then size = p.Size end
+			local maxRadius = math.max(size.X, size.Y, size.Z) / 2
+			local standDist = math.max(PUMPKIN_SIDE_DIST, maxRadius + 3)
 			
-			if not standCFrame then
-				standCFrame = CFrame.lookAt(cf.Position + standList[standIdx] * TT.STAND_DIST, cf.Position)
-			end
-			
-			local distToStand = (hrp.Position - standCFrame.Position).Magnitude
-			local sc, opt = getDialogue()
-			if not opt and getDialogueFrame() and tick() - lastScreen >= TT.CLICK_DELAY then
-				lastScreen = tick()
-				pcall(doClick)
-			end
-			
-			if sc then
-				sawDialogue, goneAt = true, nil
-				if tick() - lastFlyCall > 0.25 then 
-					lastFlyCall = tick()
-					if distToStand > 3 then pcall(toTarget, standCFrame) end
+			local standCFrame = nil
+			local lastFlyCall = 0
+			local lastDist = math.huge
+			local stuckStart = 0
+
+			repeat
+				task.wait()
+				if not Settings[HW_KEY] or not stackOk() then return end
+				
+				local ch = game.Players.LocalPlayer.Character
+				local stun = ch and ch:FindFirstChild("Stun")
+				if stun and stun.Value ~= 0 then task.wait(0.5); continue end
+				
+				if lastAttackT > 0 and HWI.got >= lastAttackT then HWI.skip[p] = tick() + HWI.time; return end
+				if findJackMob() then return end
+				
+				local hrp = getHRP()
+				local cf = pivotOf(p)
+				if not hrp or not cf then return end
+				equipMelee()
+				
+				if not standDir then
+					local d = hrp.Position - cf.Position
+					d = Vector3.new(d.X, 0, d.Z)
+					standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
 				end
-				if opt and tick() - lastClick >= TT.CLICK_DELAY then lastClick = tick(); pcall(clickGui, opt) end
-			elseif sawDialogue then
-				goneAt = goneAt or tick()
-				if tick() - goneAt > 1.5 then
-					local w0 = tick()
-					while ttValid(tok) and tick() - w0 < 3 and not door:FindFirstChild("SceneWindow") do task.wait(0.1) end
-					return
-				end
-			else
-				if tick() - lastFlyCall > 0.25 then 
-					lastFlyCall = tick()
-					if distToStand > 3 then pcall(toTarget, standCFrame) end
+				if not standCFrame then
+					local standPos = Vector3.new(
+						cf.Position.X + standDir.X * standDist,
+						cf.Position.Y, 
+						cf.Position.Z + standDir.Z * standDist
+					)
+					standCFrame = CFrame.new(standPos)
 				end
 				
-				if distToStand <= 8 then
-					arrived = arrived or tick()
-					if ttBusyAt >= arrived then return end
-					local doorPrompt = door:FindFirstChildWhichIsA("ProximityPrompt", true)
-					if tick() - lastE >= math.max(TT.CLICK_DELAY, 0.65) and (not doorPrompt or doorPrompt.Enabled)
-						and (promptShown(door) or (doorPrompt and (hrp.Position - cf.Position).Magnitude <= 10)) then
-						lastE = tick()
-						task.spawn(function() pcall(pressE, door) end)
-					end
-					if tick() - arrived > TT.SIDE_SWITCH then
-						switches = switches + 1
-						if switches >= #standList then return end
-						standIdx = standIdx % #standList + 1
-						standCFrame = nil 
-						arrived = nil
-					end
-				else arrived = nil end
-			end
-		end
-	end
-
-	local ttSceneSkip = setmetatable({}, { __mode = "k" })
-	local function findSceneDoor()
-		for _, d in ipairs(collectDoors()) do
-			local sw = d:FindFirstChild("SceneWindow")
-			if sw and (ttSceneSkip[d] or 0) < tick() and pivotOf(sw) then return d, sw end
-		end
-		return nil
-	end
-
-	local function flyBack(pos, tok)
-		local t0 = tick()
-		local lastFly = 0
-		while ttValid(tok) and tick() - t0 < 15 do
-			task.wait()
-			local hrp = getHRP()
-			if not hrp or (hrp.Position - pos).Magnitude <= 8 then return end
-			if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, CFrame.new(pos)) end
-		end
-	end
-
-	getgenv().__TTInRealm = function()
-		local hrp = getHRP()
-		local map = workspace:FindFirstChild("Map")
-		local realm = map and map:FindFirstChild("HellfireBossRealm")
-		if not hrp or not realm then return false end
-		local ok, inside = pcall(function()
-			local cf, size
-			if realm:IsA("Model") then cf, size = realm:GetBoundingBox()
-			else
-				local mn, mx
-				for _, d in ipairs(realm:GetDescendants()) do
-					if d:IsA("BasePart") then
-						local lo, hi = d.Position - d.Size / 2, d.Position + d.Size / 2
-						mn = mn and Vector3.new(math.min(mn.X, lo.X), math.min(mn.Y, lo.Y), math.min(mn.Z, lo.Z)) or lo
-						mx = mx and Vector3.new(math.max(mx.X, hi.X), math.max(mx.Y, hi.Y), math.max(mx.Z, hi.Z)) or hi
+				local distToStand = (hrp.Position - standCFrame.Position).Magnitude
+				local distToCenter = (hrp.Position - cf.Position).Magnitude
+				
+				if distToStand > 5 then
+					if math.abs(distToStand - lastDist) < 0.5 then
+						if stuckStart == 0 then stuckStart = tick() end
+					else stuckStart = 0 end
+					lastDist = distToStand
+				else stuckStart, lastDist = 0, distToStand end
+				
+				local isStuck = (stuckStart > 0) and (tick() - stuckStart > 1.5)
+				local canAttack = (distToStand <= PUMPKIN_HOLD_TOL + 3) or (isStuck and distToCenter <= (getgenv().__PumpkinHitRange or 30))
+				
+				if canAttack then
+					local beforeAt = getgenv().__PumpkinAttackAt
+					pumpkinHuntAttack(p)
+					local afterAt = getgenv().__PumpkinAttackAt
+					if afterAt and afterAt ~= beforeAt then lastAttackT = afterAt end
+				else
+					if tick() - lastFlyCall > 0.2 then
+						lastFlyCall = tick()
+						local targetCFrame = standCFrame
+						if distToStand > 12 then
+							local highPos = standCFrame.Position + Vector3.new(0, 15, 0)
+							if (hrp.Position - highPos).Magnitude > 5 then targetCFrame = CFrame.new(highPos) end
+						end
+						pcall(function() toTarget(targetCFrame) end)
 					end
 				end
-				if not mn then return false end
-				cf, size = CFrame.new((mn + mx) / 2), mx - mn
+			until not p.Parent or tick() - startT > 12
+			if p and p.Parent then HWI.skip[p] = tick() + 3 end
+		end
+
+		HalloweenSection.CreateToggle(
+			{ Title = "Auto Farm Pumpkin Hunt", Desc = "Fly to nearest pumpkin, then kill Jack O' Lantern / Pumpkin Snowman", Default = Settings[HW_KEY] or false },
+			function(state)
+				SaveSettings(HW_KEY, state)
+				if not state then return end
+				spawn(function()
+					while Settings[HW_KEY] and task.wait() do
+						local ok, err = pcall(function()
+							if not stackOk() then return end
+							local mob = findJackMob()
+							if mob then farmJackMob(mob) return end
+							local p = nearestPumpkin()
+							if p then farmPumpkin(p); task.wait(0.1) else task.wait(0.5) end
+						end)
+						if not ok then warn("[PumpkinHunt] " .. tostring(err)) end
+					end
+				end)
 			end
-			local rel = cf:PointToObjectSpace(hrp.Position)
-			return math.abs(rel.X) <= size.X / 2 + 20 and math.abs(rel.Y) <= size.Y / 2 + 80 and math.abs(rel.Z) <= size.Z / 2 + 20
-		end)
-		return ok and inside == true
+		)
+
+		HalloweenSection.CreateToggle(
+			{ Title = "Kill Aura Jack O' Lantern", Desc = "Kill Jack within 300 studs (needs Auto Farm Pumpkin Hunt)", Default = Settings["Kill Aura Jack O' Lantern"] or false },
+			function(state) SaveSettings("Kill Aura Jack O' Lantern", state) end
+		)
 	end
 
-	local function sceneFight(oldPos, tok)
-		local lastFly = 0
-		local hoverCFrame = nil 
-		while ttValid(tok) do
-			task.wait(0.1)
+	-- =====================================================================
+	-- PHẦN 3: AUTO FARM PUMPKIN SNOWMAN
+	-- =====================================================================
+	do
+		local SN_KEY = "Auto Farm Pumpkin Snowman"
+		local SNHOP_KEY = "Auto Hop Find Pumpkin Patch"
+		local SN_GRACE = 6
+		getgenv().__PSnowToken = getgenv().__PSnowToken or 0
+		getgenv().__PSnowHopToken = getgenv().__PSnowHopToken or 0
+
+		local function findPatch()
+			local root = workspace:FindFirstChild("PumpkinHunt")
+			local p = root and root:FindFirstChild("PumpkinPatch")
+			if p and pivotOf(p) then return p end
+			return nil
+		end
+
+		local function findSnowMob()
 			local hrp = getHRP()
-			if hrp then
-				if not getgenv().__TTInRealm() and (hrp.Position - oldPos).Magnitude < TT.SCENE_FAR then return end
-				local mob = findAnyMob()
-				if mob then 
-					farmTTMob(mob, tok, true)
-					hoverCFrame = nil
-				else 
-					if not hoverCFrame then hoverCFrame = getUprightHover(hrp) end
-					if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, hoverCFrame) end
+			local enemies = workspace:FindFirstChild("Enemies")
+			if not hrp or not enemies then return nil end
+			local best, bestD = nil, JACK_RANGE
+			for _, m in ipairs(enemies:GetChildren()) do
+				if normName(m.Name) == "pumpkinsnowman" and IsMobAlive(m) then
+					local d = (m.HumanoidRootPart.Position - hrp.Position).Magnitude
+					if d <= bestD then best, bestD = m, d end
 				end
 			end
+			return best
 		end
-	end
 
-	local function runScene(door, sw, tok)
-		local hrp = getHRP()
-		local swCf = pivotOf(sw)
-		if not hrp or not swCf then return end
-		local oldPos = hrp.Position
-		local pressTarget = sw:FindFirstChildWhichIsA("ProximityPrompt", true) and sw or door
-		local lastFly = 0
-		for attempt = 1, TT.SCENE_RETRY do
-			if not ttValid(tok) then return end
-			local teleported = false
-			local t0, arrived = tick(), nil
-			local lastE, lastScreen, lastOpt = 0, 0, 0
-			local stand
-			while ttValid(tok) do
+		local function snValid(tok) return Settings[SN_KEY] and getgenv().__PSnowToken == tok and stackOk() end
+
+		local function farmSnowMob(mob, tok)
+			repeat
 				task.wait()
-				local h = getHRP()
-				local cf = pivotOf(sw)
-				if not h then break end
-				if getgenv().__TTInRealm() or (h.Position - oldPos).Magnitude > TT.SCENE_FAR then teleported = true; break end
-				if not cf then break end
-				local enemiesF = workspace:FindFirstChild("Enemies")
-				local gateBoss = enemiesF and enemiesF:FindFirstChild("Hellfire Gas")
-				if gateBoss and IsMobAlive(gateBoss) then farmTTMob(gateBoss, tok, nil, true); t0, arrived = tick(), nil; continue end
-				local mob = findAnyMob()
-				if mob then farmTTMob(mob, tok); t0, arrived = tick(), nil; continue end
-				if not stand then
-					local dir = h.Position - cf.Position
-					dir = Vector3.new(dir.X, 0, dir.Z)
-					dir = dir.Magnitude > 0.1 and dir.Unit or Vector3.new(0, 0, 1)
-					stand = CFrame.lookAt(cf.Position + dir * 3, cf.Position)
-				end
-				if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, stand) end
-				local _, o1 = getDialogue()
-				if o1 then
-					if tick() - lastOpt >= TT.CLICK_DELAY then lastOpt = tick(); pcall(clickGui, o1) end
-				elseif getDialogueFrame() and tick() - lastScreen >= TT.CLICK_DELAY then lastScreen = tick(); pcall(doClick) end
-				if (h.Position - stand.Position).Magnitude <= 8 then
-					arrived = arrived or tick()
-					if ttBusyAt >= arrived then break end
-					if tick() - lastE >= TT.CLICK_DELAY and promptShown(pressTarget) then lastE = tick(); task.spawn(pcall, pressE, pressTarget) end
-					if tick() - arrived > TT.SCENE_KNOCK then break end
-				elseif tick() - t0 > 40 then break end
-			end
-			if teleported then sceneFight(oldPos, tok); ttSceneSkip[door] = tick() + TT.REVISIT; return end
-			if not pivotOf(sw) then return end
-			flyBack(oldPos, tok) 
+				if not snValid(tok) then return end
+				local hrp = getHRP()
+				if not hrp or not mob:FindFirstChild("HumanoidRootPart") or (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > JACK_RANGE then return end
+				pcall(function()
+					UsedualFlock()
+					ClickM1(mob)
+					if Settings["Select Weapon"] == "Blox Fruit" then
+						toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, FruitFarmY(), 0))
+					else
+						toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, BuddhaFarmY(), 0))
+					end
+				end)
+			until not IsMobAlive(mob)
 		end
-		ttSceneSkip[door] = tick() + TT.REVISIT
+
+		local function farmPatch(p, tok)
+			local startT = tick()
+			local standDir
+			repeat
+				task.wait()
+				if not snValid(tok) then return end
+				if findSnowMob() then return end
+				local hrp = getHRP()
+				local cf = pivotOf(p)
+				if not hrp or not cf then return end
+				equipMelee()
+				if not standDir then
+					local d = hrp.Position - cf.Position
+					d = Vector3.new(d.X, 0, d.Z)
+					standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
+				end
+				local stand = CFrame.new(cf.Position + standDir * PUMPKIN_SIDE_DIST)
+				if (hrp.Position - stand.Position).Magnitude <= PUMPKIN_HOLD_TOL then
+					pcall(function() toTarget(hrp.CFrame) end)
+					pumpkinHuntAttack(p)
+				else
+					pcall(function() toTarget(stand) end)
+				end
+			until not p.Parent or tick() - startT > 12
+		end
+
+		HalloweenSection.CreateToggle(
+			{ Title = "Auto Farm Pumpkin Snowman", Desc = "Only fly to PumpkinPatch and kill Pumpkin Snowman", Default = Settings[SN_KEY] or false },
+			function(state)
+				SaveSettings(SN_KEY, state)
+				getgenv().__PSnowToken = getgenv().__PSnowToken + 1
+				if not state then return end
+				local tok = getgenv().__PSnowToken
+				spawn(function()
+					while snValid(tok) or (Settings[SN_KEY] and getgenv().__PSnowToken == tok) do
+						task.wait()
+						pcall(function()
+							if not stackOk() then return end
+							local mob = findSnowMob()
+							if mob then farmSnowMob(mob, tok); return end
+							local patch = findPatch()
+							if patch then farmPatch(patch, tok) end
+						end)
+					end
+				end)
+			end
+		)
+
+		HalloweenSection.CreateToggle(
+			{ Title = "Auto Hop Find Pumpkin Patch", Desc = "Hop server if no PumpkinPatch and no Snowman", Default = Settings[SNHOP_KEY] or false },
+			function(state)
+				SaveSettings(SNHOP_KEY, state)
+				getgenv().__PSnowHopToken = getgenv().__PSnowHopToken + 1
+				if not state then return end
+				local tok = getgenv().__PSnowHopToken
+				local function hasTarget() return (findPatch() or findSnowMob()) ~= nil end
+				spawn(function()
+					local missingSince
+					while Settings[SNHOP_KEY] and getgenv().__PSnowHopToken == tok do
+						task.wait(0.5)
+						pcall(function()
+							if not Settings[SN_KEY] or not stackOk() or not game:IsLoaded() or not getHRP() then missingSince = nil; return end
+							if hasTarget() then missingSince = nil; return end
+							missingSince = missingSince or tick()
+							if tick() - missingSince < SN_GRACE then return end
+							HopServer(nil, function()
+								return not Settings[SNHOP_KEY] or not Settings[SN_KEY] or getgenv().__PSnowHopToken ~= tok or not stackOk() or hasTarget()
+							end)
+							missingSince = nil
+						end)
+					end
+				end)
+			end
+		)
 	end
 
-	local function ttGhostChase(tok)
-		local SWITCH, TIMEOUT, SKIP = 0.2, 120, 30 
-		local function items()
+	-- =====================================================================
+	-- PHẦN 4: AUTO TRICK OR TREAT
+	-- =====================================================================
+	do
+		local TT = {
+			KEY = "Auto Trick Or Treat", REVISIT = 120, CLICK_DELAY = 0.3, PUMPKIN_CLICK = true,
+			PUMPKIN_RANGE = 180, PUMPKIN_COOLDOWN = 3, STAND_DIST = 3, SIDE_SWITCH = 3, WINDOW_MIN = 10,
+			MOB_RANGE = 200, WATER_Y = 0, WATER_MIN_Y = 3, MOB_TIMEOUT = 60, SPACE_DELAY = 0.1,
+			SCENE_FAR = 500, SCENE_KNOCK = 6, SCENE_RETRY = 6, IGNORE_TIME = getgenv().TT_IGNORE_TIME or false
+		}
+		local ttVisited = {}
+		getgenv().__TrickTreatToken = getgenv().__TrickTreatToken or 0
+		local ttBusyAt = 0
+		
+		local function getUprightHover(hrp)
+			local look = Vector3.new(hrp.CFrame.LookVector.X, 0, hrp.CFrame.LookVector.Z)
+			if look.Magnitude < 0.1 then look = Vector3.new(0, 0, -1) else look = look.Unit end
+			return CFrame.lookAt(hrp.Position, hrp.Position + look)
+		end
+
+		local function getIslandCenter()
+			if game.PlaceId == getgenv().CheckPlaceId3 then return CFrame.new(-703.16748, 9.55188751, 1575.1864)
+			elseif game.PlaceId == getgenv().CheckPlaceId2 then return CFrame.new(-385.250916, 73.0458984, 297.388397)
+			elseif game.PlaceId == getgenv().CheckPlaceId then return CFrame.new(-12548, 337, -7481) end
+			return CFrame.new(0, 100, 0)
+		end
+
+		local ttPumpkinClicked = setmetatable({}, { __mode = "k" })
+		local function ttClickPumpkin()
+			if not TT.PUMPKIN_CLICK then return false end
+			local hrp = getHRP()
+			if not hrp then return false end
+			local best, bestD, bestPos
+			local now = tick()
+			for _, pumpkin in ipairs(collectPumpkins()) do
+				local cf = pivotOf(pumpkin)
+				local last = ttPumpkinClicked[pumpkin] or 0
+				if cf and now - last >= TT.PUMPKIN_COOLDOWN then
+					local dist = (cf.Position - hrp.Position).Magnitude
+					if dist <= TT.PUMPKIN_RANGE and (not bestD or dist < bestD) then best, bestD, bestPos = pumpkin, dist, cf.Position end
+				end
+			end
+			if best and bestPos then
+				local cam = workspace.CurrentCamera
+				if not cam then return false end
+				local screenPos, onScreen = cam:WorldToViewportPoint(bestPos)
+				if not onScreen or screenPos.Z <= 0 then return false end
+				ttPumpkinClicked[best] = now
+				local vim = game:GetService("VirtualInputManager")
+				vim:SendMouseButtonEvent(screenPos.X, screenPos.Y, 0, true, game, 1)
+				vim:SendMouseButtonEvent(screenPos.X, screenPos.Y, 0, false, game, 1)
+				return true
+			end
+			return false
+		end
+
+		getgenv().__TTMatchingRun = getgenv().__TTMatchingRun or false
+		getgenv().__TTMatchingSolver = function(tok)
+			if getgenv().__TTMatchingRun then return end
+			getgenv().__TTMatchingRun = true
+			task.spawn(function()
+				local function visibleCards() -- code rút gọn...
+					local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+					if not pg then return nil end
+					local groups = {}
+					for _, o in ipairs(pg:GetDescendants()) do
+						if o:IsA("GuiButton") and o.Visible and o.AbsoluteSize.X >= 45 and o.AbsoluteSize.Y >= 70 then
+							local ratio = o.AbsoluteSize.X / math.max(o.AbsoluteSize.Y, 1)
+							if ratio >= 0.38 and ratio <= 0.82 then
+								local par = o.Parent
+								groups[par] = groups[par] or {}
+								table.insert(groups[par], o)
+							end
+						end
+					end
+					local best
+					for _, list in pairs(groups) do if #list == 10 and (not best or list[1].AbsoluteSize.Y > best[1].AbsoluteSize.Y) then best = list end end
+					if not best then
+						for _, list in pairs(groups) do
+							if #list > 10 then
+								table.sort(list, function(a,b)
+									if math.abs(a.AbsolutePosition.Y-b.AbsolutePosition.Y) > 25 then return a.AbsolutePosition.Y < b.AbsolutePosition.Y end
+									return a.AbsolutePosition.X < b.AbsolutePosition.X
+								end)
+								local pick = {}
+								for n=1,10 do pick[n]=list[n] end
+								best = pick
+								break
+							end
+						end
+					end
+					if best then
+						table.sort(best, function(a,b)
+							if math.abs(a.AbsolutePosition.Y-b.AbsolutePosition.Y) > 25 then return a.AbsolutePosition.Y < b.AbsolutePosition.Y end
+							return a.AbsolutePosition.X < b.AbsolutePosition.X
+						end)
+					end
+					return best
+				end
+				local function signature(card)
+					local parts = {}
+					local function add(o)
+						if o:IsA("ImageLabel") or o:IsA("ImageButton") then
+							if o.Image and o.Image ~= "" then parts[#parts+1] = "I:"..o.Image end
+						elseif o:IsA("TextLabel") or o:IsA("TextButton") then
+							if o.Text and o.Text ~= "" then parts[#parts+1] = "T:"..o.Text end
+						end
+					end
+					add(card)
+					for _, d in ipairs(card:GetDescendants()) do add(d) end
+					table.sort(parts)
+					return table.concat(parts, "|")
+				end
+				local function clickCard(card)
+					if not card or not card.Parent then return end
+					if firesignal then pcall(function() firesignal(card.Activated) end) pcall(function() firesignal(card.MouseButton1Click) end) end
+					local pos = card.AbsolutePosition + card.AbsoluteSize/2
+					local vim = game:GetService("VirtualInputManager")
+					pcall(function()
+						vim:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 1)
+						vim:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 1)
+					end)
+				end
+				local currentCards, backs, known, matched = nil, {}, {}, {}
+				local phase, first, second, phaseAt = "idle", nil, nil, 0
+				local cooldown = 0
+				while Settings[TT.KEY] and getgenv().__TrickTreatToken == tok do
+					task.wait(0.15)
+					local cards = visibleCards()
+					if cards and #cards == 10 then
+						local changed = not currentCards or cards[1] ~= currentCards[1]
+						if changed then
+							currentCards, backs, known, matched = cards, {}, {}, {}
+							for i,c in ipairs(cards) do backs[i] = signature(c) end
+							phase, first, second = "idle", nil, nil
+						end
+						if tick() >= cooldown then
+							if phase == "idle" then
+								local a,b
+								for i=1,10 do
+									if known[i] and not matched[i] then
+										for j=i+1,10 do if known[j] == known[i] and not matched[j] then a,b=i,j; break end end
+									end
+									if a then break end
+								end
+								if a then
+									clickCard(cards[a]); task.wait(0.25); clickCard(cards[b])
+									matched[a], matched[b] = true, true
+									cooldown = tick()+1
+								else
+									for i=1,10 do if not matched[i] and not known[i] then a=i; break end end
+									if a then first=a; clickCard(cards[a]); phase="one"; phaseAt=tick() end
+								end
+							elseif phase == "one" and tick()-phaseAt >= 0.45 then
+								if cards[first] and cards[first].Parent then
+									local sig=signature(cards[first])
+									if sig ~= backs[first] then known[first]=sig end
+								end
+								local a
+								for i=1,10 do if i~=first and not matched[i] and not known[i] then a=i; break end end
+								if not a then for i=1,10 do if i~=first and not matched[i] then a=i; break end end end
+								if a then second=a; clickCard(cards[a]); phase="two"; phaseAt=tick() else phase="idle" end
+							elseif phase == "two" and tick()-phaseAt >= 0.55 then
+								local sig1=signature(cards[first]); local sig2=signature(cards[second])
+								if sig1 ~= backs[first] then known[first]=sig1 end
+								if sig2 ~= backs[second] then known[second]=sig2 end
+								if known[first] and known[first]==known[second] then
+									matched[first], matched[second]=true,true; phase="idle"; cooldown=tick()+0.6
+								else phase="hide"; phaseAt=tick() end
+							elseif phase == "hide" and tick()-phaseAt >= 1.2 then phase="idle"; cooldown=tick()+0.2 end
+						end
+					else currentCards=nil; phase="idle" end
+				end
+				getgenv().__TTMatchingRun=false
+			end)
+		end
+
+		local TT_SKIP_TEXTS = { "still busy with another door", "nobody is home" }
+		local function ttIsBusyText(txt)
+			if type(txt) ~= "string" then return false end
+			local low = string.lower(txt)
+			for _, pat in ipairs(TT_SKIP_TEXTS) do if string.find(low, pat, 1, true) then return true end end
+			return false
+		end
+		local function ttHookLabel(o)
+			if not o:IsA("TextLabel") then return end
+			if ttIsBusyText(o.Text) then ttBusyAt = tick() end
+			o:GetPropertyChangedSignal("Text"):Connect(function() if ttIsBusyText(o.Text) then ttBusyAt = tick() end end)
+		end
+		local function ttEnsureBusyHook()
+			if getgenv().__TrickTreatBusyConn then pcall(function() getgenv().__TrickTreatBusyConn:Disconnect() end) end
+			local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+			getgenv().__TrickTreatBusyConn = pg.DescendantAdded:Connect(function(o) pcall(ttHookLabel, o) end)
+		end
+
+		local function collectDoors()
 			local list = {}
-			local root = workspace:FindFirstChild("GhostChase")
-			if root then
-				for _, c in ipairs(root:GetChildren()) do
-					if c:IsA("Model") or c:IsA("BasePart") then table.insert(list, c) end
+			local map = workspace:FindFirstChild("Map")
+			if not map then return list end
+			for _, island in ipairs(map:GetChildren()) do
+				local decor = island:FindFirstChild("HalloweenDecor")
+				if decor then
+					for _, d in ipairs(decor:GetDescendants()) do
+						if d.Name == "HalloweenDoor" and (d:IsA("Model") or d:IsA("BasePart")) then table.insert(list, d) end
+					end
+				end
+			end
+			local extraRoots = { { "Turtle", "IslandModel", "HalloweenHotel" }, { "Dressrosa", "Dressrosa" } }
+			for _, path in ipairs(extraRoots) do
+				local node = map
+				for _, name in ipairs(path) do node = node and node:FindFirstChild(name) end
+				if node then
+					for _, d in ipairs(node:GetChildren()) do
+						if d.Name == "HalloweenDoor" and (d:IsA("Model") or d:IsA("BasePart")) then table.insert(list, d) end
+					end
 				end
 			end
 			return list
 		end
-		if tick() < (getgenv().__TTGhostSkip or 0) or #items() == 0 then return false end
-		ttSetActive(true)
-		local visited = setmetatable({}, { __mode = "k" })
-		local startT = tick()
-		local lastFly = 0
-		local hoverCFrame = nil 
-		while ttValid(tok) and tick() - startT < TIMEOUT do
-			task.wait()
+
+		local function nearestDoor()
 			local hrp = getHRP()
-			if not hrp then return true end
-			local list = items()
-			if #list == 0 then return true end
-			local best, bestD
-			for pass = 1, 2 do
-				for _, c in ipairs(list) do
-					local cf = not visited[c] and pivotOf(c)
+			if not hrp then return nil end
+			local best, bestD = nil, math.huge
+			for _, d in ipairs(collectDoors()) do
+				if (ttVisited[d] or 0) < tick() then
+					local cf = pivotOf(d)
 					if cf then
-						local d = (cf.Position - hrp.Position).Magnitude
-						if not bestD or d < bestD then best, bestD = c, d end
+						local dist = (cf.Position - hrp.Position).Magnitude
+						if dist < bestD then best, bestD = d, dist end
 					end
 				end
-				if best then break end
-				table.clear(visited)
 			end
-			if not best then
-				if not hoverCFrame then hoverCFrame = getUprightHover(hrp) end
-				if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, hoverCFrame) end
-			else
-				hoverCFrame = nil
-				visited[best] = true
-				local t1 = tick()
-				while ttValid(tok) and best.Parent and tick() - t1 < SWITCH do
-					local cf = pivotOf(best)
-					if not getHRP() or not cf then break end
-					if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, CFrame.new(cf.Position)) end
+			return best
+		end
+
+		local function ttPickStandDirs(door, cf, hrp)
+			local params = RaycastParams.new()
+			params.FilterType = Enum.RaycastFilterType.Exclude
+			params.FilterDescendantsInstances = { game:GetService("Players").LocalPlayer.Character, door }
+			params.IgnoreWater = true
+			local raw = { cf.LookVector, -cf.LookVector, cf.RightVector, -cf.RightVector }
+			local cands = {}
+			for _, v in ipairs(raw) do
+				local d = Vector3.new(v.X, 0, v.Z)
+				if d.Magnitude > 0.1 then
+					d = d.Unit
+					local dup = false
+					for _, c in ipairs(cands) do if c.dir:Dot(d) > 0.99 then dup = true; break end end
+					if not dup then
+						local pos = cf.Position + d * TT.STAND_DIST
+						local score = 0
+						pcall(function()
+							local up = workspace:Raycast(pos + Vector3.new(0, 2, 0), Vector3.new(0, 60, 0), params)
+							if up and up.Instance.Transparency < 1 then score = score + 2 end
+							local toDoor = (cf.Position - pos) * 0.8
+							if workspace:Raycast(pos, toDoor, params) then score = score + 3 end
+						end)
+						score = score + (hrp.Position - pos).Magnitude * 0.001
+						table.insert(cands, { dir = d, score = score })
+					end
+				end
+			end
+			table.sort(cands, function(a, b) return a.score < b.score end)
+			local out = {}
+			for _, c in ipairs(cands) do table.insert(out, c.dir) end
+			if #out == 0 then out[1] = Vector3.new(0, 0, 1) end
+			return out
+		end
+
+		local PPS = game:GetService("ProximityPromptService")
+		local ttShownPrompts = getgenv().__TTShownPrompts
+		if not ttShownPrompts then ttShownPrompts = setmetatable({}, { __mode = "k" }); getgenv().__TTShownPrompts = ttShownPrompts end
+		for _, c in ipairs(getgenv().__TTPromptConns or {}) do pcall(function() c:Disconnect() end) end
+		getgenv().__TTPromptConns = {
+			PPS.PromptShown:Connect(function(pr) ttShownPrompts[pr] = true end),
+			PPS.PromptHidden:Connect(function(pr) ttShownPrompts[pr] = nil end),
+		}
+
+		local function promptShown(door)
+			local prompt = door and door:FindFirstChildWhichIsA("ProximityPrompt", true)
+			if not prompt then return false end
+			pcall(function() prompt.RequiresLineOfSight = false end)
+			return ttShownPrompts[prompt] == true and prompt.Enabled
+		end
+
+		local function pressE(door)
+			if not door or not door.Parent then return false end
+			local vim = game:GetService("VirtualInputManager")
+			local prompt = door:FindFirstChildWhichIsA("ProximityPrompt", true)
+			local hold = prompt and math.max(0, prompt.HoldDuration) or 0
+			local fired = false
+			if prompt and prompt.Enabled then
+				pcall(function() prompt.RequiresLineOfSight = false; prompt.MaxActivationDistance = math.max(prompt.MaxActivationDistance, 18) end)
+				pcall(function() prompt:InputHoldBegin(); fired = true end)
+				if fireproximityprompt then pcall(fireproximityprompt, prompt, math.max(hold + 0.15, 0.25)); fired = true end
+			end
+			pcall(function() vim:SendKeyEvent(true, Enum.KeyCode.E, false, game) end)
+			task.wait(math.max(hold, 0.15) + 0.05)
+			pcall(function() vim:SendKeyEvent(false, Enum.KeyCode.E, false, game) end)
+			if prompt then pcall(function() prompt:InputHoldEnd() end) end
+			return fired or prompt == nil
+		end
+
+		local function getDialogue()
+			local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+			local dg = pg and pg:FindFirstChild("DialogueGui")
+			if not dg or (dg:IsA("ScreenGui") and not dg.Enabled) then return nil end
+			local fallbackSc
+			for _, ol in ipairs(dg:GetDescendants()) do
+				if ol.Name == "optionsList" then
+					local sc = ol:FindFirstChild("scroller")
+					if sc then
+						fallbackSc = fallbackSc or sc
+						for _, o in ipairs(sc:GetChildren()) do
+							if o:IsA("GuiObject") and string.find(o.Name, "option1", 1, true) and not string.find(o.Name, "option1%d")
+								and o.Visible and o.AbsoluteSize.X > 0 and o.AbsoluteSize.Y > 0 then return sc, o end
+						end
+					end
+				end
+			end
+			return fallbackSc, nil
+		end
+
+		local function getDialogueFrame()
+			local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+			local dg = pg and pg:FindFirstChild("DialogueGui")
+			if not dg or (dg:IsA("ScreenGui") and not dg.Enabled) then return nil end
+			for _, c in ipairs(dg:GetChildren()) do
+				if string.sub(c.Name, 1, 6) == "table:" and (not c:IsA("GuiObject") or c.Visible) then return c end
+			end
+			return nil
+		end
+
+		local function clickGui(o)
+			local btn = o:IsA("GuiButton") and o or o:FindFirstChildWhichIsA("GuiButton", true)
+			if btn and firesignal then
+				for _, sig in ipairs({ "MouseButton1Click", "Activated" }) do pcall(function() firesignal(btn[sig]) end) end
+			end
+			local vim = game:GetService("VirtualInputManager")
+			local pos = o.AbsolutePosition + o.AbsoluteSize / 2
+			local sg = o:FindFirstAncestorWhichIsA("ScreenGui")
+			if sg and not sg.IgnoreGuiInset then pos = pos + (game:GetService("GuiService"):GetGuiInset()) end
+			vim:SendMouseButtonEvent(pos.X, pos.Y, 0, true, game, 1)
+			vim:SendMouseButtonEvent(pos.X, pos.Y, 0, false, game, 1)
+		end
+
+		local ttWinCache, ttWinAt = true, 0
+		local function ttInWindow(fresh)
+			if TT.IGNORE_TIME then return true end
+			if fresh or tick() - ttWinAt > 1 then ttWinAt = tick(); ttWinCache = (tonumber(os.date("%M")) or 0) < TT.WINDOW_MIN end
+			return ttWinCache
+		end
+		getgenv().__TT_CheckTime = ttInWindow
+
+		local function ttSetActive(v)
+			if v then StackFarm = false; StackFarmOther = false; pcall(BananaOwner, TT.KEY)
+			else StackFarm = true; StackFarmOther = true end
+			getgenv().__TrickTreatActive = v and true or nil
+		end
+
+		local function ttValid(tok) return Settings[TT.KEY] and getgenv().__TrickTreatToken == tok and ttInWindow() end
+		local ttIgnoreMob = setmetatable({}, { __mode = "k" })
+
+		local function findAnyMob()
+			local hrp = getHRP()
+			local enemies = workspace:FindFirstChild("Enemies")
+			if not hrp or not enemies then return nil end
+			local boss = enemies:FindFirstChild("Hellfire Gas")
+			if boss and IsMobAlive(boss) then return boss end
+			local best, bestD = nil, TT.MOB_RANGE
+			for _, m in ipairs(enemies:GetChildren()) do
+				if (ttIgnoreMob[m] or 0) < tick() and not HW_MOBS[normName(m.Name)] and IsMobAlive(m) then
+					local d = (m.HumanoidRootPart.Position - hrp.Position).Magnitude
+					if d <= bestD then best, bestD = m, d end
+				end
+			end
+			return best
+		end
+
+		local function pressSpace()
+			local vim = game:GetService("VirtualInputManager")
+			vim:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+			task.wait(0.03)
+			vim:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+		end
+
+		local function farmTTMob(mob, tok, spamSpace, noRange)
+			local isBoss = mob.Name == "Hellfire Gas"
+			noRange = noRange or isBoss
+			local startT = tick()
+			local lastSpace = 0
+			repeat
+				task.wait()
+				if not ttValid(tok) then return end
+				if spamSpace and tick() - lastSpace >= TT.SPACE_DELAY then lastSpace = tick(); task.spawn(pcall, pressSpace) end
+				if not isBoss and tick() - startT > TT.MOB_TIMEOUT then ttIgnoreMob[mob] = tick() + 30; return end
+				local hrp = getHRP()
+				if not hrp or not mob:FindFirstChild("HumanoidRootPart") then return end
+				if not noRange and (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > TT.MOB_RANGE then return end
+				pcall(function()
+					UsedualFlock()
+					ClickM1(mob)
+					local r = mob.HumanoidRootPart
+					local fy = Settings["Select Weapon"] == "Blox Fruit" and FruitFarmY() or BuddhaFarmY()
+					local tcf = r.CFrame * CFrame.new(0, fy, 0)
+					if r.Position.Y < TT.WATER_Y then
+						local p = tcf.Position
+						tcf = CFrame.new(p.X, math.max(p.Y, TT.WATER_MIN_Y), p.Z) * (tcf - p)
+					end
+					toTarget(tcf)
+				end)
+			until not IsMobAlive(mob)
+		end
+
+		local function runDoor(door, tok)
+			local t0 = tick()
+			local standCFrame = nil 
+			local standList, standIdx, switches, arrived, goneAt
+			local sawDialogue = false
+			local lastE, lastClick, lastScreen = 0, 0, 0
+			local lastFlyCall = 0 
+			while ttValid(tok) do
+				task.wait()
+				local hrp = getHRP()
+				local cf = pivotOf(door)
+				if not hrp or not cf then return end
+				local mob = findAnyMob()
+				if mob then farmTTMob(mob, tok); t0, arrived, standCFrame = tick(), nil, nil; continue end
+				if not standList then standList, standIdx, switches = ttPickStandDirs(door, cf, hrp), 1, 0 end
+				if not standCFrame then standCFrame = CFrame.lookAt(cf.Position + standList[standIdx] * TT.STAND_DIST, cf.Position) end
+				local distToStand = (hrp.Position - standCFrame.Position).Magnitude
+				local sc, opt = getDialogue()
+				if not opt and getDialogueFrame() and tick() - lastScreen >= TT.CLICK_DELAY then lastScreen = tick(); pcall(doClick) end
+				if sc then
+					sawDialogue, goneAt = true, nil
+					if tick() - lastFlyCall > 0.25 then lastFlyCall = tick(); if distToStand > 3 then pcall(toTarget, standCFrame) end end
+					if opt and tick() - lastClick >= TT.CLICK_DELAY then lastClick = tick(); pcall(clickGui, opt) end
+				elseif sawDialogue then
+					goneAt = goneAt or tick()
+					if tick() - goneAt > 1.5 then
+						local w0 = tick()
+						while ttValid(tok) and tick() - w0 < 3 and not door:FindFirstChild("SceneWindow") do task.wait(0.1) end
+						return
+					end
+				else
+					if tick() - lastFlyCall > 0.25 then lastFlyCall = tick(); if distToStand > 3 then pcall(toTarget, standCFrame) end end
+					if distToStand <= 8 then
+						arrived = arrived or tick()
+						if ttBusyAt >= arrived then return end
+						local doorPrompt = door:FindFirstChildWhichIsA("ProximityPrompt", true)
+						if tick() - lastE >= math.max(TT.CLICK_DELAY, 0.65) and (not doorPrompt or doorPrompt.Enabled)
+							and (promptShown(door) or (doorPrompt and (hrp.Position - cf.Position).Magnitude <= 10)) then
+							lastE = tick()
+							task.spawn(function() pcall(pressE, door) end)
+						end
+						if tick() - arrived > TT.SIDE_SWITCH then
+							switches = switches + 1
+							if switches >= #standList then return end
+							standIdx = standIdx % #standList + 1
+							standCFrame = nil 
+							arrived = nil
+						end
+					else arrived = nil end
+				end
+			end
+		end
+
+		local ttSceneSkip = setmetatable({}, { __mode = "k" })
+		local function findSceneDoor()
+			for _, d in ipairs(collectDoors()) do
+				local sw = d:FindFirstChild("SceneWindow")
+				if sw and (ttSceneSkip[d] or 0) < tick() and pivotOf(sw) then return d, sw end
+			end
+			return nil
+		end
+
+		local function flyBack(pos, tok)
+			local t0 = tick()
+			local lastFly = 0
+			while ttValid(tok) and tick() - t0 < 15 do
+				task.wait()
+				local hrp = getHRP()
+				if not hrp or (hrp.Position - pos).Magnitude <= 8 then return end
+				if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, CFrame.new(pos)) end
+			end
+		end
+
+		getgenv().__TTInRealm = function()
+			local hrp = getHRP()
+			local map = workspace:FindFirstChild("Map")
+			local realm = map and map:FindFirstChild("HellfireBossRealm")
+			if not hrp or not realm then return false end
+			local ok, inside = pcall(function()
+				local cf, size
+				if realm:IsA("Model") then cf, size = realm:GetBoundingBox()
+				else
+					local mn, mx
+					for _, d in ipairs(realm:GetDescendants()) do
+						if d:IsA("BasePart") then
+							local lo, hi = d.Position - d.Size / 2, d.Position + d.Size / 2
+							mn = mn and Vector3.new(math.min(mn.X, lo.X), math.min(mn.Y, lo.Y), math.min(mn.Z, lo.Z)) or lo
+							mx = mx and Vector3.new(math.max(mx.X, hi.X), math.max(mx.Y, hi.Y), math.max(mx.Z, hi.Z)) or hi
+						end
+					end
+					if not mn then return false end
+					cf, size = CFrame.new((mn + mx) / 2), mx - mn
+				end
+				local rel = cf:PointToObjectSpace(hrp.Position)
+				return math.abs(rel.X) <= size.X / 2 + 20 and math.abs(rel.Y) <= size.Y / 2 + 80 and math.abs(rel.Z) <= size.Z / 2 + 20
+			end)
+			return ok and inside == true
+		end
+
+		local function sceneFight(oldPos, tok)
+			local lastFly = 0
+			local hoverCFrame = nil 
+			while ttValid(tok) do
+				task.wait(0.1)
+				local hrp = getHRP()
+				if hrp then
+					if not getgenv().__TTInRealm() and (hrp.Position - oldPos).Magnitude < TT.SCENE_FAR then return end
+					local mob = findAnyMob()
+					if mob then farmTTMob(mob, tok, true); hoverCFrame = nil
+					else
+						if not hoverCFrame then hoverCFrame = getUprightHover(hrp) end
+						if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, hoverCFrame) end
+					end
+				end
+			end
+		end
+
+		local function runScene(door, sw, tok)
+			local hrp = getHRP()
+			local swCf = pivotOf(sw)
+			if not hrp or not swCf then return end
+			local oldPos = hrp.Position
+			local pressTarget = sw:FindFirstChildWhichIsA("ProximityPrompt", true) and sw or door
+			local lastFly = 0
+			for attempt = 1, TT.SCENE_RETRY do
+				if not ttValid(tok) then return end
+				local teleported = false
+				local t0, arrived = tick(), nil
+				local lastE, lastScreen, lastOpt = 0, 0, 0
+				local stand
+				while ttValid(tok) do
 					task.wait()
-				end
-			end
-		end
-		if ttValid(tok) and #items() > 0 then getgenv().__TTGhostSkip = tick() + SKIP end
-		return true
-	end
-
-	HalloweenSection.CreateToggle(
-		{ Title = "Auto Trick Or Treat", Desc = "Ngoài giờ (10-59) nhường quyền cho các chức năng khác. Đúng giờ (00-09) tự bay tới đảo gõ cửa!", Default = Settings[TT.KEY] or false },
-		function(state)
-			SaveSettings(TT.KEY, state)
-			getgenv().__TrickTreatToken = getgenv().__TrickTreatToken + 1
-			ttSetActive(false)
-			if not state then return end
-			local tok = getgenv().__TrickTreatToken
-			pcall(ttEnsureBusyHook)
-			spawn(function()
-				while Settings[TT.KEY] and getgenv().__TrickTreatToken == tok do
-					task.wait(0.1)
-					local ok, err = pcall(function()
-						if not ttInWindow(true) then
-							ttSetActive(false) 
-							if getgenv().__TT_LastState ~= "Wait" then
-								getgenv().__TT_LastState = "Wait"
-								print("[TrickOrTreat] Chưa tới giờ (Phút 10-59). Đang nhường quyền hoàn toàn cho các chức năng khác...")
-							end
-							task.wait(1)
-							return
-						end
-						
-						if getgenv().__TT_LastState ~= "Active" then
-							getgenv().__TT_LastState = "Active"
-							print("[TrickOrTreat] Đã tới giờ Trick Or Treat (Phút 00-09). Bắt đầu tìm cửa!")
-						end
-						
-						pcall(ttClickPumpkin)
-						pcall(getgenv().__TTMatchingSolver, tok)
-						if getgenv().__TTInRealm() then
-							ttSetActive(true)
-							local rmob = findAnyMob()
-							if rmob then farmTTMob(rmob, tok) else local rh = getHRP(); if rh then pcall(toTarget, getUprightHover(rh)) end end
-							return
-						end
-						if ttGhostChase(tok) then return end
-						
-						local sceneDoor, sceneWin = findSceneDoor()
-						local door = (not sceneDoor) and nearestDoor() or nil
-						
-						if not sceneDoor and not door then
-							ttSetActive(true)
-							local icf = getIslandCenter()
-							if icf then
-								if not getgenv().__TTLoggedDoor then
-									getgenv().__TTLoggedDoor = true
-									print("[TrickOrTreat] Không thấy cửa (đang ở xa). Đang bay tới Đảo Trung Tâm để tìm cửa...")
-								end
-								pcall(toTarget, icf)
-								task.wait(0.5)
-							else
-								local rh = getHRP()
-								if rh then pcall(toTarget, getUprightHover(rh)) end
-								task.wait(1)
-							end
-							return
-						end
-						getgenv().__TTLoggedDoor = false
-						
-						ttSetActive(true)
-						local mob = findAnyMob()
-						if mob then farmTTMob(mob, tok); return end
-						if sceneDoor then runScene(sceneDoor, sceneWin, tok); return end
-						ttVisited[door] = tick() + TT.REVISIT
-						runDoor(door, tok)
-					end)
-					if not ok then warn("[TrickOrTreat] " .. tostring(err)) end
-				end
-				ttSetActive(false)
-			end)
-		end
-	)
-end
-
-	-- ===== Auto Summon + Farm Boss (Witch -> Summon -> GreatPumpkinCompass -> farm boss) =====
-	-- (gói trong function riêng vì scope Halloween đã chạm giới hạn 200 local của Lua)
-	xpcall(function()
-	local DJ_KEY = "Auto Summon + Farm Boss"
-	local DJ_SUMMON_WAIT = 15 -- delay sau Summon rồi mới fly tới compass
-	local DJ_HOLD_E = 1 -- nhấn giữ E ở compass (giây)
-	local DJ_E_DELAY = 0.5 -- tới compass rồi đợi bấy nhiêu giây mới giữ E
-	local DJ_BOSS_WAIT = 90 -- đợi boss spawn tối đa bấy nhiêu giây, quá thì làm lại từ đầu
-	local DJ_ARRIVE = 8 -- tới trong khoảng này của Witch coi là đã tới
-	local DJ_COMPASS_ARRIVE = 6 -- tới trong khoảng này của compass coi là đã tới
-	local DJ_ISLAND_ARRIVE = 40 -- tới trong khoảng này của đảo thì đứng chờ game load NPC
-	getgenv().__DJToken = getgenv().__DJToken or 0
-
-	-- đảo theo từng sea để game load NPC Witch: Sea 1 = đảo trung tâm, Sea 2 = Cafe, Sea 3 = Mansion
-	local function djIslandCF()
-		if game.PlaceId == getgenv().CheckPlaceId3 then
-			return CFrame.new(-703.16748, 9.55188751, 1575.1864)
-		elseif game.PlaceId == getgenv().CheckPlaceId2 then
-			return CFrame.new(-385.250916, 73.0458984, 297.388397)
-		elseif game.PlaceId == getgenv().CheckPlaceId then
-			return CFrame.new(-12548, 337, -7481)
-		end
-		return nil
-	end
-
-	-- boss: workspace.Enemies["Dapper Jack"] (đánh khi đã ở trong arena) và workspace.Enemies["Hellfire Gas"] (đánh ở bất kỳ đâu, không cần vào arena)
-	local DJ_BOSS_NAME = "Dapper Jack"
-	local DJ_GATE_BOSS = "Hellfire Gas"
-	local function djFindNamed(name)
-		local enemies = workspace:FindFirstChild("Enemies")
-		local m = enemies and enemies:FindFirstChild(name)
-		if m and IsMobAlive(m) then
-			return m
-		end
-		return nil
-	end
-	local function djFindGateBoss()
-		return djFindNamed(DJ_GATE_BOSS)
-	end
-	local function djFindBoss()
-		return djFindNamed(DJ_BOSS_NAME) or djFindNamed(DJ_GATE_BOSS)
-	end
-
-	-- đứng im tại chỗ nhưng vẫn giữ float + noclip (gọi mỗi frame)
-	local function djHold()
-		local hrp = getHRP()
-		if hrp then
-			pcall(toTarget, hrp.CFrame)
-		end
-	end
-
-	local function djWait(sec, valid)
-		local t0 = tick()
-		while tick() - t0 < sec and valid() do
-			djHold()
-			task.wait()
-		end
-		return valid()
-	end
-
-	-- fly tới Witch; chưa thấy NPC thì fly tới đảo của sea hiện tại, đứng chờ game load
-	local function djReachWitch(valid)
-		local deadline = tick() + 180
-		while valid() and tick() < deadline do
-			task.wait()
-			local hrp = getHRP()
-			if not hrp then
-				return false
-			end
-			local npcs = workspace:FindFirstChild("NPCs")
-			local w = npcs and npcs:FindFirstChild("Witch")
-			local wcf = w and pivotOf(w)
-			if wcf then
-				if (hrp.Position - wcf.Position).Magnitude <= DJ_ARRIVE then
-					djHold()
-					return true
-				end
-				pcall(toTarget, CFrame.new(wcf.Position))
-			else
-				local icf = djIslandCF()
-				if not icf then
-					return false
-				end
-				if (hrp.Position - icf.Position).Magnitude <= DJ_ISLAND_ARRIVE then
-					djHold()
-				else
-					pcall(toTarget, icf)
-				end
-			end
-		end
-		return false
-	end
-
-	local function djSummon()
-		return pcall(function()
-			return game:GetService("ReplicatedStorage").Remotes.DapperJackRitual:InvokeServer("Summon")
-		end)
-	end
-
-	-- fly tới workspace.GreatPumpkinCompass (đợi tối đa 10s cho compass xuất hiện)
-	local function djReachCompass(valid)
-		local t0 = tick()
-		while valid() and tick() - t0 < 60 do
-			task.wait()
-			local hrp = getHRP()
-			if not hrp then
-				return nil
-			end
-			local c = workspace:FindFirstChild("GreatPumpkinCompass")
-			local cf = c and pivotOf(c)
-			if cf then
-				if (hrp.Position - cf.Position).Magnitude <= DJ_COMPASS_ARRIVE then
-					djHold()
-					return c
-				end
-				pcall(toTarget, CFrame.new(cf.Position))
-			else
-				djHold()
-				if tick() - t0 > 10 then
-					return nil
-				end
-			end
-		end
-		return nil
-	end
-
-	local function djHoldE(obj, valid)
-		local prompt = obj:FindFirstChildWhichIsA("ProximityPrompt", true)
-		local hold = prompt and prompt.HoldDuration or 0
-		local dur = math.max(DJ_HOLD_E, hold + 0.1)
-		local vim = game:GetService("VirtualInputManager")
-		if prompt then
-			pcall(function()
-				prompt.RequiresLineOfSight = false
-			end)
-			pcall(function()
-				prompt:InputHoldBegin()
-			end)
-		end
-		vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-		local t0 = tick()
-		while tick() - t0 < dur and valid() do
-			djHold()
-			task.wait()
-		end
-		vim:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-		if prompt then
-			pcall(function()
-				prompt:InputHoldEnd()
-			end)
-		end
-	end
-
-	local function djWaitBoss(valid, maxSec)
-		local t0 = tick()
-		while valid() and tick() - t0 < (maxSec or DJ_BOSS_WAIT) do
-			local b = djFindBoss()
-			if b then
-				return b
-			end
-			djHold()
-			task.wait()
-		end
-		return nil
-	end
-
-	local function djFarmBoss(boss, valid)
-		repeat
-			task.wait()
-			if not valid() then
-				return
-			end
-			local hrp = getHRP()
-			local r = boss:FindFirstChild("HumanoidRootPart")
-			if not hrp or not r then
-				return
-			end
-			pcall(function()
-				UsedualFlock()
-				ClickM1(boss)
-				if Settings["Select Weapon"] == "Blox Fruit" then
-					toTarget(r.CFrame * CFrame.new(0, FruitFarmY(), 0))
-				else
-					toTarget(r.CFrame * CFrame.new(0, BuddhaFarmY(), 0))
-				end
-			end)
-		until not IsMobAlive(boss)
-	end
-
-	-- nhặt kẹo sau khi boss chết: đợi model xuất hiện trong workspace.CandySpillFx, fly tới đúng model rồi mới đổi sang model khác
-	local DJ_CANDY_WAIT = 10 -- đợi candy xuất hiện tối đa bấy nhiêu giây
-	local DJ_CANDY_ARRIVE = 4 -- tới trong khoảng này của model kẹo coi là đã tới, mới đổi sang model khác
-	local DJ_CANDY_ITEM_TIMEOUT = 6 -- 1 model mà bay mãi không tới được thì bỏ qua sau bấy nhiêu giây (tránh kẹt)
-	local DJ_CANDY_TIMEOUT = 90 -- tổng thời gian nhặt tối đa
-	local DJ_CANDY_IDLE = 1.5 -- hết candy liên tục bấy nhiêu giây thì kết thúc
-
-	local function djCandyItems(skip)
-		local list = {}
-		local root = workspace:FindFirstChild("CandySpillFx")
-		if root then
-			for _, c in ipairs(root:GetChildren()) do
-				if (c:IsA("Model") or c:IsA("BasePart")) and (skip[c] or 0) < tick() then
-					table.insert(list, c)
-				end
-			end
-		end
-		return list
-	end
-
-	local function djCollectCandy(valid)
-		local visited = setmetatable({}, { __mode = "k" }) -- model đã ghé trong lượt hiện tại
-		local t0 = tick()
-		while valid() and tick() - t0 < DJ_CANDY_WAIT and #djCandyItems({}) == 0 do
-			djHold()
-			task.wait()
-		end
-		local startT, lastSeen = tick(), tick()
-		while valid() and tick() - startT < DJ_CANDY_TIMEOUT do
-			task.wait()
-			local hrp = getHRP()
-			if not hrp then
-				return
-			end
-			local items = djCandyItems({})
-			-- chọn model gần nhất chưa ghé; ghé hết rồi thì bắt đầu lượt mới
-			local best, bestD
-			for pass = 1, 2 do
-				for _, c in ipairs(items) do
-					local cf = not visited[c] and pivotOf(c)
-					if cf then
-						local d = (cf.Position - hrp.Position).Magnitude
-						if not bestD or d < bestD then
-							best, bestD = c, d
-						end
-					end
-				end
-				if best or #items == 0 then
-					break
-				end
-				table.clear(visited)
-			end
-			if not best then
-				if tick() - lastSeen > DJ_CANDY_IDLE then
-					return
-				end
-				djHold()
-			else
-				lastSeen = tick()
-				visited[best] = true
-				local t1 = tick()
-				-- phải fly tới đúng model này rồi mới đổi sang model khác (không đợi model biến mất)
-				while valid() and best.Parent and tick() - t1 < DJ_CANDY_ITEM_TIMEOUT do
 					local h = getHRP()
-					local cf = pivotOf(best)
-					if not h or not cf then
-						break
+					local cf = pivotOf(sw)
+					if not h then break end
+					if getgenv().__TTInRealm() or (h.Position - oldPos).Magnitude > TT.SCENE_FAR then teleported = true; break end
+					if not cf then break end
+					local enemiesF = workspace:FindFirstChild("Enemies")
+					local gateBoss = enemiesF and enemiesF:FindFirstChild("Hellfire Gas")
+					if gateBoss and IsMobAlive(gateBoss) then farmTTMob(gateBoss, tok, nil, true); t0, arrived = tick(), nil; continue end
+					local mob = findAnyMob()
+					if mob then farmTTMob(mob, tok); t0, arrived = tick(), nil; continue end
+					if not stand then
+						local dir = h.Position - cf.Position
+						dir = Vector3.new(dir.X, 0, dir.Z)
+						dir = dir.Magnitude > 0.1 and dir.Unit or Vector3.new(0, 0, 1)
+						stand = CFrame.lookAt(cf.Position + dir * 3, cf.Position)
 					end
-					if (h.Position - cf.Position).Magnitude <= DJ_CANDY_ARRIVE then
-						break
+					if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, stand) end
+					local _, o1 = getDialogue()
+					if o1 then
+						if tick() - lastOpt >= TT.CLICK_DELAY then lastOpt = tick(); pcall(clickGui, o1) end
+					elseif getDialogueFrame() and tick() - lastScreen >= TT.CLICK_DELAY then lastScreen = tick(); pcall(doClick) end
+					if (h.Position - stand.Position).Magnitude <= 8 then
+						arrived = arrived or tick()
+						if ttBusyAt >= arrived then break end
+						if tick() - lastE >= TT.CLICK_DELAY and promptShown(pressTarget) then lastE = tick(); task.spawn(pcall, pressE, pressTarget) end
+						if tick() - arrived > TT.SCENE_KNOCK then break end
+					elseif tick() - t0 > 40 then break end
+				end
+				if teleported then sceneFight(oldPos, tok); ttSceneSkip[door] = tick() + TT.REVISIT; return end
+				if not pivotOf(sw) then return end
+				flyBack(oldPos, tok) 
+			end
+			ttSceneSkip[door] = tick() + TT.REVISIT
+		end
+
+		local function ttGhostChase(tok)
+			local SWITCH, TIMEOUT, SKIP = 0.2, 120, 30 
+			local function items()
+				local list = {}
+				local root = workspace:FindFirstChild("GhostChase")
+				if root then
+					for _, c in ipairs(root:GetChildren()) do
+						if c:IsA("Model") or c:IsA("BasePart") then table.insert(list, c) end
 					end
-					pcall(toTarget, CFrame.new(cf.Position))
-					task.wait()
+				end
+				return list
+			end
+			if tick() < (getgenv().__TTGhostSkip or 0) or #items() == 0 then return false end
+			ttSetActive(true)
+			local visited = setmetatable({}, { __mode = "k" })
+			local startT = tick()
+			local lastFly = 0
+			local hoverCFrame = nil 
+			while ttValid(tok) and tick() - startT < TIMEOUT do
+				task.wait()
+				local hrp = getHRP()
+				if not hrp then return true end
+				local list = items()
+				if #list == 0 then return true end
+				local best, bestD
+				for pass = 1, 2 do
+					for _, c in ipairs(list) do
+						local cf = not visited[c] and pivotOf(c)
+						if cf then
+							local d = (cf.Position - hrp.Position).Magnitude
+							if not bestD or d < bestD then best, bestD = c, d end
+						end
+					end
+					if best then break end
+					table.clear(visited)
+				end
+				if not best then
+					if not hoverCFrame then hoverCFrame = getUprightHover(hrp) end
+					if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, hoverCFrame) end
+				else
+					hoverCFrame = nil
+					visited[best] = true
+					local t1 = tick()
+					while ttValid(tok) and best.Parent and tick() - t1 < SWITCH do
+						local cf = pivotOf(best)
+						if not getHRP() or not cf then break end
+						if tick() - lastFly > 0.25 then lastFly = tick(); pcall(toTarget, CFrame.new(cf.Position)) end
+						task.wait()
+					end
 				end
 			end
+			if ttValid(tok) and #items() > 0 then getgenv().__TTGhostSkip = tick() + SKIP end
+			return true
 		end
-	end
 
-	-- hết kẹo: reset player (chết rồi đợi respawn) thay cho ExitPortal
-	local DJ_RESPAWN_TIMEOUT = 20 -- đợi respawn tối đa bấy nhiêu giây
-	local function djResetPlayer(valid)
-		local lp = game:GetService("Players").LocalPlayer
-		local oldChar = lp.Character
-		local hum = oldChar and oldChar:FindFirstChildOfClass("Humanoid")
-		if hum then
-			pcall(function()
-				hum.Health = 0
-			end)
-		end
-		if oldChar then
-			pcall(function()
-				oldChar:BreakJoints()
-			end)
-		end
-		local t0 = tick()
-		while valid() and tick() - t0 < DJ_RESPAWN_TIMEOUT do
-			task.wait()
-			local c = lp.Character
-			if c and c ~= oldChar and getHRP() then
-				break
+		HalloweenSection.CreateToggle(
+			{ Title = "Auto Trick Or Treat", Desc = "Ngoài giờ nhường quyền. Đúng giờ tự bay tới đảo gõ cửa!", Default = Settings[TT.KEY] or false },
+			function(state)
+				SaveSettings(TT.KEY, state)
+				getgenv().__TrickTreatToken = getgenv().__TrickTreatToken + 1
+				ttSetActive(false)
+				if not state then return end
+				local tok = getgenv().__TrickTreatToken
+				pcall(ttEnsureBusyHook)
+				spawn(function()
+					while Settings[TT.KEY] and getgenv().__TrickTreatToken == tok do
+						task.wait(0.1)
+						local ok, err = pcall(function()
+							if not ttInWindow(true) then
+								ttSetActive(false) 
+								if getgenv().__TT_LastState ~= "Wait" then
+									getgenv().__TT_LastState = "Wait"
+									print("[TrickOrTreat] Chưa tới giờ (Phút 10-59). Đang nhường quyền hoàn toàn cho các chức năng khác...")
+								end
+								task.wait(1)
+								return
+							end
+							if getgenv().__TT_LastState ~= "Active" then
+								getgenv().__TT_LastState = "Active"
+								print("[TrickOrTreat] Đã tới giờ Trick Or Treat (Phút 00-09). Bắt đầu tìm cửa!")
+							end
+							pcall(ttClickPumpkin)
+							pcall(getgenv().__TTMatchingSolver, tok)
+							if getgenv().__TTInRealm() then
+								ttSetActive(true)
+								local rmob = findAnyMob()
+								if rmob then farmTTMob(rmob, tok) else local rh = getHRP(); if rh then pcall(toTarget, getUprightHover(rh)) end end
+								return
+							end
+							if ttGhostChase(tok) then return end
+							local sceneDoor, sceneWin = findSceneDoor()
+							local door = (not sceneDoor) and nearestDoor() or nil
+							if not sceneDoor and not door then
+								ttSetActive(true)
+								local icf = getIslandCenter()
+								if icf then
+									if not getgenv().__TTLoggedDoor then
+										getgenv().__TTLoggedDoor = true
+										print("[TrickOrTreat] Không thấy cửa (đang ở xa). Đang bay tới Đảo Trung Tâm để tìm cửa...")
+									end
+									pcall(toTarget, icf)
+									task.wait(0.5)
+								else
+									local rh = getHRP()
+									if rh then pcall(toTarget, getUprightHover(rh)) end
+									task.wait(1)
+								end
+								return
+							end
+							getgenv().__TTLoggedDoor = false
+							ttSetActive(true)
+							local mob = findAnyMob()
+							if mob then farmTTMob(mob, tok); return end
+							if sceneDoor then runScene(sceneDoor, sceneWin, tok); return end
+							ttVisited[door] = tick() + TT.REVISIT
+							runDoor(door, tok)
+						end)
+						if not ok then warn("[TrickOrTreat] " .. tostring(err)) end
+					end
+					ttSetActive(false)
+				end)
 			end
-		end
-		if valid() then
-			task.wait(1) -- đợi character load xong
-		end
+		)
 	end
 
-	-- player đang ở trong khu đánh boss workspace.Map.DapperJackArena (kiểm tra theo bounding box + margin)
-	local DJ_ARENA_MARGIN = Vector3.new(20, 80, 20)
-	local function djInArena()
-		local hrp = getHRP()
-		local map = workspace:FindFirstChild("Map")
-		local arena = map and map:FindFirstChild("DapperJackArena")
-		if not hrp or not arena then
+	-- =====================================================================
+	-- PHẦN 5: AUTO SUMMON + FARM BOSS
+	-- =====================================================================
+	do
+		local DJ_KEY = "Auto Summon + Farm Boss"
+		local DJ_SUMMON_WAIT = 15
+		local DJ_HOLD_E = 1
+		local DJ_E_DELAY = 0.5
+		local DJ_BOSS_WAIT = 90
+		local DJ_ARRIVE = 8
+		local DJ_COMPASS_ARRIVE = 6
+		local DJ_ISLAND_ARRIVE = 40
+		getgenv().__DJToken = getgenv().__DJToken or 0
+
+		local function djIslandCF()
+			if game.PlaceId == getgenv().CheckPlaceId3 then return CFrame.new(-703.16748, 9.55188751, 1575.1864)
+			elseif game.PlaceId == getgenv().CheckPlaceId2 then return CFrame.new(-385.250916, 73.0458984, 297.388397)
+			elseif game.PlaceId == getgenv().CheckPlaceId then return CFrame.new(-12548, 337, -7481) end
+			return nil
+		end
+
+		local DJ_BOSS_NAME = "Dapper Jack"
+		local DJ_GATE_BOSS = "Hellfire Gas"
+		local function djFindNamed(name)
+			local enemies = workspace:FindFirstChild("Enemies")
+			local m = enemies and enemies:FindFirstChild(name)
+			if m and IsMobAlive(m) then return m end
+			return nil
+		end
+		local function djFindGateBoss() return djFindNamed(DJ_GATE_BOSS) end
+		local function djFindBoss() return djFindNamed(DJ_BOSS_NAME) or djFindNamed(DJ_GATE_BOSS) end
+
+		local function djHold()
+			local hrp = getHRP()
+			if hrp then pcall(toTarget, hrp.CFrame) end
+		end
+
+		local function djWait(sec, valid)
+			local t0 = tick()
+			while tick() - t0 < sec and valid() do djHold(); task.wait() end
+			return valid()
+		end
+
+		local function djReachWitch(valid)
+			local deadline = tick() + 180
+			while valid() and tick() < deadline do
+				task.wait()
+				local hrp = getHRP()
+				if not hrp then return false end
+				local npcs = workspace:FindFirstChild("NPCs")
+				local w = npcs and npcs:FindFirstChild("Witch")
+				local wcf = w and pivotOf(w)
+				if wcf then
+					if (hrp.Position - wcf.Position).Magnitude <= DJ_ARRIVE then djHold(); return true end
+					pcall(toTarget, CFrame.new(wcf.Position))
+				else
+					local icf = djIslandCF()
+					if not icf then return false end
+					if (hrp.Position - icf.Position).Magnitude <= DJ_ISLAND_ARRIVE then djHold()
+					else pcall(toTarget, icf) end
+				end
+			end
 			return false
 		end
-		local ok, inside = pcall(function()
-			local cf, size
-			if arena:IsA("Model") then
-				cf, size = arena:GetBoundingBox()
-			else
-				local mn, mx
-				for _, d in ipairs(arena:GetDescendants()) do
-					if d:IsA("BasePart") then
-						local lo, hi = d.Position - d.Size / 2, d.Position + d.Size / 2
-						mn = mn and Vector3.new(math.min(mn.X, lo.X), math.min(mn.Y, lo.Y), math.min(mn.Z, lo.Z)) or lo
-						mx = mx and Vector3.new(math.max(mx.X, hi.X), math.max(mx.Y, hi.Y), math.max(mx.Z, hi.Z)) or hi
-					end
-				end
-				if not mn then
-					return false
-				end
-				cf, size = CFrame.new((mn + mx) / 2), mx - mn
-			end
-			local rel = cf:PointToObjectSpace(hrp.Position)
-			return math.abs(rel.X) <= size.X / 2 + DJ_ARENA_MARGIN.X
-				and math.abs(rel.Y) <= size.Y / 2 + DJ_ARENA_MARGIN.Y
-				and math.abs(rel.Z) <= size.Z / 2 + DJ_ARENA_MARGIN.Z
-		end)
-		return ok and inside == true
-	end
 
-	-- đợi: Hellfire Gas xuất hiện (bất kỳ đâu) HOẶC (player ở trong workspace.Map.DapperJackArena VÀ Dapper Jack xuất hiện)
-	local function djWaitArenaBoss(valid, maxSec)
-		local t0 = tick()
-		while valid() and tick() - t0 < (maxSec or DJ_BOSS_WAIT) do
-			local g = djFindGateBoss()
-			if g then
-				return g
+		local function djSummon()
+			return pcall(function() return game:GetService("ReplicatedStorage").Remotes.DapperJackRitual:InvokeServer("Summon") end)
+		end
+
+		local function djReachCompass(valid)
+			local t0 = tick()
+			while valid() and tick() - t0 < 60 do
+				task.wait()
+				local hrp = getHRP()
+				if not hrp then return nil end
+				local c = workspace:FindFirstChild("GreatPumpkinCompass")
+				local cf = c and pivotOf(c)
+				if cf then
+					if (hrp.Position - cf.Position).Magnitude <= DJ_COMPASS_ARRIVE then djHold(); return c end
+					pcall(toTarget, CFrame.new(cf.Position))
+				else
+					djHold()
+					if tick() - t0 > 10 then return nil end
+				end
 			end
-			if djInArena() then
+			return nil
+		end
+
+		local function djHoldE(obj, valid)
+			local prompt = obj:FindFirstChildWhichIsA("ProximityPrompt", true)
+			local hold = prompt and prompt.HoldDuration or 0
+			local dur = math.max(DJ_HOLD_E, hold + 0.1)
+			local vim = game:GetService("VirtualInputManager")
+			if prompt then
+				pcall(function() prompt.RequiresLineOfSight = false end)
+				pcall(function() prompt:InputHoldBegin() end)
+			end
+			vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+			local t0 = tick()
+			while tick() - t0 < dur and valid() do djHold(); task.wait() end
+			vim:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+			if prompt then pcall(function() prompt:InputHoldEnd() end) end
+		end
+
+		local function djWaitBoss(valid, maxSec)
+			local t0 = tick()
+			while valid() and tick() - t0 < (maxSec or DJ_BOSS_WAIT) do
 				local b = djFindBoss()
-				if b then
-					return b
-				end
+				if b then return b end
+				djHold()
+				task.wait()
 			end
-			djHold()
-			task.wait()
-		end
-		return nil
-	end
-
-	-- đánh boss; Dapper Jack chết thì nhặt kẹo + reset player. Hellfire Gas chết thì làm vòng tiếp luôn (không nhặt/reset)
-	local function djKill(boss, valid)
-		local isGate = boss.Name == DJ_GATE_BOSS
-		djFarmBoss(boss, valid)
-		if isGate then
-			return
-		end
-		if valid() and not IsMobAlive(boss) then
-			djCollectCandy(valid)
-			djResetPlayer(valid)
-		end
-	end
-
-	-- 1 vòng đầy đủ:
-	-- Hellfire Gas đang sống: đánh luôn
-	-- chưa có compass: fly Witch -> Summon -> đợi 15s -> fly compass -> delay 0.5 -> giữ E 1s
-	-- đã có compass:   fly compass -> delay 0.5 -> giữ E 1s
-	-- rồi: đợi (ở trong DapperJackArena + boss xuất hiện) -> đánh boss -> boss chết nhặt CandySpillFx -> hết kẹo reset player
-	-- đang trong arena thì bỏ qua bước Witch / compass.
-	local function djRound(valid)
-		local gate = djFindGateBoss()
-		if gate then
-			djKill(gate, valid)
-			return
-		end
-		local inArena = djInArena()
-		local boss = djFindBoss()
-
-		-- đang trong arena: có boss thì đánh luôn, hết boss mà còn kẹo thì nhặt luôn
-		if inArena then
-			if boss then
-				djKill(boss, valid)
-				return
-			end
-			if #djCandyItems({}) > 0 then
-				djCollectCandy(valid)
-				djResetPlayer(valid)
-				return
-			end
-			-- trong arena mà không có boss lẫn kẹo: đợi boss ngắn rồi reset để làm lại
-			boss = djWaitArenaBoss(valid, 15)
-			if not boss then
-				if valid() and djInArena() then
-					djResetPlayer(valid)
-				end
-				return
-			end
-		else
-			local hasCompass = workspace:FindFirstChild("GreatPumpkinCompass") ~= nil
-			-- boss đang sống mà không có compass (ritual đã chạy): không summon lại, chỉ đợi vào arena + boss
-			if not (boss and not hasCompass) then
-				if not hasCompass then
-					-- chưa có compass: fly NPC -> chạy code summon -> đợi 15s
-					if not djReachWitch(valid) then
-						return
-					end
-					djSummon()
-					if not djWait(DJ_SUMMON_WAIT, valid) then
-						return
-					end
-				end
-				-- fly tới compass -> delay 0.5 -> giữ E 1s
-				local compass = djReachCompass(valid)
-				if not compass then
-					task.wait(3)
-					return
-				end
-				if not djWait(DJ_E_DELAY, valid) then
-					return
-				end
-				djHoldE(compass, valid)
-			end
-			-- đợi vào arena + boss xuất hiện
-			boss = djWaitArenaBoss(valid)
-			if not boss then
-				if valid() and djInArena() then
-					djResetPlayer(valid)
-				end
-				return
-			end
+			return nil
 		end
 
-		djKill(boss, valid)
-	end
-
-	HalloweenSection.CreateToggle(
-		{ Title = "Auto Summon + Farm Boss", Desc = "Witch > Summon > wait 15s > GreatPumpkinCompass (hold E) > kill Dapper Jack > collect CandySpillFx > reset player", Default = Settings[DJ_KEY] or false },
-		function(state)
-			SaveSettings(DJ_KEY, state)
-			getgenv().__DJToken = getgenv().__DJToken + 1
-			if not state then
-				return
-			end
-			local tok = getgenv().__DJToken
-			local function valid()
-				return Settings[DJ_KEY] and getgenv().__DJToken == tok and stackOk()
-			end
-			spawn(function()
-				while Settings[DJ_KEY] and getgenv().__DJToken == tok and task.wait() do
-					local ok, err = pcall(function()
-						if not stackOk() then
-							return
-						end
-						djRound(valid)
-					end)
-					if not ok then
-						warn("[SummonBoss] " .. tostring(err))
-					end
-				end
-			end)
-		end
-	)
-	end, function(e)
-		warn("[SummonBoss] init: " .. tostring(e))
-	end)
-
-
-
-	local RS = game:GetService("ReplicatedStorage")
-	
-	HalloweenSection.CreateButton(
-		{ 
-			Title = "Random Halloween Fruit", 
-			Desc = "Bấm để quay 1 lượt Random Fruit sự kiện Halloween" 
-		},
-		function()
-			spawn(function()
-				print("[HalloweenGacha] Bạn vừa bấm nút. Bắt đầu random")
-				
-				local lp = game:GetService("Players").LocalPlayer
-				local pg = lp:FindFirstChild("PlayerGui")
-				
-				-- BƯỚC 1: DỌN DẸP BẢNG QUAY CŨ (NẾU CÓ)
-				local sw = pg and pg:FindFirstChild("SpinnerWindow")
-				if sw and sw.Enabled then
-					if sw.AboveSpinner and sw.AboveSpinner.Navigation and sw.AboveSpinner.Navigation.CloseButton.Visible then
-						print("[HalloweenGacha] Phát hiện bảng quay cũ, đang đóng lại...")
-						pcall(function()
-							if Spinner and Spinner.Close then Spinner:Close()
-							else sw.AboveSpinner.Navigation.CloseButton:Activate() end
-						end)
-						task.wait(1.5) -- Đợi game xử lý việc đóng
-					end
-				end
-				
-				-- BƯỚC 2: BẮN PAYLOAD TỪ XA (COBALT)
-				print("[HalloweenGacha] Đang random")
+		local function djFarmBoss(boss, valid)
+			repeat
+				task.wait()
+				if not valid() then return end
+				local hrp = getHRP()
+				local r = boss:FindFirstChild("HumanoidRootPart")
+				if not hrp or not r then return end
 				pcall(function()
-					local Net = require(RS.Modules.Net)
-					local Event = Net:RemoteFunction("GachaNetworkRF")
-					
-					-- Bọc Timeout 3s: Nếu server lag hoặc hết lượt, tự hủy để không treo Hub
-					local thread = task.spawn(function()
-						Event:InvokeServer({
-							Context = "Purchase",
-							BoxName = "Halloween26Gacha"
-						})
-					end)
-					
-					task.wait(3) 
-					if coroutine.status(thread) == "suspended" then
-						pcall(task.cancel, thread)
-						print("[HalloweenGacha] Server không phản hồi (Quá 3s). Có thể do lag hoặc hết lượt.")
-					else
-						print("[HalloweenGacha] Server đã phản hồi lệnh quay!")
+					UsedualFlock()
+					ClickM1(boss)
+					if Settings["Select Weapon"] == "Blox Fruit" then toTarget(r.CFrame * CFrame.new(0, FruitFarmY(), 0))
+					else toTarget(r.CFrame * CFrame.new(0, BuddhaFarmY(), 0)) end
+				end)
+			until not IsMobAlive(boss)
+		end
+
+		local DJ_CANDY_WAIT = 10
+		local DJ_CANDY_ARRIVE = 4
+		local DJ_CANDY_ITEM_TIMEOUT = 6
+		local DJ_CANDY_TIMEOUT = 90
+		local DJ_CANDY_IDLE = 1.5
+
+		local function djCandyItems(skip)
+			local list = {}
+			local root = workspace:FindFirstChild("CandySpillFx")
+			if root then
+				for _, c in ipairs(root:GetChildren()) do
+					if (c:IsA("Model") or c:IsA("BasePart")) and (skip[c] or 0) < tick() then table.insert(list, c) end
+				end
+			end
+			return list
+		end
+
+		local function djCollectCandy(valid)
+			local visited = setmetatable({}, { __mode = "k" })
+			local t0 = tick()
+			while valid() and tick() - t0 < DJ_CANDY_WAIT and #djCandyItems({}) == 0 do djHold(); task.wait() end
+			local startT, lastSeen = tick(), tick()
+			while valid() and tick() - startT < DJ_CANDY_TIMEOUT do
+				task.wait()
+				local hrp = getHRP()
+				if not hrp then return end
+				local items = djCandyItems({})
+				local best, bestD
+				for pass = 1, 2 do
+					for _, c in ipairs(items) do
+						local cf = not visited[c] and pivotOf(c)
+						if cf then
+							local d = (cf.Position - hrp.Position).Magnitude
+							if not bestD or d < bestD then best, bestD = c, d end
+						end
+					end
+					if best or #items == 0 then break end
+					table.clear(visited)
+				end
+				if not best then
+					if tick() - lastSeen > DJ_CANDY_IDLE then return end
+					djHold()
+				else
+					lastSeen = tick()
+					visited[best] = true
+					local t1 = tick()
+					while valid() and best.Parent and tick() - t1 < DJ_CANDY_ITEM_TIMEOUT do
+						local h = getHRP()
+						local cf = pivotOf(best)
+						if not h or not cf then break end
+						if (h.Position - cf.Position).Magnitude <= DJ_CANDY_ARRIVE then break end
+						pcall(toTarget, CFrame.new(cf.Position))
+						task.wait()
+					end
+				end
+			end
+		end
+
+		local DJ_RESPAWN_TIMEOUT = 20
+		local function djResetPlayer(valid)
+			local lp = game:GetService("Players").LocalPlayer
+			local oldChar = lp.Character
+			local hum = oldChar and oldChar:FindFirstChildOfClass("Humanoid")
+			if hum then pcall(function() hum.Health = 0 end) end
+			if oldChar then pcall(function() oldChar:BreakJoints() end) end
+			local t0 = tick()
+			while valid() and tick() - t0 < DJ_RESPAWN_TIMEOUT do
+				task.wait()
+				local c = lp.Character
+				if c and c ~= oldChar and getHRP() then break end
+			end
+			if valid() then task.wait(1) end
+		end
+
+		local DJ_ARENA_MARGIN = Vector3.new(20, 80, 20)
+		local function djInArena()
+			local hrp = getHRP()
+			local map = workspace:FindFirstChild("Map")
+			local arena = map and map:FindFirstChild("DapperJackArena")
+			if not hrp or not arena then return false end
+			local ok, inside = pcall(function()
+				local cf, size
+				if arena:IsA("Model") then cf, size = arena:GetBoundingBox()
+				else
+					local mn, mx
+					for _, d in ipairs(arena:GetDescendants()) do
+						if d:IsA("BasePart") then
+							local lo, hi = d.Position - d.Size / 2, d.Position + d.Size / 2
+							mn = mn and Vector3.new(math.min(mn.X, lo.X), math.min(mn.Y, lo.Y), math.min(mn.Z, lo.Z)) or lo
+							mx = mx and Vector3.new(math.max(mx.X, hi.X), math.max(mx.Y, hi.Y), math.max(mx.Z, hi.Z)) or hi
+						end
+					end
+					if not mn then return false end
+					cf, size = CFrame.new((mn + mx) / 2), mx - mn
+				end
+				local rel = cf:PointToObjectSpace(hrp.Position)
+				return math.abs(rel.X) <= size.X / 2 + DJ_ARENA_MARGIN.X and math.abs(rel.Y) <= size.Y / 2 + DJ_ARENA_MARGIN.Y and math.abs(rel.Z) <= size.Z / 2 + DJ_ARENA_MARGIN.Z
+			end)
+			return ok and inside == true
+		end
+
+		local function djWaitArenaBoss(valid, maxSec)
+			local t0 = tick()
+			while valid() and tick() - t0 < (maxSec or DJ_BOSS_WAIT) do
+				local g = djFindGateBoss()
+				if g then return g end
+				if djInArena() then
+					local b = djFindBoss()
+					if b then return b end
+				end
+				djHold()
+				task.wait()
+			end
+			return nil
+		end
+
+		local function djKill(boss, valid)
+			local isGate = boss.Name == DJ_GATE_BOSS
+			djFarmBoss(boss, valid)
+			if isGate then return end
+			if valid() and not IsMobAlive(boss) then djCollectCandy(valid); djResetPlayer(valid) end
+		end
+
+		local function djRound(valid)
+			local gate = djFindGateBoss()
+			if gate then djKill(gate, valid); return end
+			local inArena = djInArena()
+			local boss = djFindBoss()
+			if inArena then
+				if boss then djKill(boss, valid); return end
+				if #djCandyItems({}) > 0 then djCollectCandy(valid); djResetPlayer(valid); return end
+				boss = djWaitArenaBoss(valid, 15)
+				if not boss then
+					if valid() and djInArena() then djResetPlayer(valid) end
+					return
+				end
+			else
+				local hasCompass = workspace:FindFirstChild("GreatPumpkinCompass") ~= nil
+				if not (boss and not hasCompass) then
+					if not hasCompass then
+						if not djReachWitch(valid) then return end
+						djSummon()
+						if not djWait(DJ_SUMMON_WAIT, valid) then return end
+					end
+					local compass = djReachCompass(valid)
+					if not compass then task.wait(3); return end
+					if not djWait(DJ_E_DELAY, valid) then return end
+					djHoldE(compass, valid)
+				end
+				boss = djWaitArenaBoss(valid)
+				if not boss then
+					if valid() and djInArena() then djResetPlayer(valid) end
+					return
+				end
+			end
+			djKill(boss, valid)
+		end
+
+		HalloweenSection.CreateToggle(
+			{ Title = "Auto Summon + Farm Boss", Desc = "Witch > Summon > Compass > kill Dapper Jack > collect Candy", Default = Settings[DJ_KEY] or false },
+			function(state)
+				SaveSettings(DJ_KEY, state)
+				getgenv().__DJToken = getgenv().__DJToken + 1
+				if not state then return end
+				local tok = getgenv().__DJToken
+				local function valid() return Settings[DJ_KEY] and getgenv().__DJToken == tok and stackOk() end
+				spawn(function()
+					while Settings[DJ_KEY] and getgenv().__DJToken == tok and task.wait() do
+						pcall(function()
+							if not stackOk() then return end
+							djRound(valid)
+						end)
 					end
 				end)
-				
-				task.wait(1.5) -- Đợi 1.5s xem bảng quay có bật lên không
-				
-				-- BƯỚC 3: ĐỢI QUAY XONG VÀ TỰ ĐỘNG TẮT BẢNG
-				local sw2 = pg and pg:FindFirstChild("SpinnerWindow")
-				if sw2 and sw2.Enabled then
-					print("[HalloweenGacha] Bảng quay đã mở! Đang đợi random xong...")
+			end
+		)
+	end
+
+	-- =====================================================================
+	-- PHẦN 6: RANDOM HALLOWEEN FRUIT + AUTO STORE FRUIT
+	-- =====================================================================
+	do
+		local RS = game:GetService("ReplicatedStorage")
+		local GACHA_KEY = "Random Halloween Fruit"
+		local STORE_KEY = "Auto Store Fruit"
+
+		HalloweenSection.CreateButton(
+			{ 
+				Title = "Random Halloween Fruit", 
+				Desc = "Bấm để quay 1 lượt Random Fruit sự kiện Halloween" 
+			},
+			function()
+				spawn(function()
+					print("[HalloweenGacha] Bạn vừa bấm nút. Bắt đầu random")
+					local lp = game:GetService("Players").LocalPlayer
+					local pg = lp:FindFirstChild("PlayerGui")
 					
-					local timeout = tick() + 10 -- Chờ tối đa 10s
-					while tick() < timeout do
-						if sw2.AboveSpinner and sw2.AboveSpinner.Navigation and sw2.AboveSpinner.Navigation.CloseButton.Visible then
+					local sw = pg and pg:FindFirstChild("SpinnerWindow")
+					if sw and sw.Enabled then
+						if sw.AboveSpinner and sw.AboveSpinner.Navigation and sw.AboveSpinner.Navigation.CloseButton.Visible then
+							print("[HalloweenGacha] Phát hiện bảng quay cũ, đang đóng lại...")
 							pcall(function()
 								if Spinner and Spinner.Close then Spinner:Close()
-								else sw2.AboveSpinner.Navigation.CloseButton:Activate() end
+								else sw.AboveSpinner.Navigation.CloseButton:Activate() end
 							end)
-							print("[HalloweenGacha] Đã quay xong và tự động tắt bảng quay.")
-							break
+							task.wait(1.5)
 						end
-						task.wait(0.5)
 					end
-				else
-					print("[HalloweenGacha] Không thấy bảng quay hiện lên (Có thể bạn đã hết lượt hoặc không đủ Candy Corn).")
-				end
-				
-				print("[HalloweenGacha] Hoàn tất random.")
-			end)
-		end
-	)
 
-
-	
-
-
-	local STORE_KEY = "Auto Store Fruit"
-
-	HalloweenSection.CreateToggle(
-		{ 
-			Title = "Auto Store Fruit", 
-			Desc = "Tự động cất trái Random fruit Halloween vào kho", 
-			Default = Settings[STORE_KEY] or false 
-		},
-		function(state)
-			SaveSettings(STORE_KEY, state)
-			if not state then return end
-			
-			spawn(function()
-				while Settings[STORE_KEY] and task.wait(2) do
-					local ok, err = pcall(function()
-						local t = game:GetService("Players").LocalPlayer
-						-- Gọi lại chính xác hàm StoreFruit gốc của bạn
-						if StoreFruit then
-							StoreFruit(t.Backpack)
-							StoreFruit(t.Character)
+					print("[HalloweenGacha] Đang random")
+					pcall(function()
+						local Net = require(RS.Modules.Net)
+						local Event = Net:RemoteFunction("GachaNetworkRF")
+						
+						local thread = task.spawn(function()
+							Event:InvokeServer({
+								Context = "Purchase",
+								BoxName = "Halloween26Gacha"
+							})
+						end)
+						
+						task.wait(3) 
+						if coroutine.status(thread) == "suspended" then
+							pcall(task.cancel, thread)
+							print("[HalloweenGacha] Server không phản hồi (Quá 3s). Có thể do lag hoặc hết lượt.")
+						else
+							print("[HalloweenGacha] Server đã phản hồi lệnh quay!")
 						end
 					end)
 					
-					if not ok then warn("[AutoStoreFruit] " .. tostring(err)) end
-				end
-			end)
-		end
-	)
+					task.wait(1.5)
+					
+					local sw2 = pg and pg:FindFirstChild("SpinnerWindow")
+					if sw2 and sw2.Enabled then
+						print("[HalloweenGacha] Bảng quay đã mở! Đang đợi random xong...")
+						local timeout = tick() + 10
+						while tick() < timeout do
+							if sw2.AboveSpinner and sw2.AboveSpinner.Navigation and sw2.AboveSpinner.Navigation.CloseButton.Visible then
+								pcall(function()
+									if Spinner and Spinner.Close then Spinner:Close()
+									else sw2.AboveSpinner.Navigation.CloseButton:Activate() end
+								end)
+								print("[HalloweenGacha] Đã quay xong và tự động tắt bảng quay.")
+								break
+							end
+							task.wait(0.5)
+						end
+					else
+						print("[HalloweenGacha] Không thấy bảng quay hiện lên (Có thể bạn đã hết lượt).")
+					end
+					print("[HalloweenGacha] Hoàn tất random.")
+				end)
+			end
+		)
+
+		HalloweenSection.CreateToggle(
+			{ 
+				Title = "Auto Store Fruit", 
+				Desc = "Tự động cất trái Random fruit Halloween vào kho", 
+				Default = Settings[STORE_KEY] or false 
+			},
+			function(state)
+				SaveSettings(STORE_KEY, state)
+				if not state then return end
+				spawn(function()
+					while Settings[STORE_KEY] and task.wait(2) do
+						local ok, err = pcall(function()
+							local t = game:GetService("Players").LocalPlayer
+							if StoreFruit then
+								StoreFruit(t.Backpack)
+								StoreFruit(t.Character)
+							end
+						end)
+						if not ok then warn("[AutoStoreFruit] " .. tostring(err)) end
+					end
+				end)
+			end
+		)
+	end
+end
 
 
 
