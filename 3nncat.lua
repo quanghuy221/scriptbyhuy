@@ -17198,7 +17198,7 @@ print("[BananaCat] Secret Quest (39) module loaded — section ở đầu Farmin
 HalloweenSection = FarmotherMain.CreateSection("Halloween")
 do
 	-- =====================================================================
-	-- PHẦN 1: CÁC HÀM DÙNG CHUNG (SHARED UTILS) - CHỐNG LỖI 200 LOCAL
+	-- PHẦN 1: HALLOWEEN
 	-- =====================================================================
 	local JACK_RANGE = 800
 	local PUMPKIN_SIDE_DIST = 5
@@ -19027,7 +19027,7 @@ local function y()
 end
 RunFishingCycle = y
 
--- [FishFix] Helper mua cần câu / mua mồi / cầm mồi (dùng bảng global để không vượt giới hạn 200 local)
+
 FishFix = FishFix or {}
 function FishFix.Status(text)
 	pcall(function()
