@@ -19117,8 +19117,8 @@ end
 						task.wait(1.5) -- Đợi game xử lý việc đóng
 					end
 				end
-				
-				-- BƯỚC 2: BẮN PAYLOAD TỪ XA (COBALT)
+
+
 				print("[HalloweenGacha] Đang random")
 				pcall(function()
 					local Net = require(RS.Modules.Net)
