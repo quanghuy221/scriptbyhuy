@@ -1,4 +1,4 @@
-print("Cam on ban da su dung Banana Hub Cracked by QH Dev (huydev14)! Neu ban phat hien loi xin hay bao cao cho chung toi hoac nguoi lam video nha! Cam on moi nguoi da tin dung!")
+print("Cam on ban da su dung Banana Hub Cracked by QH Dev! Neu ban phat hien loi xin hay bao cao cho chung toi hoac nguoi lam video nha! Cam on moi nguoi da tin dung!")
 
 if getgenv().__BF_LOADED == game.JobId then
 	return getgenv().__BF_RESULT
@@ -17184,7 +17184,7 @@ function BuyMeleeGate(melee)
 	return false
 end
 
-print("[BananaCat] Secret Quest (39) module loaded — section ở đầu Farming Other")
+print("[BananaCat] Secret Quest đã load. Sử dụng ở Farming Other.")
 -- Halloween features ported from Topi Halloween section.
 -- Existing Banana Halloween Event features above are intentionally kept.
 -- ================================================================
@@ -17194,29 +17194,26 @@ print("[BananaCat] Secret Quest (39) module loaded — section ở đầu Farmin
 -- Halloween features ported from Topi Halloween section.
 -- Existing Banana Halloween Event features above are intentionally kept.
 -- ================================================================
-HalloweenSection = FarmotherMain.CreateSection("Halloween")
-do
+
+
+	-- =====================================================================
+	-- AUTO FARM PUMPKIN HUNT (BẢN HOÀN HẢO - KHÔNG BUG, KHÔNG GIẬT)
+	-- =====================================================================
 	local HW_KEY = "Auto Farm Pumpkin Hunt"
-	local PUMPKIN_SIDE_DIST = 5 
-	local PUMPKIN_HOLD_TOL = 3 
-	getgenv().__PumpkinHitRange = 30 
-	local JACK_RANGE = 800 
+	local PUMPKIN_SIDE_DIST = 5
+	local PUMPKIN_HOLD_TOL = 3
+	getgenv().__PumpkinHitRange = 30
+	local JACK_RANGE = 800
 	local HW_MOBS = { jackolantern = true, pumpkinsnowman = true }
 
-	local function normName(s)
-		return (string.lower(tostring(s or "")):gsub("[^%w]", ""))
-	end
-
+	local function normName(s) return (string.lower(tostring(s or "")):gsub("[^%w]", "")) end
 	local function getHRP()
 		local ch = game.Players.LocalPlayer.Character
 		return ch and ch:FindFirstChild("HumanoidRootPart")
 	end
+	local function FruitFarmY() return 15 end
 
-	local function FruitFarmY()
-		return 15
-	end
-
-	-- Lấy tâm thực của bí ngô (tránh Pivot bị đặt sai trên trời)
+	-- Tâm thực của bí ngô (Chống bay lên nóc nhà)
 	local function pivotOf(o)
 		if not o or not o.Parent then return nil end
 		if o:IsA("Model") then
@@ -17238,16 +17235,14 @@ do
 				table.insert(list, c)
 			elseif c:IsA("Folder") then
 				for _, cc in ipairs(c:GetChildren()) do
-					if cc:IsA("Model") or cc:IsA("BasePart") then
-						table.insert(list, cc)
-					end
+					if cc:IsA("Model") or cc:IsA("BasePart") then table.insert(list, cc) end
 				end
 			end
 		end
 		return list
 	end
 
-	-- Phát hiện thông báo nhận đồ
+	-- Phát hiện thông báo nhận Candy/Pumpkin Bits để đổi mục tiêu
 	local HWI = { got = 0, time = 60 }
 	HWI.skip = setmetatable({}, { __mode = "k" })
 	function HWI.check(t)
@@ -17260,25 +17255,17 @@ do
 	function HWI.hook(o)
 		if not (o:IsA("TextLabel") or o:IsA("TextButton")) then return end
 		pcall(HWI.check, o.Text)
-		local c = o:GetPropertyChangedSignal("Text"):Connect(function()
-			pcall(HWI.check, o.Text)
-		end)
+		local c = o:GetPropertyChangedSignal("Text"):Connect(function() pcall(HWI.check, o.Text) end)
 		getgenv().__BF_Track(c)
 	end
 	pcall(function()
 		local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui", 10)
 		if not pg then return end
-		if getgenv().__PumpkinItemConn then
-			pcall(function() getgenv().__PumpkinItemConn:Disconnect() end)
-		end
-		getgenv().__PumpkinItemConn = getgenv().__BF_Track(pg.DescendantAdded:Connect(function(o)
-			pcall(HWI.hook, o)
-		end))
+		if getgenv().__PumpkinItemConn then pcall(function() getgenv().__PumpkinItemConn:Disconnect() end) end
+		getgenv().__PumpkinItemConn = getgenv().__BF_Track(pg.DescendantAdded:Connect(function(o) pcall(HWI.hook, o) end))
 		for _, o in ipairs(pg:GetDescendants()) do
 			if o:IsA("TextLabel") or o:IsA("TextButton") then
-				getgenv().__BF_Track(o:GetPropertyChangedSignal("Text"):Connect(function()
-					pcall(HWI.check, o.Text)
-				end))
+				getgenv().__BF_Track(o:GetPropertyChangedSignal("Text"):Connect(function() pcall(HWI.check, o.Text) end))
 			end
 		end
 	end)
@@ -17297,9 +17284,7 @@ do
 			local cf = not skipUntil and pivotOf(p)
 			if cf then
 				local d = (cf.Position - hrp.Position).Magnitude
-				if d < bestD then
-					best, bestD = p, d
-				end
+				if d < bestD then best, bestD = p, d end
 			end
 		end
 		return best
@@ -17314,9 +17299,7 @@ do
 			for _, m in ipairs(enemies:GetChildren()) do
 				if HW_MOBS[normName(m.Name)] and IsMobAlive(m) then
 					local d = (m.HumanoidRootPart.Position - hrp.Position).Magnitude
-					if d <= bestD then
-						best, bestD = m, d
-					end
+					if d <= bestD then best, bestD = m, d end
 				end
 			end
 		end
@@ -17332,44 +17315,19 @@ do
 			local char = lp.Character
 			local hum = char and char:FindFirstChildOfClass("Humanoid")
 			local tool = NameWeapon and NameWeapon("Melee", true)
-			if hum and tool and not hum.Sit and tool.Parent ~= char then
-				hum:EquipTool(tool)
-			end
+			if hum and tool and not hum.Sit and tool.Parent ~= char then hum:EquipTool(tool) end
 		end)
 	end
 
-	local HW_CLICK_DELAY = 0.3
-	local CLICK_UDIM = UDim2.new(0.15, 0, 0.15, 0)
-	local function doClick()
-		local vim = game:GetService("VirtualInputManager")
-		local vp = workspace.CurrentCamera.ViewportSize
-		local x = vp.X * CLICK_UDIM.X.Scale + CLICK_UDIM.X.Offset
-		local y = vp.Y * CLICK_UDIM.Y.Scale + CLICK_UDIM.Y.Offset
-		vim:SendMouseButtonEvent(x, y, 0, true, game, 1)
-		vim:SendMouseButtonEvent(x, y, 0, false, game, 1)
-	end
-
-	local function clickAtWorld(worldPos)
-		local cam = workspace.CurrentCamera
-		local vim = game:GetService("VirtualInputManager")
-		local v, onScreen = cam:WorldToViewportPoint(worldPos)
-		if not onScreen or v.Z <= 0 then return doClick() end
-		vim:SendMouseButtonEvent(v.X, v.Y, 0, true, game, 1)
-		vim:SendMouseButtonEvent(v.X, v.Y, 0, false, game, 1)
-	end
-
-	local function stackOk()
-		return StackFarmOther ~= false and not getgenv().__TrickTreatActive
-	end
+	local function stackOk() return StackFarmOther ~= false and not getgenv().__TrickTreatActive end
 
 	local function farmJackMob(mob)
 		repeat
 			task.wait()
 			if not Settings[HW_KEY] or not stackOk() then return end
 			local hrp = getHRP()
-			if not hrp or (mob:FindFirstChild("HumanoidRootPart") and (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > JACK_RANGE) then
-				return
-			end
+			if not hrp or (mob:FindFirstChild("HumanoidRootPart") and (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > JACK_RANGE) then return end
+			
 			if Settings["Kill Aura Jack O' Lantern"] and normName(mob.Name) == "jackolantern" then
 				pcall(function()
 					local enemies = workspace:FindFirstChild("Enemies")
@@ -17414,16 +17372,12 @@ do
 		local hrp = getHRP()
 		local parts = {}
 		if not p or not p.Parent or not hrp then return parts end
-		local range = getgenv().__PumpkinHitRange or 40
+		local range = getgenv().__PumpkinHitRange or 30
 		local function add(o)
-			if o:IsA("BasePart") and (o.Position - hrp.Position).Magnitude <= range then
-				parts[#parts + 1] = o
-			end
+			if o:IsA("BasePart") and (o.Position - hrp.Position).Magnitude <= range then parts[#parts + 1] = o end
 		end
 		add(p)
-		for _, d in ipairs(p:GetDescendants()) do
-			add(d)
-		end
+		for _, d in ipairs(p:GetDescendants()) do add(d) end
 		return parts
 	end
 
@@ -17444,9 +17398,7 @@ do
 					R.attack:FireServer(0.3)
 					local first = table.remove(parts, 1)
 					local rest = {}
-					for _, part in ipairs(parts) do
-						rest[#rest + 1] = { target, part }
-					end
+					for _, part in ipairs(parts) do rest[#rest + 1] = { target, part } end
 					R.hit:FireServer(first, rest)
 				end
 			end
@@ -17456,9 +17408,9 @@ do
 
 	local function farmPumpkin(p)
 		local startT = tick()
-		local standDir
 		local lastAttackT = 0 
 		
+		-- Đo kích thước bí ngô 1 lần duy nhất
 		local size = Vector3.new(10, 10, 10)
 		if p:IsA("Model") then
 			local ok, ext = pcall(function() return p:GetExtentsSize() end)
@@ -17496,13 +17448,11 @@ do
 			if not hrp or not cf then return end
 			equipMelee()
 			
-			if not standDir then
+			-- KHÓA TỌA ĐỘ ĐỨNG (Chống giật lên xuống)
+			if not standCFrame then
 				local d = hrp.Position - cf.Position
 				d = Vector3.new(d.X, 0, d.Z)
-				standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
-			end
-			
-			if not standCFrame then
+				local standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
 				local standPos = Vector3.new(
 					cf.Position.X + standDir.X * standDist,
 					cf.Position.Y, 
@@ -17514,6 +17464,7 @@ do
 			local distToStand = (hrp.Position - standCFrame.Position).Magnitude
 			local distToCenter = (hrp.Position - cf.Position).Magnitude
 			
+			-- KIỂM TRA KẸT TƯỜNG (Chống kẹt cửa sổ)
 			if distToStand > 5 then
 				if math.abs(distToStand - lastDist) < 0.5 then
 					if stuckStart == 0 then stuckStart = tick() end
@@ -17527,7 +17478,7 @@ do
 			end
 			
 			local isStuck = (stuckStart > 0) and (tick() - stuckStart > 1.5)
-			local canAttack = (distToStand <= PUMPKIN_HOLD_TOL + 3) or (isStuck and distToCenter <= (getgenv().__PumpkinHitRange or 30))
+			local canAttack = (distToStand <= PUMPKIN_HOLD_TOL + 3) or (isStuck and distToCenter <= 30)
 			
 			if canAttack then
 				local beforeAt = getgenv().__PumpkinAttackAt
@@ -17537,29 +17488,20 @@ do
 					lastAttackT = afterAt
 				end
 			else
-				if tick() - lastFlyCall > 0.15 then
+				-- BAY CỰC MƯỢT (Giới hạn 0.2s/lần)
+				if tick() - lastFlyCall > 0.2 then 
 					lastFlyCall = tick()
-					local targetCFrame = standCFrame
-					
-					if distToStand > 12 then
-						local highPos = standCFrame.Position + Vector3.new(0, 15, 0)
-						if (hrp.Position - highPos).Magnitude > 5 then
-							targetCFrame = CFrame.new(highPos)
-						end
-					end
-					
-					pcall(function() toTarget(targetCFrame) end)
+					pcall(toTarget, standCFrame)
 				end
 			end
 		until not p.Parent or tick() - startT > 12
 		
-		if p and p.Parent then
-			HWI.skip[p] = tick() + 3 
-		end
+		-- Blacklist nếu đánh 12s không vỡ
+		if p and p.Parent then HWI.skip[p] = tick() + 3 end
 	end
 
 	HalloweenSection.CreateToggle(
-		{ Title = "Auto Farm Pumpkin Hunt", Desc = "Fly to nearest pumpkin, then kill Jack O' Lantern / Pumpkin Snowman (800 studs)", Default = Settings[HW_KEY] or false },
+		{ Title = "Auto Farm Pumpkin Hunt", Desc = "Tự động bay tới đánh bí ngô (Bản hoàn hảo - Không Bug)", Default = Settings[HW_KEY] or false },
 		function(state)
 			SaveSettings(HW_KEY, state)
 			if not state then return end
@@ -17568,25 +17510,17 @@ do
 					local ok, err = pcall(function()
 						if not stackOk() then return end
 						local mob = findJackMob()
-						if mob then
-							farmJackMob(mob)
-							return
-						end
+						if mob then farmJackMob(mob) return end
 						local p = nearestPumpkin()
-						if p then
-							farmPumpkin(p)
-							task.wait(0.1) 
-						else
-							task.wait(0.5) 
-						end
+						if p then farmPumpkin(p) else task.wait(0.5) end
 					end)
-					if not ok then
-						warn("[PumpkinHunt] " .. tostring(err))
-					end
+					if not ok then warn("[PumpkinHunt] " .. tostring(err)) end
 				end
 			end)
 		end
 	)
+
+
 	HalloweenSection.CreateToggle(
 		{ Title = "Kill Aura Jack O' Lantern", Desc = "While farming Jack O' Lantern, kill Jack O' Lantern within 300 studs with the existing kill aura logic (needs Auto Farm Pumpkin Hunt)", Default = Settings["Kill Aura Jack O' Lantern"] or false },
 		function(state)
@@ -19117,8 +19051,8 @@ end
 						task.wait(1.5) -- Đợi game xử lý việc đóng
 					end
 				end
-
-
+				
+				-- BƯỚC 2: BẮN PAYLOAD TỪ XA (COBALT)
 				print("[HalloweenGacha] Đang random")
 				pcall(function()
 					local Net = require(RS.Modules.Net)
@@ -19161,7 +19095,7 @@ end
 						task.wait(0.5)
 					end
 				else
-					print("[HalloweenGacha] Không thấy bảng quay hiện lên (Có thể bạn đã hết lượt).")
+					print("[HalloweenGacha] Không thấy bảng quay hiện lên (Có thể bạn đã hết lượt hoặc không đủ Candy Corn).")
 				end
 				
 				print("[HalloweenGacha] Hoàn tất random.")
