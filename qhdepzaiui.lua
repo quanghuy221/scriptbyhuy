@@ -1,4 +1,3 @@
--- Recovered Luau source by ZeroVector
 local function __store_list(t, start, ...)
     for i = 1, select("#", ...) do
         t[start + i - 1] = (select(i, ...))
