@@ -593,6 +593,9 @@ local function fn3(arg)
 end
 
 tbl3.CreateNoti = function(arg, arg2)
+    if type(arg) == "table" and arg.CreateNoti then
+        arg, arg2 = arg2, nil
+    end
     if not getgenv().Config or arg2 then
         local ok, result = pcall(function()
             fn3(arg)
@@ -616,7 +619,10 @@ tbl3.CreateNoti = function(arg, arg2)
     end
 end
 
-tbl3.CreateMain = function(arg)
+tbl3.CreateMain = function(arg, arg2)
+    if type(arg) == "table" and arg.CreateMain then
+        arg, arg2 = arg2, nil
+    end
     local str = tostring(arg.Title)
     local text = str or "QHuy Hub"
     local genv2 = getgenv()
@@ -1049,7 +1055,10 @@ tbl3.CreateMain = function(arg)
     local n9 = 1
 
     return {
-        CreatePage = function(arg2)
+        CreatePage = function(arg2, arg3)
+            if type(arg2) == "table" and arg2.CreatePage then
+                arg2, arg3 = arg3, nil
+            end
             local text2 = tostring(arg2.Page_Name)
             local text3 = tostring(arg2.Page_Title)
             layoutOrder2 = layoutOrder2 + 1
@@ -1329,6 +1338,9 @@ tbl3.CreateMain = function(arg)
 
             return {
                 CreateSection = function(text4, arg3, arg4, arg5)
+                    if type(text4) == "table" and text4.CreateSection then
+                        text4, arg3, arg4, arg5 = arg3, arg4, arg5, nil
+                    end
                     local flag3 = arg3 or false
                     local frame20 = Instance.new("Frame")
                     local uiCorner9 = Instance.new("UICorner")
@@ -1540,7 +1552,10 @@ tbl3.CreateMain = function(arg)
                     end)
 
                     return {
-                        CreateToggle = function(arg6, arg7)
+                        CreateToggle = function(arg6, arg7, arg8)
+                            if type(arg6) == "table" and arg6.CreateToggle then
+                                arg6, arg7, arg8 = arg7, arg8, nil
+                            end
                             local text5 = tostring(arg6.Title)
                             local desc2 = arg6.Desc
                             local default = arg6.Default
@@ -1705,10 +1720,13 @@ tbl3.CreateMain = function(arg)
                             arg6.FunctionCreate = functionCreate
                             arg6.Page_Name = text2
                             arg6.Section_Name = text4
-                            tbl3:RegisterOption(arg6, callback)
+                            tbl3:RegisterOption(arg6, arg7)
                             return functionCreate
                         end,
-                        CreateButton = function(arg6, arg7)
+                        CreateButton = function(arg6, arg7, arg8)
+                            if type(arg6) == "table" and arg6.CreateButton then
+                                arg6, arg7, arg8 = arg7, arg8, nil
+                            end
                             local title = arg6.Title
                             local icon = arg6.Icon
                             local fn7 = arg7 or function() end
@@ -1907,8 +1925,12 @@ tbl3.CreateMain = function(arg)
                             }
 
                             tbl3:RegisterOption(arg6, v9)
+                            return arg6.FunctionCreate
                         end,
-                        CreateLabel = function(arg6)
+                        CreateLabel = function(arg6, arg7)
+                            if type(arg6) == "table" and arg6.CreateLabel then
+                                arg6, arg7 = arg7, nil
+                            end
                             local v9 = tostring
                             local title = arg6.Title
                             local str2 = title or "Label"
@@ -1989,10 +2011,13 @@ tbl3.CreateMain = function(arg)
                             arg6.Section_Name = text4
                             arg6.TextLabel = true
                             arg6.FunctionCreate = functionCreate
-                            tbl3:RegisterOption(arg6, Callback)
+                            tbl3:RegisterOption(arg6, arg7)
                             return functionCreate
                         end,
-                        CreateDropdown = function(arg6, arg7)
+                        CreateDropdown = function(arg6, arg7, arg8)
+                            if type(arg6) == "table" and arg6.CreateDropdown then
+                                arg6, arg7, arg8 = arg7, arg8, nil
+                            end
                             local str2 = tostring(arg6.Title)
                             local list = arg6.List
                             local search = arg6.Search
@@ -2440,6 +2465,7 @@ tbl3.CreateMain = function(arg)
                                         frame30.Position = UDim2.new(0.5, 0, 0.5, 14)
                                         frame30.Size = UDim2.new(1, -20, 0, 6)
                                         frame30.BackgroundColor3 = getgenv().UIColor["Background 2 Color"]
+                                        
                                         textButton5.Name = "SliderButton "
                                         textButton5.Parent = frame30
                                         textButton5.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
@@ -2449,26 +2475,32 @@ tbl3.CreateMain = function(arg)
                                         textButton5.Text = ""
                                         textButton5.TextColor3 = Color3.fromRGB(230, 230, 230)
                                         textButton5.TextSize = 14
+                                        
                                         uiCorner14.CornerRadius = UDim.new(1, 0)
                                         uiCorner14.Name = "SliderBarCorner"
                                         uiCorner14.Parent = frame30
+                                        
                                         frame31.Name = "Bar"
                                         frame31.BorderSizePixel = 0
                                         frame31.Parent = frame30
                                         frame31.Size = UDim2.new(0, 0, 1, 0)
                                         frame31.BackgroundColor3 = getgenv().UIColor["Slider Line Color"]
+                                        
                                         uiCorner15.CornerRadius = UDim.new(1, 0)
                                         uiCorner15.Name = "BarCorner"
                                         uiCorner15.Parent = frame31
+                                        
                                         frame32.Name = "Background2"
                                         frame32.Parent = frame28
                                         frame32.AnchorPoint = Vector2.new(1, 0)
                                         frame32.Position = UDim2.new(1, -10, 0, 5)
                                         frame32.Size = UDim2.new(0, 150, 0, 25)
                                         frame32.BackgroundColor3 = getgenv().UIColor["Background 2 Color"]
+                                        
                                         uiCorner16.CornerRadius = UDim.new(0, 4)
                                         uiCorner16.Name = "Sliderbox"
                                         uiCorner16.Parent = frame32
+                                        
                                         textBox4.Name = "TextColor"
                                         textBox4.Parent = frame32
                                         textBox4.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
@@ -2478,191 +2510,86 @@ tbl3.CreateMain = function(arg)
                                         textBox4.Text = ""
                                         textBox4.TextSize = 14
                                         textBox4.TextColor3 = getgenv().UIColor["Text Color"]
-
-                                        textButton5.MouseEnter:Connect(function()
-                                            TweenService:Create(frame31, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {
-                                                BackgroundColor3 = getgenv().UIColor["Slider Highlight Color"],
-                                            }):Play()
+                                        
+                                        local function fn12(p72)
+                                            textBox4.Text = p72
+                                            tbl12[k].Default = p72
+                                            fn7(k, v10)
+                                        end
+                                        
+                                        if v11 <= n11 then
+                                            v11 = n11
+                                        elseif n12 <= v11 then
+                                            v11 = n12
+                                        end
+                                        
+                                        frame31.Size = UDim2.new(1 - (n12 - v11) / (n12 - n11), 0, 0, 6)
+                                        fn12(v11)
+                                        
+                                        local flag12 = false
+                                        local v12 = nil
+                                        local n13 = 0
+                                        
+                                        local function fn13(input)
+                                            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                                                n13 = tick()
+                                                input.Changed:Connect(function()
+                                                    if input.UserInputState == Enum.UserInputState.End then
+                                                        flag12 = false
+                                                        n13 = 0
+                                                    end
+                                                end)
+                                            end
+                                        end
+                                        local function fn14(input)
+                                            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                                                flag12 = false
+                                                n13 = 0
+                                            end
+                                        end
+                                        local function fn15(input)
+                                            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                                                v12 = input
+                                            end
+                                        end
+                                        
+                                        textButton5.InputBegan:Connect(fn13)
+                                        textButton5.InputEnded:Connect(fn14)
+                                        textButton5.InputChanged:Connect(fn15)
+                                        
+                                        RunService.RenderStepped:Connect(function()
+                                            if n13 > 0 and tick() - n13 >= 0 and not flag12 then
+                                                flag12 = true
+                                            end
+                                            
+                                            if flag12 and v12 then
+                                                local v13 = flag11 and tonumber(string.format("%.1f", (tonumber(n12) - tonumber(n11)) / 365 * frame31.AbsoluteSize.X + tonumber(n11))) or math.floor((tonumber(n12) - tonumber(n11)) / 365 * frame31.AbsoluteSize.X + tonumber(n11))
+                                                pcall(function()
+                                                    fn12(v13)
+                                                end)
+                                                frame31.Size = UDim2.new(0, math.clamp(v12.Position.X - frame31.AbsolutePosition.X, 0, 365), 0, 6)
+                                            end
                                         end)
-
-                                        textButton5.MouseLeave:Connect(function()
-                                            TweenService:Create(frame31, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {BackgroundColor3 = getgenv().UIColor["Slider Line Color"]}):Play()
-                                        end)
-
-                                        local function fn12(default2)
-                                            textBox4.Text = tostring(default2)
-                                            tbl12[k].Default = default2
-                                            tbl7[k] = default2
-                                        end
-
-                                        if v11 then
-                                            if v11 <= n11 then
-                                                v11 = n11
-                                            elseif n12 <= v11 then
-                                                v11 = n12
-                                            end
-
-                                            frame31.Size = UDim2.new(1 - (n12 - v11) / (n12 - n11), 0, 0, 6)
-                                            fn12(v11)
-                                        end
-
-                                        if flag8 then
-                                            local flag12 = false
-                                            local v12 = nil
-                                            local n13 = 0
-
-                                            textButton5.InputBegan:Connect(function(input)
-                                                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                                    n13 = tick()
-
-                                                    input.Changed:Connect(function()
-                                                        if input.UserInputState == Enum.UserInputState.End then
-                                                            flag12 = false
-                                                            n13 = 0
-                                                        end
-                                                    end)
-                                                end
-                                            end)
-
-                                            textButton5.InputEnded:Connect(function(input)
-                                                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                                    flag12 = false
-                                                    n13 = 0
-                                                end
-                                            end)
-
-                                            textButton5.InputChanged:Connect(function(input)
-                                                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                                                    v12 = input
-                                                end
-                                            end)
-
-                                            RunService.RenderStepped:Connect(function()
-                                                if n13 > 0 and tick() - n13 >= 0 and not flag12 then
-                                                    flag12 = true
-                                                end
-
-                                                if flag12 and v12 then
-                                                    local n14 = (n12 - n11) / 365 * frame31.AbsoluteSize.X + n11
-                                                    local n15 = flag11 and tonumber(string.format("%.1f", n14)) or math.floor(n14)
-                                                    fn12(n15)
-                                                    frame31.Size = UDim2.new(0, math.clamp(v12.Position.X - frame31.AbsolutePosition.X, 0, 365), 0, 6)
-
-                                                    fn7({
-                                                        Type = "SliderDropdown",
-                                                        KeyName = k,
-                                                        Value = n15,
-                                                        State = table.clone(tbl7),
-                                                    })
-                                                end
-                                            end)
-                                        else
-                                            local flag12 = false
-                                            local v12 = nil
-                                            local n13 = 0
-
-                                            textButton5.InputBegan:Connect(function(input)
-                                                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                                    n13 = tick()
-
-                                                    input.Changed:Connect(function()
-                                                        if input.UserInputState == Enum.UserInputState.End then
-                                                            flag12 = false
-                                                            n13 = 0
-                                                        end
-                                                    end)
-                                                end
-                                            end)
-
-                                            textButton5.InputEnded:Connect(function(input)
-                                                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                                    flag12 = false
-                                                    n13 = 0
-                                                end
-                                            end)
-
-                                            textButton5.InputChanged:Connect(function(input)
-                                                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                                                    v12 = input
-                                                end
-                                            end)
-
-                                            RunService.RenderStepped:Connect(function()
-                                                if n13 > 0 and tick() - n13 >= 0 and not flag12 then
-                                                    flag12 = true
-                                                end
-
-                                                if flag12 and v12 then
-                                                    local n14 = (n12 - n11) / 365 * frame31.AbsoluteSize.X + n11
-                                                    local n15 = flag11 and tonumber(string.format("%.1f", n14)) or math.floor(n14)
-                                                    fn12(n15)
-                                                    frame31.Size = UDim2.new(0, math.clamp(v12.Position.X - frame31.AbsolutePosition.X, 0, 365), 0, 6)
-
-                                                    fn7({
-                                                        Type = "SliderDropdown",
-                                                        KeyName = k,
-                                                        Value = n15,
-                                                        State = table.clone(tbl7),
-                                                    })
-                                                end
-                                            end)
-                                        end
-
-                                        local function fn13(arg9, arg10)
-                                            local num4 = tonumber(arg9)
-                                            local v12 = num4
-                                            if not num4 then
-                                                return
-                                            end
-
-                                            if num4 <= n11 then
-                                                v12 = n11
-                                            elseif n12 <= num4 then
-                                                v12 = n12
-                                            end
-
-                                            frame31.Size = UDim2.new(1 - (n12 - v12) / (n12 - n11), 0, 0, 6)
-                                            fn12(v12)
-
-                                            if arg10 then
-                                                fn7({
-                                                    Type = "SliderDropdown",
-                                                    KeyName = k,
-                                                    Value = v12,
-                                                    State = table.clone(tbl7),
-                                                })
+                                        
+                                        local function fn16(p73)
+                                            if tonumber(p73) <= n11 then
+                                                frame31.Size = UDim2.new(0, 0, 0, 6)
+                                                fn12(n11)
+                                            elseif n12 <= tonumber(p73) then
+                                                frame31.Size = UDim2.new(0, n12 / n12 * 365, 0, 6)
+                                                fn12(n12)
+                                            else
+                                                frame31.Size = UDim2.new(1 - (n12 - p73) / (n12 - n11), 0, 0, 6)
+                                                fn12(p73)
                                             end
                                         end
-
+                                        
                                         textBox4.FocusLost:Connect(function()
-                                            fn13(textBox4.Text, true)
+                                            fn16(textBox4.Text)
                                         end)
-
-                                        tbl8[k] = {Bar = frame31, TextBox = textBox4, Min = n11, Max = n12}
                                     end
                                 else
-                                    local function fn12(arg9)
-                                        local flag11 = flag9 and table.find(tbl9, arg9) ~= nil
-                                        return flag11
-                                    end
-
-                                    local function fn13(arg9)
-                                        local flag11
-
-                                        if flag9 then
-                                            flag11 = false
-                                        else
-                                            flag11 = true
-                                        end
-
-                                        if flag11 then
-                                            flag11 = stringValue.Value == arg9
-                                        end
-
-                                        return flag11
-                                    end
-
-                                    for k, v10 in sortPairs(tbl12) do
+                                    for _, v10 in sortPairs(tbl12) do
                                         if typeof(v10) == "string" then
                                             local frame28 = Instance.new("Frame")
                                             local uiCorner12 = Instance.new("UICorner")
@@ -2671,6 +2598,7 @@ tbl3.CreateMain = function(arg)
                                             local textLabel6 = Instance.new("TextLabel")
                                             local imageButton = Instance.new("ImageButton")
                                             local textButton5 = Instance.new("TextButton")
+                                            
                                             frame28.Name = string.lower(v10)
                                             frame28.Parent = frame27
                                             frame28.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
@@ -2679,9 +2607,11 @@ tbl3.CreateMain = function(arg)
                                             frame28.LayoutOrder = 1
                                             frame28.Position = UDim2.new(0, 0, 0.208333328, 0)
                                             frame28.Size = UDim2.new(1, 0, 0, 25)
+                                            
                                             uiCorner12.CornerRadius = UDim.new(0, 4)
                                             uiCorner12.Name = "SampleItemCorner"
                                             uiCorner12.Parent = frame28
+                                            
                                             frame29.Name = "SampleItemBG"
                                             frame29.Parent = frame28
                                             frame29.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -2690,51 +2620,11 @@ tbl3.CreateMain = function(arg)
                                             frame29.BorderColor3 = Color3.fromRGB(27, 42, 53)
                                             frame29.Position = UDim2.new(0.5, 0, 0.5, 0)
                                             frame29.Size = UDim2.new(1, 0, 1, 0)
+                                            
                                             uiCorner13.CornerRadius = UDim.new(0, 4)
                                             uiCorner13.Name = "SampleItemBGCorner"
                                             uiCorner13.Parent = frame29
-                                            local v11 = nil
-
-                                            if flag9 then
-                                                local textLabel7 = Instance.new("TextLabel")
-                                                v11 = textLabel7
-                                                textLabel7.Name = "OrderLabel"
-                                                textLabel7.Parent = frame29
-                                                textLabel7.AnchorPoint = Vector2.new(0, 0.5)
-                                                textLabel7.Position = UDim2.new(0, 6, 0.5, 0)
-                                                textLabel7.Size = UDim2.new(0, 22, 0, 22)
-                                                textLabel7.BackgroundTransparency = 1
-                                                textLabel7.Font = Enum.Font.GothamBold
-                                                textLabel7.TextSize = 12
-                                                textLabel7.TextColor3 = Color3.new(1, 1, 1)
-                                                textLabel7.TextXAlignment = Enum.TextXAlignment.Center
-                                                textLabel7.Text = ""
-                                            end
-
-                                            if flag9 then
-                                                local v12 = tbl9
-                                                local tbl13 = v12 or {}
-                                                tbl9 = tbl13
-                                                local v13 = table.find(tbl9, v10)
-
-                                                if v13 then
-                                                    v11.Text = tostring(v13)
-                                                    frame29.BackgroundTransparency = 0.4
-                                                    frame29.BackgroundColor3 = getgenv().UIColor["Dropdown Selected Check Color"]
-                                                    imageButton.ImageTransparency = 0
-                                                    frame28.LayoutOrder = v13
-                                                else
-                                                    v11.Text = ""
-
-                                                    if stringValue.Value ~= v10 then
-                                                        frame29.BackgroundTransparency = 1
-                                                    end
-
-                                                    imageButton.ImageTransparency = 1
-                                                    frame28.LayoutOrder = 999
-                                                end
-                                            end
-
+                                            
                                             textLabel6.Name = "SampleItemTitle"
                                             textLabel6.Parent = frame29
                                             textLabel6.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -2748,6 +2638,7 @@ tbl3.CreateMain = function(arg)
                                             textLabel6.TextSize = 14
                                             textLabel6.TextStrokeTransparency = 0.5
                                             textLabel6.TextXAlignment = Enum.TextXAlignment.Left
+                                            
                                             imageButton.Name = "SampleItemCheck"
                                             imageButton.Parent = frame29
                                             imageButton.AnchorPoint = Vector2.new(1, 0.5)
@@ -2760,6 +2651,7 @@ tbl3.CreateMain = function(arg)
                                             imageButton.ImageRectOffset = Vector2.new(312, 4)
                                             imageButton.ImageRectSize = Vector2.new(24, 24)
                                             imageButton.ImageTransparency = 1
+                                            
                                             textButton5.Name = "SampleItemButton"
                                             textButton5.Parent = frame28
                                             textButton5.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -2771,78 +2663,41 @@ tbl3.CreateMain = function(arg)
                                             textButton5.TextColor3 = getgenv().UIColor["Text Color"]
                                             textButton5.TextSize = 14
                                             textButton5.TextTransparency = 1
-
+                                            
                                             textButton5.MouseEnter:Connect(function()
-                                                if fn12(v10) or fn13(v10) then
-                                                    return
-                                                end
+                                                if stringValue.Value == v10 then return end
                                                 TweenService:Create(frame29, TweenInfo.new(getgenv().UIColor["Tween Animation 1 Speed"]), {BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
                                                 TweenService:Create(frame29, TweenInfo.new(getgenv().UIColor["Tween Animation 1 Speed"]), {BackgroundTransparency = 0.7}):Play()
                                             end)
-
+                                            
                                             textButton5.MouseLeave:Connect(function()
-                                                if fn12(v10) or fn13(v10) then
-                                                    return
-                                                end
+                                                if stringValue.Value == v10 then return end
                                                 TweenService:Create(frame29, TweenInfo.new(getgenv().UIColor["Tween Animation 1 Speed"]), {BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
                                                 TweenService:Create(frame29, TweenInfo.new(getgenv().UIColor["Tween Animation 1 Speed"]), {BackgroundTransparency = 1}):Play()
                                             end)
-
+                                            
                                             textButton5.MouseButton1Click:Connect(function()
-                                                if not flag9 then
-                                                    if flag5 then
-                                                        local str3 = str2 .. ": " .. v10
-                                                        local placeholderText = str3 or ""
-                                                        textBox3.PlaceholderText = placeholderText
-                                                        stringValue.Value = v10
-                                                    else
-                                                        local str3 = str2 .. ": " .. v10
-                                                        local text5 = str3 or ""
-                                                        textBox3.Text = text5
-                                                        stringValue.Value = v10
-                                                    end
-
-                                                    TweenService:Create(frame29, TweenInfo.new(getgenv().UIColor["Tween Animation 1 Speed"]), {
-                                                        BackgroundColor3 = getgenv().UIColor["Dropdown Selected Check Color"],
-                                                    }):Play()
-
-                                                    TweenService:Create(frame29, TweenInfo.new(getgenv().UIColor["Tween Animation 1 Speed"]), {BackgroundTransparency = 0.5}):Play()
-
-                                                    if fn7 then
-                                                        fn7(v10)
-                                                    end
-
-                                                    if flag5 then
-                                                        textBox3.Text = ""
-                                                    end
-
-                                                    fn11()
-                                                    return
-                                                end
-
-                                                local v12 = table.find(tbl9, v10)
-
-                                                if v12 then
-                                                    table.remove(tbl9, v12)
-                                                else
-                                                    table.insert(tbl9, v10)
-                                                end
-
                                                 if flag5 then
-                                                    local placeholderText = str2 .. ": " .. table.concat(tbl9, " > ")
-                                                    textBox3.PlaceholderText = placeholderText
+                                                    textBox3.PlaceholderText = str2 .. ": " .. v10 or ""
+                                                    stringValue.Value = v10
                                                 else
-                                                    local text5 = str2 .. ": " .. table.concat(tbl9, " > ")
-                                                    textBox3.Text = text5
+                                                    textBox3.Text = str2 .. ": " .. v10 or ""
+                                                    stringValue.Value = v10
                                                 end
-
-                                                fn11()
-
+                                                TweenService:Create(frame29, TweenInfo.new(getgenv().UIColor["Tween Animation 1 Speed"]), {BackgroundColor3 = getgenv().UIColor["Dropdown Selected Check Color"]}):Play()
+                                                TweenService:Create(frame29, TweenInfo.new(getgenv().UIColor["Tween Animation 1 Speed"]), {BackgroundTransparency = 0.5}):Play()
+                                                
                                                 if fn7 then
-                                                    fn7(tbl9)
+                                                    fn7(v10)
                                                 end
+                                                
+                                                if flag5 then
+                                                    textBox3.Text = ""
+                                                end
+                                                
+                                                fn11()
                                             end)
-
+                                            
                                             if stringValue.Value == v10 then
                                                 frame29.BackgroundTransparency = 0.5
                                                 frame29.BackgroundColor3 = getgenv().UIColor["Dropdown Selected Check Color"]
@@ -2852,656 +2707,123 @@ tbl3.CreateMain = function(arg)
                                     end
                                 end
                             end
-
+                            
                             if flag5 then
                                 textBox3.Changed:Connect(function()
                                     fn8()
                                     fn9()
                                 end)
                             end
-
-                            if flag9 and typeof(default) == "table" then
-                                local str3 = #default > 0 and table.concat(default, " > ") or "None"
-
-                                if flag5 then
-                                    textBox3.PlaceholderText = str2 .. ": " .. str3
-                                else
-                                    textBox3.Text = str2 .. ": " .. str3
-                                end
-                            elseif typeof(default) == "table" then
-                                if flag7 then
-                                    textBox3.Text = ""
-                                    textBox3.PlaceholderText = str2 .. ": "
-                                elseif flag6 then
-                                    if flag5 then
-                                        textBox3.PlaceholderText = str2 .. ": "
-                                    else
-                                        textBox3.Text = str2 .. ": "
-                                    end
-                                end
-                            else
+                            
+                            if typeof(default) ~= "table" then
                                 fn7(default)
-
                                 if flag5 then
-                                    local v9 = tostring
-                                    local str3 = default or ""
-                                    textBox3.PlaceholderText = str2 .. ": " .. v9(str3)
+                                    textBox3.PlaceholderText = str2 .. ": " .. tostring(default or "")
                                 else
-                                    local v9 = tostring
-                                    local str3 = default or ""
-                                    local text5 = str2 .. ": " .. v9(str3)
-                                    textBox3.Text = text5
+                                    textBox3.Text = str2 .. ": " .. tostring(default or "")
+                                end
+                            elseif flag7 then
+                                textBox3.Text = ""
+                                textBox3.PlaceholderText = str2 .. ": "
+                            elseif flag6 then
+                                if flag5 then
+                                    textBox3.PlaceholderText = str2 .. ": "
+                                else
+                                    textBox3.Text = str2 .. ": "
                                 end
                             end
-
+                            
                             textButton4.MouseButton1Click:Connect(function()
                                 fn11()
-                                local flag11
-
-                                if flag10 then
-                                    flag11 = false
-                                else
-                                    flag11 = true
-                                end
-
-                                flag10 = flag11
-                                local v9 = flag10
-                                local udim29 = v9 and UDim2.new(1, 0, 0, 170) or UDim2.new(1, 0, 0, 0)
-                                local v10 = flag10
-                                local udim210 = v10 and UDim2.new(1, 0, 0, 200) or UDim2.new(1, 0, 0, 25)
-                                local v11 = flag10
-                                local n11 = v11 and 90 or 0
+                                local flag13 = not flag10
+                                flag10 = flag13
+                                local udim29 = flag10 and UDim2.new(1, 0, 0, 170) or UDim2.new(1, 0, 0, 0)
+                                local udim30 = flag10 and UDim2.new(1, 0, 0, 200) or UDim2.new(1, 0, 0, 25)
+                                local n14 = flag10 and 90 or 0
+                                
                                 TweenService:Create(frame26, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Size = udim29}):Play()
-                                TweenService:Create(frame23, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Size = udim210}):Play()
-                                TweenService:Create(imageLabel9, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Rotation = n11}):Play()
+                                TweenService:Create(frame23, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Size = udim30}):Play()
+                                TweenService:Create(imageLabel9, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Rotation = n14}):Play()
                             end)
-
+                            
                             local functionCreate = {
                                 rf = fn11,
-                                ClearText = function(arg8, arg9)
-                                    if flag9 and typeof(arg9) == "table" then
-                                        local str3 = #arg9 > 0 and table.concat(arg9, " > ") or "None"
-
-                                        if flag5 then
-                                            textBox3.PlaceholderText = str2 .. ": " .. str3
-                                        else
-                                            textBox3.Text = str2 .. ": " .. str3
-                                        end
-
-                                        return
-                                    end
-
+                                ClearText = function(p74, p75)
                                     if flag6 then
-                                        local v9 = tostring
-                                        local str3 = arg9 or ""
-                                        local text5 = str2 .. ": " .. v9(str3)
-                                        textBox3.Text = text5
+                                        textBox3.Text = str2 .. ": " .. (p75 or "")
                                     elseif flag5 then
-                                        local v9 = tostring
-                                        local str3 = arg9 or ""
-                                        local placeholderText = str2 .. ": " .. v9(str3)
-                                        textBox3.PlaceholderText = placeholderText
+                                        textBox3.PlaceholderText = str2 .. ": " .. (p75 or "")
                                     else
-                                        local v9 = tostring
-                                        local str3 = arg9 or ""
-                                        local text5 = str2 .. ": " .. v9(str3)
-                                        textBox3.Text = text5
+                                        textBox3.Text = str2 .. ": " .. (p75 or "")
                                     end
                                 end,
-                                SetValue = function(value)
-                                    if flag9 and typeof(value) == "table" then
-                                        tbl9 = table.clone(value)
-                                        local str3 = #tbl9 > 0 and table.concat(tbl9, " > ") or "None"
-
-                                        if flag5 then
-                                            textBox3.PlaceholderText = str2 .. ": " .. str3
-                                        else
-                                            textBox3.Text = str2 .. ": " .. str3
-                                        end
-
-                                        fn11()
-                                        return
-                                    end
-
-                                    if typeof(value) == "string" then
-                                        if table.find(tbl12, value) then
-                                            stringValue.Value = value
-                                        else
-                                            if tbl12[value] == nil then
-                                                warn("[Dropdown:SetValue] Value not found:", value)
-                                                return
-                                            end
-                                            stringValue.Value = value
-                                        end
-
-                                        if flag5 then
-                                            textBox3.PlaceholderText = str2 .. ": " .. value
-                                        else
-                                            textBox3.Text = str2 .. ": " .. value
-                                        end
-
-                                        fn11()
-
-                                        if fn7 then
-                                            fn7(value)
-                                        end
-                                    end
-                                end,
-                                SetSubValue = function(arg8, arg9, arg10)
-                                    if not tbl8 then
-                                        return
-                                    end
-                                    local v9 = tbl8[arg9]
-                                    if not v9 then
-                                        return
-                                    end
-                                    local num = tonumber(arg10)
-                                    if not num then
-                                        return
-                                    end
-                                    local min = v9.Min
-                                    local n11 = min or 0
-                                    local max = v9.Max
-                                    local n12 = max or 100
-                                    local default2 = math.clamp(num, n11, n12)
-                                    tbl7[arg9] = default2
-                                    tbl12[arg9].Default = default2
-                                    v9.Bar.Size = UDim2.new((default2 - n11) / (n12 - n11), 0, 0, 6)
-                                    v9.TextBox.Text = tostring(default2)
-
-                                    if fn7 then
-                                        fn7({
-                                            Type = "SliderDropdown",
-                                            KeyName = arg9,
-                                            Value = default2,
-                                            State = table.clone(tbl7),
-                                        })
-                                    end
-                                end,
-                                GetNewList = function(arg8, arg9)
+                                GetNewList = function(p76, p77)
                                     stringValue.Value = ""
                                     flag10 = false
-                                    local udim29 = UDim2.new(1, 0, 0, 0)
-                                    local v9 = flag10
-                                    local udim210 = v9 and UDim2.new(1, 0, 0, 200) or UDim2.new(1, 0, 0, 25)
-                                    local v10 = flag10
-                                    local n11 = v10 and 90 or 0
-                                    TweenService:Create(frame26, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Size = udim29}):Play()
-                                    TweenService:Create(frame23, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Size = udim210}):Play()
-                                    TweenService:Create(imageLabel9, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Rotation = n11}):Play()
+                                    local udim31 = UDim2.new(1, 0, 0, 0)
+                                    local udim32 = flag10 and UDim2.new(1, 0, 0, 200) or UDim2.new(1, 0, 0, 25)
+                                    local n15 = flag10 and 90 or 0
+                                    
+                                    TweenService:Create(frame26, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Size = udim31}):Play()
+                                    TweenService:Create(frame23, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Size = udim32}):Play()
+                                    TweenService:Create(imageLabel9, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {Rotation = n15}):Play()
+                                    
                                     tbl12 = {}
-                                    tbl12 = arg9
+                                    tbl12 = p77
                                     fn11()
-
+                                    
                                     if flag5 then
                                         textBox3.PlaceholderText = str2 .. ": "
                                     else
                                         textBox3.Text = str2 .. ": "
                                     end
                                 end,
-                            }
-
-                            arg6.FunctionCreate = functionCreate
-                            arg6.Page_Name = text2
-                            arg6.Section_Name = text4
-                            tbl3:RegisterOption(arg6, callback)
-                            return functionCreate
-                        end,
-                        CreateBind = function(arg6, arg7)
-                            local str2 = tostring(arg6.Title)
-                            local text5 = str2 or ""
-                            local key = arg6.Key
-                            local default = arg6.Default or arg6.Key
-                            local str3 = tostring(default):match("UserInputType") and "UserInputType" or "KeyCode"
-                            local fn7 = arg7 or function() end
-                            local str4 = tostring(key):gsub("Enum.UserInputType.", "")
-                            tostring(str4):gsub("Enum.KeyCode.", "")
-                            local frame23 = Instance.new("Frame")
-                            local uiCorner10 = Instance.new("UICorner")
-                            local frame24 = Instance.new("Frame")
-                            local uiCorner11 = Instance.new("UICorner")
-                            local textLabel6 = Instance.new("TextLabel")
-                            Instance.new("TextButton")
-                            local frame25 = Instance.new("Frame")
-                            local uiCorner12 = Instance.new("UICorner")
-                            local textButton4 = Instance.new("TextButton")
-                            frame23.Name = text5 .. "bguvl"
-                            frame23.Parent = frame20
-                            frame23.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-                            frame23.BackgroundTransparency = 1
-                            frame23.Position = UDim2.new(0, 0, 0.208333328, 0)
-                            frame23.Size = UDim2.new(1, 0, 0, 35)
-                            uiCorner10.CornerRadius = UDim.new(0, 4)
-                            uiCorner10.Name = "BindCorner"
-                            uiCorner10.Parent = frame23
-                            frame24.Name = "Background1"
-                            frame24.Parent = frame23
-                            frame24.AnchorPoint = Vector2.new(0.5, 0.5)
-                            frame24.Position = UDim2.new(0.5, 0, 0.5, 0)
-                            frame24.Size = UDim2.new(1, -10, 1, 0)
-                            frame24.BackgroundColor3 = getgenv().UIColor["Background 1 Color"]
-                            frame24.BackgroundTransparency = getgenv().UIColor["Background 1 Transparency"]
-                            uiCorner11.CornerRadius = UDim.new(0, 4)
-                            uiCorner11.Name = "ButtonCorner"
-                            uiCorner11.Parent = frame24
-                            textLabel6.Name = "TextColor"
-                            textLabel6.Parent = frame24
-                            textLabel6.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
-                            textLabel6.BackgroundTransparency = 1
-                            textLabel6.Position = UDim2.new(0, 10, 0, 0)
-                            textLabel6.Size = UDim2.new(1, -10, 1, 0)
-                            textLabel6.Font = Enum.Font.GothamBlack
-                            textLabel6.Text = text5
-                            textLabel6.TextSize = 14
-                            textLabel6.TextXAlignment = Enum.TextXAlignment.Left
-                            textLabel6.TextColor3 = getgenv().UIColor["Text Color"]
-                            frame25.Name = "Background2"
-                            frame25.Parent = frame24
-                            frame25.AnchorPoint = Vector2.new(1, 0.5)
-                            frame25.Position = UDim2.new(1, -5, 0.5, 0)
-                            frame25.Size = UDim2.new(0, 150, 0, 25)
-                            frame25.BackgroundColor3 = getgenv().UIColor["Background 2 Color"]
-                            uiCorner12.CornerRadius = UDim.new(0, 4)
-                            uiCorner12.Name = "ButtonCorner"
-                            uiCorner12.Parent = frame25
-                            textButton4.Name = "Bindkey"
-                            textButton4.Parent = frame25
-                            textButton4.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
-                            textButton4.BackgroundTransparency = 1
-                            textButton4.Size = UDim2.new(1, 0, 1, 0)
-                            textButton4.Font = Enum.Font.GothamBold
-                            textButton4.Text = tostring(default):gsub("Enum.KeyCode.", "")
-                            textButton4.TextSize = 14
-                            textButton4.TextColor3 = getgenv().UIColor["Text Color"]
-                            local tbl7 = {}
-                            tbl7[Enum.UserInputType.MouseButton1] = "Mouse1"
-                            tbl7[Enum.UserInputType.MouseButton2] = "Mouse2"
-                            tbl7[Enum.UserInputType.MouseButton3] = "Mouse3"
-
-                            textButton4.MouseButton1Click:Connect(function()
-                                local connection = nil
-                                textButton4.Text = "..."
-
-                                connection = game:GetService("UserInputService").InputBegan:Connect(function(input)
-                                    if tbl7[input.UserInputType] then
-                                        textButton4.Text = tbl7[input.UserInputType]
-
-                                        spawn(function()
-                                            wait(0.1)
-                                            default = input.UserInputType
-                                            str3 = "UserInputType"
-                                        end)
-                                    elseif input.KeyCode ~= Enum.KeyCode.Unknown then
-                                        textButton4.Text = tostring(input.KeyCode):gsub("Enum.KeyCode.", "")
-
-                                        spawn(function()
-                                            wait(0.1)
-                                            default = input.KeyCode
-                                            str3 = "KeyCode"
-                                        end)
+                                GetValue = function()
+                                    if not flag6 then
+                                        return stringValue.Value
                                     end
-
-                                    connection:Disconnect()
-                                end)
-                            end)
-
-                            game:GetService("UserInputService").InputBegan:Connect(function(input)
-                                if default == input.UserInputType or default == input.KeyCode then
-                                    fn7(default)
-                                end
-                            end)
-                        end,
-                        CreateBox = function(arg6, arg7)
-                            local str2 = tostring(arg6.Title)
-                            local text5 = str2 or ""
-                            local str3 = tostring(arg6.Placeholder)
-                            local placeholderText = str3 or ""
-                            local default = arg6.Default
-                            local text6 = default or false
-                            local number = arg6.Number
-                            local flag5 = number or false
-                            local fn7 = arg7 or function() end
-                            local frame23 = Instance.new("Frame")
-                            local uiCorner10 = Instance.new("UICorner")
-                            local frame24 = Instance.new("Frame")
-                            local uiCorner11 = Instance.new("UICorner")
-                            local textLabel6 = Instance.new("TextLabel")
-                            local frame25 = Instance.new("Frame")
-                            local uiCorner12 = Instance.new("UICorner")
-                            local textBox3 = Instance.new("TextBox")
-                            local frame26 = Instance.new("Frame")
-                            local uiCorner13 = Instance.new("UICorner")
-                            frame23.Name = "BoxFrame"
-                            frame23.Parent = frame20
-                            frame23.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-                            frame23.BackgroundTransparency = 1
-                            frame23.Position = UDim2.new(0, 0, 0.208333328, 0)
-                            frame23.Size = UDim2.new(1, 0, 0, 60)
-                            uiCorner10.CornerRadius = UDim.new(0, 4)
-                            uiCorner10.Name = "BoxCorner"
-                            uiCorner10.Parent = frame23
-                            frame24.Name = "Background1"
-                            frame24.Parent = frame23
-                            frame24.AnchorPoint = Vector2.new(0.5, 0.5)
-                            frame24.Position = UDim2.new(0.5, 0, 0.5, 0)
-                            frame24.Size = UDim2.new(1, -10, 1, 0)
-                            frame24.BackgroundColor3 = getgenv().UIColor["Background 1 Color"]
-                            frame24.BackgroundTransparency = getgenv().UIColor["Background 1 Transparency"]
-                            uiCorner11.CornerRadius = UDim.new(0, 4)
-                            uiCorner11.Name = "ButtonCorner"
-                            uiCorner11.Parent = frame24
-                            textLabel6.Name = "TextColor"
-                            textLabel6.Parent = frame24
-                            textLabel6.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
-                            textLabel6.BackgroundTransparency = 1
-                            textLabel6.Position = UDim2.new(0, 10, 0, 0)
-                            textLabel6.Size = UDim2.new(1, -10, 0.5, 0)
-                            textLabel6.Font = Enum.Font.GothamBlack
-                            textLabel6.Text = text5
-                            textLabel6.TextSize = 14
-                            textLabel6.TextXAlignment = Enum.TextXAlignment.Left
-                            textLabel6.TextColor3 = getgenv().UIColor["Text Color"]
-                            frame25.Name = "Background2"
-                            frame25.Parent = frame24
-                            frame25.AnchorPoint = Vector2.new(1, 0.5)
-                            frame25.ClipsDescendants = true
-                            frame25.Position = UDim2.new(1, -5, 0, 40)
-                            frame25.Size = UDim2.new(1, -10, 0, 25)
-                            frame25.BackgroundColor3 = getgenv().UIColor["Background 2 Color"]
-                            uiCorner12.CornerRadius = UDim.new(0, 4)
-                            uiCorner12.Name = "ButtonCorner"
-                            uiCorner12.Parent = frame25
-                            textBox3.Name = "TextColorPlaceholder"
-                            textBox3.Parent = frame25
-                            textBox3.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
-                            textBox3.BackgroundTransparency = 1
-                            textBox3.Position = UDim2.new(0, 5, 0, 0)
-                            textBox3.Size = UDim2.new(1, -5, 1, 0)
-                            textBox3.Font = Enum.Font.GothamBold
-                            textBox3.PlaceholderText = placeholderText
-                            textBox3.Text = ""
-                            textBox3.TextSize = 14
-                            textBox3.TextXAlignment = Enum.TextXAlignment.Left
-                            textBox3.PlaceholderColor3 = getgenv().UIColor["Placeholder Text Color"]
-                            textBox3.TextColor3 = getgenv().UIColor["Text Color"]
-                            frame26.Name = "TextNSBoxLineeeee"
-                            frame26.Parent = frame25
-                            frame26.BackgroundTransparency = 1
-                            frame26.Position = UDim2.new(0, 0, 1, -2)
-                            frame26.Size = UDim2.new(1, 0, 0, 6)
-                            frame26.BackgroundColor3 = getgenv().UIColor["Box Highlight Color"]
-                            uiCorner13.CornerRadius = UDim.new(1, 0)
-                            uiCorner13.Parent = frame26
-
-                            textBox3.Focused:Connect(function()
-                                TweenService:Create(frame26, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {BackgroundTransparency = 0}):Play()
-                            end)
-
-                            if flag5 then
-                                textBox3:GetPropertyChangedSignal("Text"):Connect(function()
-                                    if not tonumber(textBox3.Text) then
-                                        textBox3.PlaceholderText = placeholderText
-                                        textBox3.Text = ""
-                                    end
-                                end)
-                            end
-
-                            textBox3.FocusLost:Connect(function()
-                                TweenService:Create(frame26, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {BackgroundTransparency = 1}):Play()
-
-                                if textBox3.Text ~= "" then
-                                    fn7(textBox3.Text)
-                                end
-                            end)
-
-                            local tbl7 = {}
-
-                            if text6 then
-                                textBox3.Text = text6
-                                fn7(text6)
-                            end
-
-                            tbl7.SetValue = function(text7)
-                                textBox3.Text = text7
-                                fn7(text7)
-                            end
-
-                            tbl3:RegisterOption({
-                                Title = arg6.Title,
-                                Default = text6,
-                                Box = true,
-                                Page_Name = text2,
-                                Section_Name = text4,
-                                FunctionCreate = tbl7,
-                            }, fn7)
-
-                            return tbl7
-                        end,
-                        CreateSlider = function(arg6, arg7)
-                            local str2 = tostring(arg6.Title)
-                            local text5 = str2 or ""
-                            local num = tonumber(arg6.Min)
-                            local n11 = num or 0
-                            local num2 = tonumber(arg6.Max)
-                            local n12 = num2 or 100
-                            local precise = arg6.Precise
-                            local flag5 = precise or false
-                            local num3 = tonumber(arg6.Default)
-                            local n13 = num3 or 0
-                            local fn7 = arg7 or function() end
-                            local fn8 = fn7 or function() end
-                            local frame23 = Instance.new("Frame")
-                            local uiCorner10 = Instance.new("UICorner")
-                            local frame24 = Instance.new("Frame")
-                            local uiCorner11 = Instance.new("UICorner")
-                            local textLabel6 = Instance.new("TextLabel")
-                            local frame25 = Instance.new("Frame")
-                            local textButton4 = Instance.new("TextButton")
-                            local uiCorner12 = Instance.new("UICorner")
-                            local frame26 = Instance.new("Frame")
-                            local uiCorner13 = Instance.new("UICorner")
-                            local frame27 = Instance.new("Frame")
-                            local uiCorner14 = Instance.new("UICorner")
-                            local textBox3 = Instance.new("TextBox")
-                            frame23.Name = text5 .. "buda"
-                            frame23.Parent = frame20
-                            frame23.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-                            frame23.BackgroundTransparency = 1
-                            frame23.Position = UDim2.new(0, 0, 0.208333328, 0)
-                            frame23.Size = UDim2.new(1, 0, 0, 50)
-                            uiCorner10.CornerRadius = UDim.new(0, 4)
-                            uiCorner10.Name = "SliderCorner"
-                            uiCorner10.Parent = frame23
-                            frame24.Name = "Background1"
-                            frame24.Parent = frame23
-                            frame24.AnchorPoint = Vector2.new(0.5, 0.5)
-                            frame24.Position = UDim2.new(0.5, 0, 0.5, 0)
-                            frame24.Size = UDim2.new(1, -10, 1, 0)
-                            frame24.BackgroundColor3 = getgenv().UIColor["Background 1 Color"]
-                            frame24.BackgroundTransparency = getgenv().UIColor["Background 1 Transparency"]
-                            uiCorner11.CornerRadius = UDim.new(0, 4)
-                            uiCorner11.Name = "SliderBGCorner"
-                            uiCorner11.Parent = frame24
-                            textLabel6.Name = "TextColor"
-                            textLabel6.Parent = frame24
-                            textLabel6.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
-                            textLabel6.BackgroundTransparency = 1
-                            textLabel6.Position = UDim2.new(0, 10, 0, 0)
-                            textLabel6.Size = UDim2.new(1, -10, 0, 25)
-                            textLabel6.Font = Enum.Font.GothamBlack
-                            textLabel6.Text = text5
-                            textLabel6.TextSize = 14
-                            textLabel6.RichText = true
-                            textLabel6.TextXAlignment = Enum.TextXAlignment.Left
-                            textLabel6.TextColor3 = getgenv().UIColor["Text Color"]
-                            frame25.Name = "SliderBar"
-                            frame25.Parent = frame23
-                            frame25.AnchorPoint = Vector2.new(0.5, 0.5)
-                            frame25.Position = UDim2.new(0.5, 0, 0.5, 14)
-                            frame25.Size = UDim2.new(0, 400, 0, 6)
-                            frame25.BackgroundColor3 = getgenv().UIColor["Background 2 Color"]
-                            textButton4.Name = "SliderButton "
-                            textButton4.Parent = frame25
-                            textButton4.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
-                            textButton4.BackgroundTransparency = 1
-                            textButton4.Size = UDim2.new(1, 0, 1, 0)
-                            textButton4.Font = Enum.Font.GothamBold
-                            textButton4.Text = ""
-                            textButton4.TextColor3 = Color3.fromRGB(230, 230, 230)
-                            textButton4.TextSize = 14
-                            uiCorner12.CornerRadius = UDim.new(1, 0)
-                            uiCorner12.Name = "SliderBarCorner"
-                            uiCorner12.Parent = frame25
-                            frame26.Name = "Bar"
-                            frame26.BorderSizePixel = 0
-                            frame26.Parent = frame25
-                            frame26.Size = UDim2.new(0, 0, 1, 0)
-                            frame26.BackgroundColor3 = getgenv().UIColor["Slider Line Color"]
-                            uiCorner13.CornerRadius = UDim.new(1, 0)
-                            uiCorner13.Name = "BarCorner"
-                            uiCorner13.Parent = frame26
-                            frame27.Name = "Background2"
-                            frame27.Parent = frame23
-                            frame27.AnchorPoint = Vector2.new(1, 0)
-                            frame27.Position = UDim2.new(1, -10, 0, 5)
-                            frame27.Size = UDim2.new(0, 150, 0, 25)
-                            frame27.BackgroundColor3 = getgenv().UIColor["Background 2 Color"]
-                            uiCorner14.CornerRadius = UDim.new(0, 4)
-                            uiCorner14.Name = "Sliderbox"
-                            uiCorner14.Parent = frame27
-                            textBox3.Name = "TextColor"
-                            textBox3.Parent = frame27
-                            textBox3.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
-                            textBox3.BackgroundTransparency = 1
-                            textBox3.Size = UDim2.new(1, 0, 1, 0)
-                            textBox3.Font = Enum.Font.GothamBold
-                            textBox3.Text = ""
-                            textBox3.TextSize = 14
-                            textBox3.TextColor3 = getgenv().UIColor["Text Color"]
-
-                            textButton4.MouseEnter:Connect(function()
-                                TweenService:Create(frame26, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {
-                                    BackgroundColor3 = getgenv().UIColor["Slider Highlight Color"],
-                                }):Play()
-                            end)
-
-                            textButton4.MouseLeave:Connect(function()
-                                TweenService:Create(frame26, TweenInfo.new(getgenv().UIColor["Tween Animation 2 Speed"]), {BackgroundColor3 = getgenv().UIColor["Slider Line Color"]}):Play()
-                            end)
-
-                            local function fn9(text6)
-                                textBox3.Text = text6
-                                fn8(tonumber(text6))
-                            end
-
-                            if n13 then
-                                if n13 <= n11 then
-                                    n13 = n11
-                                elseif n12 <= n13 then
-                                    n13 = n12
-                                end
-
-                                frame26.Size = UDim2.new(1 - (n12 - n13) / (n12 - n11), 0, 0, 6)
-                                fn9(n13)
-                            end
-
-                            local flag6 = false
-                            local v9 = nil
-                            local n14 = 0
-
-                            textButton4.InputBegan:Connect(function(input)
-                                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                    n14 = tick()
-
-                                    input.Changed:Connect(function()
-                                        if input.UserInputState == Enum.UserInputState.End then
-                                            flag6 = false
-                                            n14 = 0
+                                    local tbl13 = {}
+                                    if type(tbl12) == "table" then
+                                        for k, v14 in sortPairs(tbl12) do
+                                            if v14 == true then
+                                                table.insert(tbl13, k)
+                                            end
                                         end
-                                    end)
+                                    end
+                                    return tbl13
                                 end
-                            end)
-
-                            textButton4.InputEnded:Connect(function(input)
-                                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                    flag6 = false
-                                    n14 = 0
-                                end
-                            end)
-
-                            textButton4.InputChanged:Connect(function(input)
-                                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                                    v9 = input
-                                end
-                            end)
-
-                            RunService.RenderStepped:Connect(function()
-                                if n14 > 0 and tick() - n14 >= 0 and not flag6 then
-                                    flag6 = true
-                                end
-
-                                if flag6 and v9 then
-                                    local n15 = flag5 and tonumber(string.format("%.1f", (tonumber(n12) - tonumber(n11)) / 400 * frame26.AbsoluteSize.X + tonumber(n11))) or math.floor((tonumber(n12) - tonumber(n11)) / 400 * frame26.AbsoluteSize.X + tonumber(n11))
-
-                                    pcall(function()
-                                        fn9(n15)
-                                    end)
-
-                                    frame26.Size = UDim2.new(0, math.clamp(v9.Position.X - frame26.AbsolutePosition.X, 0, 400), 0, 6)
-                                end
-                            end)
-
-                            local function fn10(arg8)
-                                if tonumber(arg8) <= n11 then
-                                    frame26.Size = UDim2.new(0, 0, 0, 6)
-                                    fn9(n11)
-                                elseif n12 <= tonumber(arg8) then
-                                    frame26.Size = UDim2.new(0, n12 / n12 * 400, 0, 6)
-                                    fn9(n12)
-                                else
-                                    frame26.Size = UDim2.new(1 - (n12 - arg8) / (n12 - n11), 0, 0, 6)
-                                    fn9(arg8)
+                            }
+                            
+                            functionCreate.GetValue = functionCreate.GetValue
+                            
+                            functionCreate.SetValue = function(p78)
+                                if not flag6 then
+                                    stringValue.Value = tostring(p78)
+                                    if flag5 then
+                                        textBox3.PlaceholderText = str2 .. ": " .. tostring(p78)
+                                    else
+                                        textBox3.Text = str2 .. ": " .. tostring(p78)
+                                    end
+                                    fn7(p78)
                                 end
                             end
-
-                            textBox3.FocusLost:Connect(function()
-                                fn10(textBox3.Text)
-                            end)
-
-                            local tbl7 = {
-                                SetValue = function(arg8)
-                                    fn10(arg8)
-                                end,
-                                GetText = function()
-                                    return textLabel6
-                                end,
-                            }
-
-                            tbl3:RegisterOption({
-                                Title = arg6.Title,
-                                Default = n13,
-                                Slider = true,
-                                Min = n11,
-                                Max = n12,
-                                Precise = flag5,
-                                Page_Name = text2,
-                                Section_Name = text4,
-                                FunctionCreate = tbl7,
-                            }, fn8)
-
-                            return tbl7
-                        end,
+                            
+                            arg6.FunctionCreate = functionCreate
+                            
+                            tbl3:RegisterOption(arg6, arg7)
+                            return functionCreate
+                        end
                     }
-                end,
+                end
             }
-        end,
+        end
     }
 end
 
 tbl3.CreateNoti({
-    Title = "UI Library",
+    Title = "Notification",
     Desc = "The UI automatically hides once executed.\nPress the button at the bottom-left of the screen to show the GUI.",
-    ShowTime = 10,
+    ShowTime = 10
 }, true)
 
 return tbl3
