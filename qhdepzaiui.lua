@@ -618,7 +618,7 @@ end
 
 tbl3.CreateMain = function(arg)
     local str = tostring(arg.Title)
-    local text = str or "QHuy Hub Cat Hub"
+    local text = str or "QHuy Hub"
     local genv2 = getgenv()
     local desc = arg.Desc
     local mainDesc = desc or ""
@@ -662,7 +662,7 @@ tbl3.CreateMain = function(arg)
     imageLabel2.ImageColor3 = getgenv().UIColor["Border Color"]
     imageLabel2.ImageTransparency = 1
     imageLabel2.ImageColor3 = getgenv().UIColor["Title Text Color"]
-    textLabel.Text = "<font color=\"rgb(" .. (tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">QHuy Hub Cat Hub</font> " .. getgenv().MainDesc
+    textLabel.Text = "<font color=\"rgb(" .. (tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">QHuy Hub </font> " .. getgenv().MainDesc
     local imageLabel4 = Instance.new("ImageLabel")
     imageLabel4.Name = "MainContainer"
     imageLabel4.Parent = frame3
@@ -767,7 +767,7 @@ tbl3.CreateMain = function(arg)
     textLabel.TextWrapped = true
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
     textLabel.TextColor3 = getgenv().UIColor["GUI Text Color"]
-    textLabel.Text = "<font color=\"rgb(" .. (tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">QHuy Hub Cat Hub</font> " .. getgenv().MainDesc
+    textLabel.Text = "<font color=\"rgb(" .. (tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">QHuy Hub </font> " .. getgenv().MainDesc
     frame5.Name = "Background1"
     frame5.Parent = frame8
     frame5.Position = UDim2.new(0, 5, 0, 0)
