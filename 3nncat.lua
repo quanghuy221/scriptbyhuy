@@ -3244,21 +3244,7 @@ spawn(function()
 		end
 	end
 end)
-LocalPlayerMain = Main.CreatePage({ Page_Name = "LocalPlayer", Page_Title = "LocalPlayer" })
-SectionLocalPlayerMain = LocalPlayerMain.CreateSection("Local Player")
-local savedLang = Settings["Translate Language"]
-if not TopiTranslator.Langs[savedLang] then
-	savedLang = "Vietnamese"
-end
-TopiTranslator.SelectLang(savedLang)
-SectionLocalPlayerMain.CreateDropdown({
-	Title = "Translate Language",
-	List = TopiTranslator.LangList,
-	Default = savedLang,
-}, function(v)
-	SaveSettings("Translate Language", v)
-	TopiTranslator.SelectLang(v)
-end)
+
 
 SectionLocalPlayerMain.CreateButton({ Title = "Stop Tween" }, function()
 	getgenv().noclip = false
