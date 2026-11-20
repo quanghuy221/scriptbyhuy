@@ -502,7 +502,7 @@ local function fn3(arg)
     uiCorner3.CornerRadius = UDim.new(1, 0)
     uiCorner3.Name = "RuafimgCorner"
     uiCorner3.Parent = imageLabel2
-    textLabel.Text = "<font color=\"rgb(" .. (tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">QH Dev Hub</font> " .. getgenv().TitleNameNoti
+    textLabel.Text = "<font color=\"rgb(" .. (tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">QHuy Hub</font> " .. getgenv().TitleNameNoti
     textLabel.Name = "TextLabelNoti"
     textLabel.Parent = frame5
     textLabel.BackgroundColor3 = Color3.fromRGB(230, 230, 230)
@@ -602,7 +602,7 @@ tbl3.CreateNoti = function(arg, arg2)
             pcall(function()
                 local StarterGui = game:GetService("StarterGui")
                 local setCore = StarterGui.SetCore
-                local tbl5 = {Title = "QH Dev Hub"}
+                local tbl5 = {Title = "QHuy Hub"}
                 local desc = arg.Desc
                 local text = desc or ""
                 tbl5.Text = text
@@ -618,7 +618,7 @@ end
 
 tbl3.CreateMain = function(arg)
     local str = tostring(arg.Title)
-    local text = str or "QH Dev Hub Cat Hub"
+    local text = str or "QHuy Hub Cat Hub"
     local genv2 = getgenv()
     local desc = arg.Desc
     local mainDesc = desc or ""
@@ -662,7 +662,7 @@ tbl3.CreateMain = function(arg)
     imageLabel2.ImageColor3 = getgenv().UIColor["Border Color"]
     imageLabel2.ImageTransparency = 1
     imageLabel2.ImageColor3 = getgenv().UIColor["Title Text Color"]
-    textLabel.Text = "<font color=\"rgb(" .. (tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">QH Dev Hub Cat Hub</font> " .. getgenv().MainDesc
+    textLabel.Text = "<font color=\"rgb(" .. (tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">QHuy Hub Cat Hub</font> " .. getgenv().MainDesc
     local imageLabel4 = Instance.new("ImageLabel")
     imageLabel4.Name = "MainContainer"
     imageLabel4.Parent = frame3
@@ -767,7 +767,7 @@ tbl3.CreateMain = function(arg)
     textLabel.TextWrapped = true
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
     textLabel.TextColor3 = getgenv().UIColor["GUI Text Color"]
-    textLabel.Text = "<font color=\"rgb(" .. (tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">QH Dev Hub Cat Hub</font> " .. getgenv().MainDesc
+    textLabel.Text = "<font color=\"rgb(" .. (tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[1]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[2]) .. "," .. tostring(tbl4.Getcolor(getgenv().UIColor["Title Text Color"])[3])) .. ")\">QHuy Hub Cat Hub</font> " .. getgenv().MainDesc
     frame5.Name = "Background1"
     frame5.Parent = frame8
     frame5.Position = UDim2.new(0, 5, 0, 0)
