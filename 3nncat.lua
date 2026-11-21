@@ -1181,7 +1181,7 @@ do
 	local lp = Players.LocalPlayer
 	local env = getgenv()
 
-	local UI_KEY = "Show BananaCat Status UI"
+	local UI_KEY = "Show QHuy Hub Status UI"
 	local BLUE = Color3.fromRGB(70, 140, 255)
 	local BG = Color3.fromRGB(10, 14, 26)
 
@@ -1899,7 +1899,7 @@ SectionStopTweenUI.CreateToggle({
 		RemoveQuangHuyStopTweenPanel()
 	end
 end)
--- ===================== end BananaCat Status UI =====================
+-- ===================== end QHuy Hub Status UI =====================
 
 SectionStatus = PageStatusAndServer.CreateSection("Status")
 TimerLabel = SectionStatus.CreateLabel({ Title = "Timer" })
@@ -2791,7 +2791,7 @@ end)
 StatusPlaceId = SectionServer.CreateLabel({ Title = "PlaceId: " .. game.PlaceId })
 local G = ""
 SectionServer.CreateBox(
-	{ Title = "Input JobId Normal And JobId BananaCat", Placeholder = "Type here", Number = false, Default = nil },
+	{ Title = "Input JobId Normal And JobId QHuy Hub", Placeholder = "Type here", Number = false, Default = nil },
 	function(f)
 		G = f
 	end
@@ -10850,7 +10850,7 @@ do
 		end
 		if A and A.CreateNoti then
 			pcall(function()
-				A.CreateNoti({ Title = "BananaCat - Secret Quest", Desc = text, ShowTime = (extra and extra.Duration) or 5 })
+				A.CreateNoti({ Title = "QHuy Hub - Secret Quest", Desc = text, ShowTime = (extra and extra.Duration) or 5 })
 			end)
 		else
 			pcall(function()
@@ -17184,7 +17184,7 @@ function BuyMeleeGate(melee)
 	return false
 end
 
-print("[BananaCat] Secret Quest (39) module loaded — section ở đầu Farming Other")
+print("[QHuy Hub] Secret Quest (39) module loaded — section ở đầu Farming Other")
 -- Halloween features ported from Topi Halloween section.
 -- Existing Banana Halloween Event features above are intentionally kept.
 -- ================================================================
