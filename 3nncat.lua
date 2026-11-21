@@ -18699,10 +18699,7 @@ elseif sw.Enabled then
 end
 
 
--- =====================================================================
--- PHẦN C: RANDOM HALLOWEEN FRUIT (ĐÃ FIX LỖI KHÔNG CHẠY & KHÔNG TẮT ĐƯỢC)
--- =====================================================================
--- (Bạn đặt đoạn này vào trong phần tạo nút HalloweenSection.CreateButton)
+
 HalloweenSection.CreateButton(
     { 
         Title = "Random Halloween Fruit", 
@@ -18757,7 +18754,7 @@ HalloweenSection.CreateButton(
                     task.wait(0.5)
                 end
             else
-                print("[HalloweenGacha] Không thấy bảng quay hiện lên (Có thể bạn đã hết lượt).")
+                print("[HalloweenGacha] Không thấy bảng quay hiện lên (Có thể bạn đã hết lượt hoặc không đủ candy corn!).")
             end
             print("[HalloweenGacha] Hoàn tất random.")
         end)
