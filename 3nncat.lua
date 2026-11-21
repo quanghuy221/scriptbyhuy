@@ -31995,30 +31995,26 @@ if not getgenv().BananaCatMainLoop then
 			lastFruitTick = tick()
 			local T, T = pcall(function()
 				if Settings["Random Devil Fruit"] then
-					-- =====================================================================
--- BỘ LỌC THÔNG BÁO VÀ CHỐNG SPAM (CHỈ KHỞI TẠO 1 LẦN DUY NHẤT)
--- =====================================================================
+-- [BỘ LỌC CHỐNG SPAM & TÀNG HÌNH CHỮ TRY AGAIN]
 if not getgenv().__GachaPerfectHook then
     getgenv().__GachaPerfectHook = true
-    getgenv().__GachaCooldownUntil = 0 -- Thời gian tạm dừng (ngủ đông)
+    getgenv().__GachaCooldownUntil = 0
 
     local function processUI(obj)
         if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
             local function checkText()
                 local txt = string.lower(obj.Text)
-                -- Nếu phát hiện chữ Try Again soon
                 if string.find(txt, "try again") or string.find(txt, "soon") then
                     obj.TextTransparency = 1 -- Tàng hình chữ
-                    obj.Text = ""            -- Xóa sạch text
-                    getgenv().__GachaCooldownUntil = tick() + 5 -- [QUAN TRỌNG] Ép bot nghỉ 5 giây
+                    obj.Text = ""            -- Xóa sạch
+                    getgenv().__GachaCooldownUntil = tick() + 5 -- Ép bot nghỉ 5 giây
                 end
             end
             obj:GetPropertyChangedSignal("Text"):Connect(checkText)
-            checkText() -- Check luôn chữ hiện tại
+            checkText()
         end
     end
 
-    -- Hook vào PlayerGui để bắt mọi thông báo
     local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
     if pg then
         for _, v in ipairs(pg:GetDescendants()) do processUI(v) end
@@ -32026,35 +32022,32 @@ if not getgenv().__GachaPerfectHook then
     end
 end
 
--- =====================================================================
--- VÒNG LẶP GACHA CHÍNH (TỐI ƯU 100%)
--- =====================================================================
+-- [LOGIC GACHA CHÍNH - SIÊU MƯỢT]
 if getgenv().DebugGacha then
     local sw = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("SpinnerWindow")
     print("[Gacha] vòng lặp: toggle bật, SpinnerWindow =", sw ~= nil, sw and sw.Enabled)
 end
 
--- [TỐI ƯU] Nếu đang trong thời gian phạt (Cooldown), không làm gì cả
+-- Nếu đang trong thời gian phạt (Cooldown), bot sẽ ngủ đông
 if tick() < (getgenv().__GachaCooldownUntil or 0) then
     task.wait(0.5)
-    return
-end
+else
+    local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    local sw = pg and pg:FindFirstChild("SpinnerWindow")
 
-local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-local sw = pg and pg:FindFirstChild("SpinnerWindow")
-
-if not sw or not sw.Enabled then
-    -- Nếu bảng quay chưa mở -> Thử gọi quay
-    pcall(function()
-        RandomFruit()
-    end)
-    task.wait(0.5) -- Nghỉ 0.5s tránh spam frame
-elseif sw.Enabled and sw.AboveSpinner and sw.AboveSpinner.Navigation and sw.AboveSpinner.Navigation.CloseButton.Visible then
-    -- Nếu bảng quay đang mở và đã quay xong -> Bấm Close
-    pcall(function()
-        Spinner:Close()
-    end)
-    task.wait(0.5)
+    if not sw or not sw.Enabled then
+        -- Nếu bảng quay chưa mở -> Thử gọi quay (Bọc pcall chống lỗi nil)
+        pcall(function()
+            RandomFruit()
+        end)
+        task.wait(0.5) 
+    elseif sw.Enabled and sw.AboveSpinner and sw.AboveSpinner.Navigation and sw.AboveSpinner.Navigation.CloseButton.Visible then
+        -- Nếu bảng quay đang mở và đã quay xong -> Bấm Close
+        pcall(function()
+            Spinner:Close()
+        end)
+        task.wait(0.5)
+    end
 end
 				if Settings["Auto Trade Bone"] then
 					L.Remotes.CommF_:InvokeServer("Bones", "Buy", 1, 1)
