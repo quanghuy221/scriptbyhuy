@@ -20219,12 +20219,7 @@ FarmChestSection.CreateToggle(
 		SaveSettings("Auto Chest Hop", y)
 	end
 )
-FarmChestSection.CreateToggle(
-	{ Title = "Use Method Teleport [ Risk ]", Desc = nil, Default = Settings["Use Method Teleport"] or false },
-	function(y)
-		SaveSettings("Use Method Teleport", y)
-	end
-)
+
 FarmChestSection.CreateToggle(
 	{ Title = "Auto Chest", Desc = nil, Default = Settings["Auto Chest"] or false },
 	function(y)
@@ -31994,23 +31989,51 @@ if not getgenv().BananaCatMainLoop then
 		if tick() - lastFruitTick >= 0.5 then
 			lastFruitTick = tick()
 			local T, T = pcall(function()
-				if Settings["Random Devil Fruit"] then
-					if getgenv().DebugGacha then
-						local sw = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("SpinnerWindow")
-						print("[Gacha] vòng lặp: toggle bật, SpinnerWindow =", sw ~= nil, sw and sw.Enabled)
+				local T, T = pcall(function()
+	if Settings["Random Devil Fruit"] then
+		if getgenv().DebugGacha then
+			local sw = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("SpinnerWindow")
+			print("[Gacha] vòng lặp: toggle bật, SpinnerWindow =", sw ~= nil, sw and sw.Enabled)
+		end
+		
+		-- [TỐI ƯU] Lấy PlayerGui và SpinnerWindow 1 lần thay vì gọi liên tục
+		local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+		local sw = pg and pg:FindFirstChild("SpinnerWindow")
+		
+		-- [FIX SPAM COOLDOWN 2H] Chỉ thử quay 1 lần mỗi 3 giây (tránh spam server)
+		if not sw or not sw.Enabled then
+			if tick() - (getgenv().__RandomFruitLastTry or 0) > 3 then
+				getgenv().__RandomFruitLastTry = tick()
+				RandomFruit()
+			end
+		elseif sw.Enabled and sw.AboveSpinner and sw.AboveSpinner.Navigation and sw.AboveSpinner.Navigation.CloseButton.Visible then
+			Spinner:Close()
+		end
+		
+		-- [FIX ẨN CHỮ TRY AGAIN SOON] Chỉ khởi tạo 1 lần duy nhất
+		if not getgenv().__GachaTextHooked then
+			getgenv().__GachaTextHooked = true
+			local function hideText(obj)
+				if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+					local function check()
+						local txt = string.lower(obj.Text)
+						if string.find(txt, "try again") or string.find(txt, "soon") then
+							obj.TextTransparency = 1 -- Tàng hình chữ
+							obj.Text = ""            -- Xóa sạch chữ
+						end
 					end
-					if
-						not game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("SpinnerWindow")
-						or not game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("SpinnerWindow").Enabled
-					then
-						RandomFruit()
-					elseif
-						game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("SpinnerWindow").Enabled
-						and game:GetService("Players").LocalPlayer.PlayerGui.SpinnerWindow.AboveSpinner.Navigation.CloseButton.Visible
-					then
-						Spinner:Close()
-					end
+					obj:GetPropertyChangedSignal("Text"):Connect(check)
+					check()
 				end
+			end
+
+			if pg then
+				for _, v in ipairs(pg:GetDescendants()) do hideText(v) end
+				pg.DescendantAdded:Connect(hideText)
+			end
+		end
+	end
+end)
 				if Settings["Auto Trade Bone"] then
 					L.Remotes.CommF_:InvokeServer("Bones", "Buy", 1, 1)
 				end
