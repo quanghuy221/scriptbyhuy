@@ -3263,7 +3263,7 @@ end)
 SectionLocalPlayerMain.CreateToggle(
 	{
 		Title = "Auto Translate",
-		Desc = "Translate (BETA) Not Perfectly!",
+		Desc = "Translate (BETA) Not Perfectly! Fixed soon!",
 		Default = Settings["Auto Translate"] or false,
 	},
 	function(K)
