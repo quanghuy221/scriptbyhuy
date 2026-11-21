@@ -1572,7 +1572,7 @@ do
 		return l
 	end
 
-	makeLabel("Banana Hub Status", BLUE, 20, 1)
+	makeLabel("QHuy Hub Status", BLUE, 20, 1)
 	local statusLabel = makeLabel("Status : ...", Color3.fromRGB(255, 255, 255), 18, 2)
 
 	local lastStatus
@@ -1596,13 +1596,13 @@ do
 	end)
 
 -- ---------- Toggle ở đầu tab Status And Server ----------
-	local SectionStatusUI = PageStatusAndServer.CreateSection("Banana Hub Status UI")
+	local SectionStatusUI = PageStatusAndServer.CreateSection("QHuy Hub Status UI")
 	
 	-- [TỐI ƯU] Đảm bảo UI tắt ngay khi load nếu chưa từng bật (nil ~= true)
 	gui.Enabled = (Settings[UI_KEY] == true)
 	
 	SectionStatusUI.CreateToggle({
-		Title = "Show Banana Hub Status UI",
+		Title = "Show QHuy Hub Status UI",
 		Desc = "Show what the script is doing at the top of the screen",
 		Default = Settings[UI_KEY] == true, -- [ĐÃ SỬA] Mặc định tắt lần đầu
 	}, function(v)
@@ -2901,7 +2901,7 @@ SectionServer.CreateButton({ Title = "Hop Server" }, function()
 end)
 function HopLessAll()
 	require(game:GetService("ReplicatedStorage").Notification)
-		.new("<Color=Red>Banana Hub : Hop Server<Color=/>")
+		.new("<Color=Red>QHuy Hub : Hop Server<Color=/>")
 		:Display()
 	local K, R, m, E = game.PlaceId, {}, "", os.date("!*t").hour
 	if
