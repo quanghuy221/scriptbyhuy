@@ -18632,141 +18632,138 @@ do
 	end
 
 -- =====================================================================
--- PHẦN 1: BỘ ẨN CHỮ "TRY AGAIN SOON" TOÀN CỤC (CHẠY 1 LẦN)
+-- PHẦN A: BỘ LỌC ẨN CHỮ "TRY AGAIN SOON" (CHẠY 1 LẦN DUY NHẤT)
 -- =====================================================================
 if not getgenv().__GachaTextHooked then
-	getgenv().__GachaTextHooked = true
-	local function hideTryAgain(obj)
-		if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-			local function check()
-				local txt = string.lower(obj.Text)
-				if string.find(txt, "try again") or string.find(txt, "soon") then
-					obj.TextTransparency = 1 -- Tàng hình chữ
-					obj.Text = ""            -- Xóa sạch chữ
-				end
-			end
-			obj:GetPropertyChangedSignal("Text"):Connect(check)
-			check()
-		end
-	end
+    getgenv().__GachaTextHooked = true
+    local function hideText(obj)
+        if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+            local function check()
+                local txt = string.lower(obj.Text)
+                if string.find(txt, "try again") or string.find(txt, "soon") then
+                    obj.TextTransparency = 1 -- Tàng hình chữ
+                    obj.Text = ""            -- Xóa sạch chữ
+                end
+            end
+            obj:GetPropertyChangedSignal("Text"):Connect(check)
+            check()
+        end
+    end
 
-	local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-	if pg then
-		for _, v in ipairs(pg:GetDescendants()) do hideTryAgain(v) end
-		pg.DescendantAdded:Connect(hideTryAgain)
-	end
+    local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    if pg then
+        for _, v in ipairs(pg:GetDescendants()) do hideText(v) end
+        pg.DescendantAdded:Connect(hideText)
+    end
 end
 
--- =====================================================================
--- PHẦN 1: BỘ ẨN CHỮ "TRY AGAIN SOON" TOÀN CỤC (CHẠY 1 LẦN)
--- =====================================================================
-if not getgenv().__GachaTextHooked then
-	getgenv().__GachaTextHooked = true
-	local function hideTryAgain(obj)
-		if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-			local function check()
-				local txt = string.lower(obj.Text)
-				if string.find(txt, "try again") or string.find(txt, "soon") then
-					obj.TextTransparency = 1 -- Tàng hình chữ
-					obj.Text = ""            -- Xóa sạch chữ
-				end
-			end
-			obj:GetPropertyChangedSignal("Text"):Connect(check)
-			check()
-		end
-	end
-
-	local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-	if pg then
-		for _, v in ipairs(pg:GetDescendants()) do hideTryAgain(v) end
-		pg.DescendantAdded:Connect(hideTryAgain)
-	end
+-- Hàm dùng chung để tắt bảng quay (Sử dụng đúng đường dẫn bạn cung cấp)
+local function SafeCloseSpinner()
+    local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+    local sw = pg and pg:FindFirstChild("SpinnerWindow")
+    if sw and sw.Enabled then
+        if sw.AboveSpinner and sw.AboveSpinner.Navigation and sw.AboveSpinner.Navigation.CloseButton.Visible then
+            pcall(function()
+                if Spinner and Spinner.Close then
+                    Spinner:Close()
+                else
+                    -- Dùng đúng đường dẫn bạn cung cấp
+                    sw.AboveSpinner.Navigation.CloseButton:Activate()
+                end
+            end)
+        end
+    end
 end
 
+
 -- =====================================================================
--- PHẦN 2: NÚT RANDOM HALLOWEEN FRUIT (CỰC MƯỢT, TỰ ĐỘNG CLOSE)
+-- PHẦN B: RANDOM DEVIL FRUIT (CODE CŨ CỦA BẠN - ĐÃ TỐI ƯU)
 -- =====================================================================
-do
-	local RS = game:GetService("ReplicatedStorage")
-	
-	HalloweenSection.CreateButton(
-		{ 
-			Title = "Random Halloween Fruit", 
-			Desc = "Bấm để quay Gacha Halloween (Tự động đóng bảng quay)" 
-		},
-		function()
-			spawn(function()
-				local lp = game:GetService("Players").LocalPlayer
-				local pg = lp:FindFirstChild("PlayerGui")
-				local sw = pg and pg:FindFirstChild("SpinnerWindow")
+-- (Bạn đặt đoạn này vào trong vòng lặp while của bạn)
+if getgenv().DebugGacha then
+    local sw = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("SpinnerWindow")
+    print("[Gacha] vòng lặp: toggle bật, SpinnerWindow =", sw ~= nil, sw and sw.Enabled)
+end
 
-				-- TRƯỜNG HỢP 1: Bảng quay đang mở
-				if sw and sw.Enabled then
-					print("[HalloweenGacha] Bảng quay đang mở. Đang đợi quay xong để tắt...")
-					local timeout = tick() + 10
-					while tick() < timeout do
-						if sw.AboveSpinner and sw.AboveSpinner.Navigation and sw.AboveSpinner.Navigation.CloseButton.Visible then
-							pcall(function()
-								if Spinner and Spinner.Close then Spinner:Close()
-								else sw.AboveSpinner.Navigation.CloseButton:Activate() end
-							end)
-							print("[HalloweenGacha] Đã quay xong và bấm Close.")
-							return
-						end
-						task.wait(0.5)
-					end
-					print("[HalloweenGacha] Hết thời gian chờ, không thấy nút Close.")
-					return
-				end
+local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+local sw = pg and pg:FindFirstChild("SpinnerWindow")
 
-				-- TRƯỜNG HỢP 2: Bảng quay đang đóng -> Tiến hành quay
-				print("[HalloweenGacha] Bắt đầu gửi lệnh quay...")
-				pcall(function()
-					local Net = require(RS.Modules.Net)
-					local Event = Net:RemoteFunction("GachaNetworkRF")
-					
-					-- Gửi lệnh với Timeout 3s chống treo Hub
-					local thread = task.spawn(function()
-						Event:InvokeServer({
-							Context = "Purchase",
-							BoxName = "Halloween26Gacha"
-						})
-					end)
-					
-					task.wait(3) 
-					if coroutine.status(thread) == "suspended" then
-						pcall(task.cancel, thread)
-						print("[HalloweenGacha] Server không phản hồi. Có thể do lag hoặc hết lượt.")
-					else
-						print("[HalloweenGacha] Server đã phản hồi lệnh quay!")
-					end
-				end)
+if not sw or not sw.Enabled then
+    -- Chỉ thử quay 1 lần mỗi 3 giây (tránh spam server)
+    if tick() - (getgenv().__RandomFruitLastTry or 0) > 3 then
+        getgenv().__RandomFruitLastTry = tick()
+        pcall(function() RandomFruit() end)
+    end
+elseif sw.Enabled then
+    SafeCloseSpinner()
+end
 
-				-- Đợi bảng quay mở lên (chờ tối đa 5s)
-				local openTimeout = tick() + 5
-				while tick() < openTimeout do
-					task.wait(0.5)
-					local sw2 = pg and pg:FindFirstChild("SpinnerWindow")
-					if sw2 and sw2.Enabled then
-						print("[HalloweenGacha] Bảng quay đã mở! Đang đợi random...")
-						local closeTimeout = tick() + 10
-						while tick() < closeTimeout do
-							if sw2.AboveSpinner and sw2.AboveSpinner.Navigation and sw2.AboveSpinner.Navigation.CloseButton.Visible then
-								pcall(function()
-									if Spinner and Spinner.Close then Spinner:Close()
-									else sw2.AboveSpinner.Navigation.CloseButton:Activate() end
-								end)
-								print("[HalloweenGacha] Đã quay xong và bấm Close.")
-								return
-							end
-							task.wait(0.5)
-						end
-					end
-				end
-				print("[HalloweenGacha] Không thấy bảng quay mở lên (Hết lượt hoặc không đủ candy corn!).")
-			end)
-		end
-	)
+
+-- =====================================================================
+-- PHẦN C: RANDOM HALLOWEEN FRUIT (ĐÃ FIX LỖI KHÔNG CHẠY & KHÔNG TẮT ĐƯỢC)
+-- =====================================================================
+-- (Bạn đặt đoạn này vào trong phần tạo nút HalloweenSection.CreateButton)
+HalloweenSection.CreateButton(
+    { 
+        Title = "Random Halloween Fruit", 
+        Desc = "Bấm để quay 1 lượt Random Fruit sự kiện Halloween" 
+    },
+    function()
+        spawn(function()
+            -- Chống spam bấm nút liên tục
+            if tick() - (getgenv().__HW_LastTry or 0) < 3 then return end
+            getgenv().__HW_LastTry = tick()
+
+            print("[HalloweenGacha] Bạn vừa bấm nút. Bắt đầu random")
+            local lp = game:GetService("Players").LocalPlayer
+            local pg = lp:FindFirstChild("PlayerGui")
+            
+            -- Nếu bảng quay đang mở sẵn từ trước, tắt nó đi
+            SafeCloseSpinner()
+            task.wait(1)
+
+            print("[HalloweenGacha] Đang gửi lệnh quay lên Server...")
+            local RS = game:GetService("ReplicatedStorage")
+            local success = pcall(function()
+                local Net = require(RS.Modules.Net)
+                local Event = Net:RemoteFunction("GachaNetworkRF")
+                
+                -- [FIX] Không dùng task.cancel nữa, gửi lệnh trực tiếp để không đứt kết nối
+                -- Bọc pcall để nếu Server từ chối (dính cooldown) thì không bị đứng script
+                Event:InvokeServer({
+                    Context = "Purchase",
+                    BoxName = "Halloween26Gacha"
+                })
+            end)
+            
+            if not success then
+                print("[HalloweenGacha] Server từ chối hoặc lag.")
+            end
+
+            -- Đợi bảng quay mở lên
+            task.wait(1.5)
+            
+            local sw2 = pg and pg:FindFirstChild("SpinnerWindow")
+            if sw2 and sw2.Enabled then
+                print("[HalloweenGacha] Bảng quay đã mở! Đang đợi random xong...")
+                local timeout = tick() + 10
+                while tick() < timeout do
+                    -- Nếu đã quay xong (nút Close hiện ra), tự động tắt
+                    if sw2.AboveSpinner and sw2.AboveSpinner.Navigation and sw2.AboveSpinner.Navigation.CloseButton.Visible then
+                        SafeCloseSpinner()
+                        print("[HalloweenGacha] Đã quay xong và tự động tắt bảng quay.")
+                        break
+                    end
+                    task.wait(0.5)
+                end
+            else
+                print("[HalloweenGacha] Không thấy bảng quay hiện lên (Có thể bạn đã hết lượt).")
+            end
+            print("[HalloweenGacha] Hoàn tất random.")
+        end)
+    end
+)
+
 
 		HalloweenSection.CreateToggle(
 			{ 
@@ -18792,7 +18789,6 @@ do
 			end
 		)
 	end
-end
 
 
 
