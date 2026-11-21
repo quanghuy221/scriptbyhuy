@@ -78,7 +78,7 @@ task.spawn(function()
 	local ok, name = pcall(function()
 		return identifyexecutor and identifyexecutor() or "unknown"
 	end)
-	print("[BananaFix] executor:", ok and name or "unknown", "| thieu ham:", #miss > 0 and table.concat(miss, ", ") or "khong")
+	print("[QHuyHubFix] executor:", ok and name or "unknown", "| thieu ham:", #miss > 0 and table.concat(miss, ", ") or "khong")
 end)
 local function uiStub()
 	return setmetatable({}, {
@@ -109,7 +109,7 @@ local function guardUI(obj, label)
 						last = val
 						local ok, err = pcall(cb, val, ...)
 						if not ok then
-							warn("[BananaFix] toggle callback error:", err)
+							warn("[QHuyHubFix] toggle callback error:", err)
 						end
 						if was == true and val == false and getgenv().__OnToggleOff then
 							getgenv().__OnToggleOff()
@@ -122,7 +122,7 @@ local function guardUI(obj, label)
 					res = table.pack(pcall(v, unpack(args, 1, args.n)))
 				end
 				if not res[1] then
-					warn(("[BananaFix] %s.%s failed: %s"):format(label, tostring(k), tostring(res[2])))
+					warn(("[QHuyHubFix] %s.%s failed: %s"):format(label, tostring(k), tostring(res[2])))
 					return uiStub()
 				end
 				return guardUI(res[2], label .. "." .. tostring(k)), unpack(res, 3, res.n)
