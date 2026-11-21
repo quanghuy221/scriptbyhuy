@@ -18631,42 +18631,46 @@ do
 		)
 	end
 
+		-- =====================================================================
+	-- RANDOM HALLOWEEN FRUIT (TỐI ƯU 100% - TỰ ĐỘNG CLOSE, CHỐNG SPAM)
 	-- =====================================================================
-	-- PHẦN 6: RANDOM HALLOWEEN FRUIT + AUTO STORE FRUIT
-	-- =====================================================================
-	do
-		local RS = game:GetService("ReplicatedStorage")
-		local GACHA_KEY = "Random Halloween Fruit"
-		local STORE_KEY = "Auto Store Fruit"
+	local RS = game:GetService("ReplicatedStorage")
 
-		HalloweenSection.CreateButton(
-			{ 
-				Title = "Random Halloween Fruit", 
-				Desc = "Bấm để quay 1 lượt Random Fruit sự kiện Halloween" 
-			},
-			function()
-				spawn(function()
-					print("[HalloweenGacha] Bạn vừa bấm nút. Bắt đầu random")
-					local lp = game:GetService("Players").LocalPlayer
-					local pg = lp:FindFirstChild("PlayerGui")
-					
-					local sw = pg and pg:FindFirstChild("SpinnerWindow")
-					if sw and sw.Enabled then
-						if sw.AboveSpinner and sw.AboveSpinner.Navigation and sw.AboveSpinner.Navigation.CloseButton.Visible then
-							print("[HalloweenGacha] Phát hiện bảng quay cũ, đang đóng lại...")
-							pcall(function()
-								if Spinner and Spinner.Close then Spinner:Close()
-								else sw.AboveSpinner.Navigation.CloseButton:Activate() end
-							end)
-							task.wait(1.5)
-						end
+	HalloweenSection.CreateButton(
+		{ 
+			Title = "Random Halloween Fruit", 
+			Desc = "Bấm để quay 1 lượt Random Fruit sự kiện Halloween" 
+		},
+		function()
+			spawn(function()
+				local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+				local sw = pg and pg:FindFirstChild("SpinnerWindow")
+
+				-- 1. NẾU BẢNG QUAY ĐANG MỞ -> KIỂM TRA VÀ BẤM CLOSE
+				if sw and sw.Enabled then
+					if sw.AboveSpinner and sw.AboveSpinner.Navigation and sw.AboveSpinner.Navigation.CloseButton.Visible then
+						print("[HalloweenGacha] Đã quay xong. Đang tự động tắt bảng quay...")
+						pcall(function()
+							if Spinner and Spinner.Close then Spinner:Close()
+							else sw.AboveSpinner.Navigation.CloseButton:Activate() end
+						end)
+						task.wait(1) -- Nghỉ 1s trước khi cho phép bấm tiếp
+					else
+						print("[HalloweenGacha] Bảng quay đang quay, vui lòng đợi...")
 					end
+					return -- Thoát ra, không gọi server mua thêm lượt
+				end
 
-					print("[HalloweenGacha] Đang random")
+				-- 2. NẾU BẢNG QUAY ĐANG ĐÓNG -> CHỐNG SPAM VÀ GỌI SERVER
+				if tick() - (getgenv().__HalloweenLastTry or 0) > 3 then
+					getgenv().__HalloweenLastTry = tick()
+					
+					print("[HalloweenGacha] Đang gửi lệnh quay từ xa...")
 					pcall(function()
 						local Net = require(RS.Modules.Net)
 						local Event = Net:RemoteFunction("GachaNetworkRF")
 						
+						-- Bọc Timeout 3s để không bao giờ bị treo Hub
 						local thread = task.spawn(function()
 							Event:InvokeServer({
 								Context = "Purchase",
@@ -18682,31 +18686,37 @@ do
 							print("[HalloweenGacha] Server đã phản hồi lệnh quay!")
 						end
 					end)
-					
-					task.wait(1.5)
-					
-					local sw2 = pg and pg:FindFirstChild("SpinnerWindow")
-					if sw2 and sw2.Enabled then
-						print("[HalloweenGacha] Bảng quay đã mở! Đang đợi random xong...")
-						local timeout = tick() + 10
-						while tick() < timeout do
-							if sw2.AboveSpinner and sw2.AboveSpinner.Navigation and sw2.AboveSpinner.Navigation.CloseButton.Visible then
-								pcall(function()
-									if Spinner and Spinner.Close then Spinner:Close()
-									else sw2.AboveSpinner.Navigation.CloseButton:Activate() end
-								end)
-								print("[HalloweenGacha] Đã quay xong và tự động tắt bảng quay.")
-								break
-							end
-							task.wait(0.5)
-						end
-					else
-						print("[HalloweenGacha] Không thấy bảng quay hiện lên (Có thể bạn đã hết lượt).")
+				else
+					print("[HalloweenGacha] Đang trong thời gian chờ (Cooldown). Không spam server.")
+				end
+			end)
+		end
+	)
+
+	-- =====================================================================
+	-- BỘ LỌC ẨN CHỮ "TRY AGAIN SOON" (Áp dụng cho cả Halloween lẫn Devil Fruit)
+	-- =====================================================================
+	if not getgenv().__GachaTextHooked then
+		getgenv().__GachaTextHooked = true
+		local function hideText(obj)
+			if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+				local function check()
+					local txt = string.lower(obj.Text)
+					if string.find(txt, "try again") or string.find(txt, "soon") then
+						obj.TextTransparency = 1 -- Tàng hình chữ
+						obj.Text = ""            -- Xóa sạch chữ
 					end
-					print("[HalloweenGacha] Hoàn tất random.")
-				end)
+				end
+				obj:GetPropertyChangedSignal("Text"):Connect(check)
+				check()
 			end
-		)
+		end
+
+		local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+		if pg then
+			for _, v in ipairs(pg:GetDescendants()) do hideText(v) end
+			pg.DescendantAdded:Connect(hideText)
+		end
 
 		HalloweenSection.CreateToggle(
 			{ 
