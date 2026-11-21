@@ -2887,11 +2887,11 @@ function HopServer(R)
 	end
 	local K = R or (Settings["Time Hop Server"] or 5)
 	require(game:GetService("ReplicatedStorage").Notification)
-		.new("<Color=Red>Banana Cat Hub : Wait " .. K .. "s [Hop Server]<Color=/>")
+		.new("<Color=Red>QHuy Hub : Wait " .. K .. "s [Hop Server]<Color=/>")
 		:Display()
 	while wait(K) do
 		require(game:GetService("ReplicatedStorage").Notification)
-			.new("<Color=Red>Banana Cat Hub : Hop Server<Color=/>")
+			.new("<Color=Red>QHuy Hub : Hop Server<Color=/>")
 			:Display()
 		m()
 	end
@@ -3262,7 +3262,7 @@ end)
 SectionLocalPlayerMain.CreateToggle(
 	{
 		Title = "Auto Translate",
-		Desc = "It may take a bit longer to translate the first time.",
+		Desc = "Not Working! Wait me Fixed!",
 		Default = Settings["Auto Translate"] or false,
 	},
 	function(K)
@@ -9760,7 +9760,7 @@ BossSoulReaperSection.CreateToggle(
 	{ Title = "Summon Soul Reaper", Desc = nil, Default = Settings["Summon Soul Reaper"] or false },
 	function(f)
 		if f and not Settings["Attack Soul Reaper"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Turn On Attack Soul Reaper Plz", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Turn On Attack Soul Reaper Plz", ShowTime = 5 })
 		end
 		SaveSettings("Summon Soul Reaper", f)
 	end
@@ -9776,7 +9776,7 @@ BossDoughKingSection.CreateToggle(
 	{ Title = "Summon Dough King", Desc = nil, Default = Settings["Summon Dough King"] or false },
 	function(f)
 		if f and not Settings["Attack Dough King"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Turn On Attack Dough King Plz", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Turn On Attack Dough King Plz", ShowTime = 5 })
 		end
 		if f then
 			spawn(function()
@@ -9794,7 +9794,7 @@ BossDoughKingSection.CreateToggle(
 	{ Title = "Hop Find Dough King", Desc = nil, Default = Settings["Hop Find Dough King"] or false },
 	function(f)
 		if f and not Settings["Attack Dough King"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Turn On Attack Dough King Plz", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Turn On Attack Dough King Plz", ShowTime = 5 })
 		end
 		SaveSettings("Hop Find Dough King", f)
 	end
@@ -9810,7 +9810,7 @@ BossDarkbeardSection.CreateToggle(
 	{ Title = "Summon Darkbeard", Desc = nil, Default = Settings["Summon Darkbeard"] or false },
 	function(f)
 		if f and not Settings["Attack Darkbeard"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Turn On Attack Darkbeard Plz", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Turn On Attack Darkbeard Plz", ShowTime = 5 })
 		end
 		SaveSettings("Summon Darkbeard", f)
 	end
@@ -9819,7 +9819,7 @@ BossDarkbeardSection.CreateToggle(
 	{ Title = "Hop Find Darkbeard", Desc = nil, Default = Settings["Hop Find Darkbeard"] or false },
 	function(f)
 		if f and not Settings["Attack Darkbeard"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Turn On Attack Darkbeard Plz", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Turn On Attack Darkbeard Plz", ShowTime = 5 })
 		end
 		SaveSettings("Hop Find Darkbeard", f)
 	end
@@ -10639,7 +10639,7 @@ task.spawn(function()
 										return
 									else
 										A.CreateNoti({
-											Title = "Banana Cat Hub",
+											Title = "QHuy Hub",
 											Desc = "Waiting Elite Hunter",
 											ShowTime = 5,
 										})
@@ -19539,7 +19539,7 @@ function AutoQuestDojo()
 				getgenv().QuestTrainer = { BeltName = "Red", CountKillMob = 0 }
 			else
 				A.CreateNoti({
-					Title = "Banana Cat Hub",
+					Title = "QHuy Hub",
 					Desc = "That's enough training for today... Come back tomorrow and we can continue.\10 or dont support Belt Currently",
 					ShowTime = 5,
 				})
@@ -20116,7 +20116,7 @@ BerrySection.CreateToggle(
 								end
 							end
 						else
-							A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Waiting Berry spawn", ShowTime = 5 })
+							A.CreateNoti({ Title = "QHuy Hub", Desc = "Waiting Berry spawn", ShowTime = 5 })
 							if Settings["Hop Find Berry"] then
 								HopServer()
 							end
@@ -20325,7 +20325,7 @@ function RejoinCurrentServer()
 	end)
 	pcall(function()
 		require(game:GetService("ReplicatedStorage").Notification)
-			.new("<Color=Red>Banana Cat Hub : Rejoin Server<Color=/>")
+			.new("<Color=Red>QHuy Hub : Rejoin Server<Color=/>")
 			:Display()
 	end)
 	local ok = pcall(function()
@@ -20448,7 +20448,7 @@ function ObservationV2()
 					equiptool(NameWeapon(Settings["Select Weapon"]))
 				until not IsMobAlive(y) or not Settings["Auto UP Observation V2"]
 			else
-				A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Waiting Boss Captain Elephant", ShowTime = 5 })
+				A.CreateNoti({ Title = "QHuy Hub", Desc = "Waiting Boss Captain Elephant", ShowTime = 5 })
 				wait(5)
 			end
 		elseif t:DistanceFromCharacter(Vector3.new(-12441.5908203125, 331.4884948730469, -7676.197265625)) < 10 then
@@ -20483,7 +20483,7 @@ function ObservationV2()
 								0
 							)
 						else
-							A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Wating Fruit", ShowTime = 5 })
+							A.CreateNoti({ Title = "QHuy Hub", Desc = "Wating Fruit", ShowTime = 5 })
 							wait(3)
 						end
 					end
@@ -20555,7 +20555,7 @@ FarmObservationSection.CreateToggle(
 	},
 	function(y)
 		if y and not Settings["Farm Observation"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Turn On Farm Observation plz", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Turn On Farm Observation plz", ShowTime = 5 })
 		end
 		SaveSettings("Farm Observation [ Hop Server ]", y)
 	end
@@ -20785,7 +20785,7 @@ AutoKillBossSection.CreateToggle(
 	{ Title = "Kill All Boss", Desc = nil, Default = Settings["Kill All Boss"] or false },
 	function(y)
 		if y and not Settings["Kill Boss"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Turn On Kill Boss plz", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Turn On Kill Boss plz", ShowTime = 5 })
 		end
 		SaveSettings("Kill All Boss", y)
 	end
@@ -21111,7 +21111,7 @@ RaidsSection.CreateToggle(
 	{ Title = "Hop Sever Raid", Desc = nil, Default = Settings["Hop Sever Raid"] or false },
 	function(b)
 		if b and not Settings["Auto Raid"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Turn On Auto Raid Plz", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Turn On Auto Raid Plz", ShowTime = 5 })
 		end
 		SaveSettings("Hop Sever Raid", b)
 	end
@@ -22712,7 +22712,7 @@ function WarnOnce(b, l)
 	end
 	getgenv().__BFWarned[b] = tick()
 	pcall(function()
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = l, ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = l, ShowTime = 5 })
 	end)
 end
 function DetectSeaEvents(b)
@@ -23221,7 +23221,7 @@ ToggleFindMirage = FarmingSeaEventSection.CreateToggle(
 							getgenv().TweenBoat:Pause()
 							getgenv().TweenBoat:Cancel()
 						end
-						A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Mirage Island Spawned", ShowTime = 5 })
+						A.CreateNoti({ Title = "QHuy Hub", Desc = "Mirage Island Spawned", ShowTime = 5 })
 						ToggleFindMirage:SetStage(false)
 						wait(5)
 					end
@@ -23524,7 +23524,7 @@ KitsuneEventSection.CreateToggle(
 	function(y)
 		if y then
 			A.CreateNoti({
-				Title = "Banana Cat Hub",
+				Title = "QHuy Hub",
 				Desc = "Turn On after Status Full Moon|( Will Full Moon In >= 0 Minutes )",
 				ShowTime = 5,
 			})
@@ -23967,7 +23967,7 @@ function AutoFindLeviathan()
 			getgenv().TweenBoatBack:Pause()
 			getgenv().TweenBoatBack:Cancel()
 		end
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Frozen Dimension Spawned", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Frozen Dimension Spawned", ShowTime = 5 })
 		if false then -- [REMOVED] webhook call-site
 			getgenv().RespawnLeviathan = false
 			-- [REMOVED] WebhookFindLeviathan()
@@ -24225,7 +24225,7 @@ LeviathanEventSection.CreateToggle(
 	},
 	function(s)
 		if s and not Settings["Auto Attack Leviathan"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Turn On Auto Attack Leviathan, plz", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Turn On Auto Attack Leviathan, plz", ShowTime = 5 })
 		end
 		SaveSettings("Attack Multi Segments Leviathan", s)
 	end
@@ -24570,7 +24570,7 @@ function ShootHeartLeviathan()
 				toTarget(b.Harpoon.Seat.CFrame)
 			end
 		else
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Successfully Fire Shoot Heart Leviathan", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Successfully Fire Shoot Heart Leviathan", ShowTime = 5 })
 			wait(5)
 		end
 	end
@@ -25159,11 +25159,11 @@ end
 local b = { "V2InProgress", "V3InProgress", "V2TurnInReady", "V3TurnInReady" }
 function AutoUpgradeRaceDraco()
 	if game.Players.LocalPlayer.Data.Race.Value ~= "Draco" then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Change Race Draco plz", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Change Race Draco plz", ShowTime = 5 })
 		wait(5)
 		return
 	elseif DetectItemPlr("Primordial Reign") then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Done V3 Draco", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Done V3 Draco", ShowTime = 5 })
 		wait(5)
 		return
 	end
@@ -25423,7 +25423,7 @@ ToggleAutoTrialDraco = RaceDracoSection.CreateToggle(
 							end
 						else
 							if getgenv().DoneTrialDraco then
-								A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Done Trial", ShowTime = 5 })
+								A.CreateNoti({ Title = "QHuy Hub", Desc = "Done Trial", ShowTime = 5 })
 								getgenv().DoneTrialDraco = false
 								ToggleAutoTrialDraco:SetStage(false)
 								return
@@ -25440,7 +25440,7 @@ ToggleAutoTrialDraco = RaceDracoSection.CreateToggle(
 								end
 							else
 								A.CreateNoti({
-									Title = "Banana Cat Hub",
+									Title = "QHuy Hub",
 									Desc = "Not have Prehistoric Island",
 									ShowTime = 5,
 								})
@@ -26449,7 +26449,7 @@ end
 function UpgradeRaceV2AndV3()
 	local m = CheckRace()
 	if m == " V3" then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Done V3", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Done V3", ShowTime = 5 })
 		wait(5)
 		return
 	end
@@ -26459,7 +26459,7 @@ function UpgradeRaceV2AndV3()
 	end
 	if m == " V1" then
 		if t.Data.Beli.Value < 500000 then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Beli >= 500k", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Beli >= 500k", ShowTime = 5 })
 			wait(5)
 			return
 		end
@@ -26541,7 +26541,7 @@ function UpgradeRaceV2AndV3()
 			game.ReplicatedStorage.Remotes.CommF_:InvokeServer("Wenlocktoad", "3")
 			return
 		elseif l == -1 then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Beli >= 2m", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Beli >= 2m", ShowTime = 5 })
 			wait(5)
 			return
 		end
@@ -26569,7 +26569,7 @@ function UpgradeRaceV2AndV3()
 					end
 				end
 			else
-				A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Waiting Boss Spawn", ShowTime = 5 })
+				A.CreateNoti({ Title = "QHuy Hub", Desc = "Waiting Boss Spawn", ShowTime = 5 })
 				wait(5)
 			end
 		elseif l == "Mink V2" then
@@ -26710,7 +26710,7 @@ ToggleAutoGetFullyCyborg = RaceNormalSection.CreateToggle(
 	function(l)
 		SaveSettings("Auto Get Fully Cyborg", l)
 		if l and not Settings["Auto Get Cyborg"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Turn On Auto Get Cyborg plz", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Turn On Auto Get Cyborg plz", ShowTime = 5 })
 		end
 	end
 )
@@ -26726,7 +26726,7 @@ RaceNormalSection.CreateToggle(
 )
 function GetCyborg()
 	if game.ReplicatedStorage.Remotes.CommF_:InvokeServer("CyborgTrainer", "Check") == 2 then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Plz Turn Off", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Plz Turn Off", ShowTime = 5 })
 		wait(5)
 		return
 	end
@@ -26882,7 +26882,7 @@ function GetRaceGhoul()
 		or game.ReplicatedStorage.Remotes.CommF_:InvokeServer("Ectoplasm", "BuyCheck", 4, true) == 2
 		or game.ReplicatedStorage.Remotes.CommF_:InvokeServer("Ectoplasm", "Change", 4, true) == 1
 	then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Plz Turn Off", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Plz Turn Off", ShowTime = 5 })
 		wait(5)
 		return
 	end
@@ -26992,7 +26992,7 @@ function GetRaceGhoul()
 			if Settings["Hop Server Get Ghoul"] then
 				SpecialHop("Cursed Captain")
 			end
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Wating Boss Spawn", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Wating Boss Spawn", ShowTime = 5 })
 			wait(5)
 		end
 	end
@@ -27159,7 +27159,7 @@ function CollectBlueGear()
 end
 function PullLeverV4()
 	if not CheckItemInventory("Valkyrie Helm") or not CheckItemInventory("Mirror Fractal") then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Not Valkyrie Helm or not Mirror Fractal", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Not Valkyrie Helm or not Mirror Fractal", ShowTime = 5 })
 		wait(5)
 		return
 	end
@@ -27227,7 +27227,7 @@ function PullLeverV4()
 				fireproximityprompt(l.Lever.Prompt.ProximityPrompt, 1)
 			end
 		else
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Done Pull Lever", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Done Pull Lever", ShowTime = 5 })
 			wait(5)
 		end
 	end
@@ -28040,7 +28040,7 @@ function DetectQuestRainBowHaki(R)
 end
 function GetRainBowHaki()
 	if game.ReplicatedStorage.Remotes.CommF_:InvokeServer("HornedMan") == 1 then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Done Get Rainbow Haki", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Done Get Rainbow Haki", ShowTime = 5 })
 		wait(5)
 		return
 	end
@@ -28069,7 +28069,7 @@ function GetRainBowHaki()
 				UsedualFlock()
 			until not IsMobAlive(g) or not Settings["Auto Get Rainbow Haki"]
 		else
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Waiting Boss Spawn", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Waiting Boss Spawn", ShowTime = 5 })
 			wait(5)
 		end
 	end
@@ -28139,7 +28139,7 @@ function GuitarPuzzleProgress()
 			CommF:InvokeServer("gravestoneEvent", 2, true)
 			task.wait(1)
 		else
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Hop Full Moon", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Hop Full Moon", ShowTime = 5 })
 			SpecialHop("FullMoon")
 		end
 	else
@@ -28255,12 +28255,12 @@ function AutoSoulGuitar()
 		game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("soulGuitarBuy", true)
 		== "[You already own this item.]"
 	then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "[You already own this item.]", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "[You already own this item.]", ShowTime = 5 })
 		task.wait(5)
 		return
 	end
 	if t.Data.Fragments.Value < 5000 then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Frag >= 5k", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Frag >= 5k", ShowTime = 5 })
 		wait(5)
 		return
 	end
@@ -28492,7 +28492,7 @@ function QuestGood4()
 				(Settings["Select Method Hop CDK1"] or {})["Hop Raid Castle [ Delay 20s Hop Because check Raids Castle ]"]
 			then
 				A.CreateNoti({
-					Title = "Banana Cat Hub",
+					Title = "QHuy Hub",
 					Desc = "Waiting 20s for check raid castle if dont have will Server",
 					ShowTime = 5,
 				})
@@ -28504,7 +28504,7 @@ function QuestGood4()
 					SpecialHop("Raid Castle")
 				end
 			else
-				A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Waint Raid Castle", ShowTime = 5 })
+				A.CreateNoti({ Title = "QHuy Hub", Desc = "Waint Raid Castle", ShowTime = 5 })
 			end
 			wait(5)
 		end
@@ -28602,10 +28602,10 @@ function Questgood5()
 		TweenManager.CancelCurrent()
 	else
 		if Settings["Select Method Hop CDK1"] and Settings["Select Method Hop CDK1"]["Find Cake Queen"] then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = 'Hop Server Find Cake Queen"', ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = 'Hop Server Find Cake Queen"', ShowTime = 5 })
 			HopServer()
 		else
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = 'Wating Cake Queen"', ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = 'Wating Cake Queen"', ShowTime = 5 })
 		end
 		wait(5)
 	end
@@ -28813,13 +28813,13 @@ function CheckMasterSword(g, R)
 end
 function GetCDK()
 	if not CheckItemInventory("Tushita") or not CheckItemInventory("Yama") then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Get Tushita and Yama", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Get Tushita and Yama", ShowTime = 5 })
 		wait(5)
 		return
 	end
 	if CheckItemInventory("Tushita") and (CheckItemInventory("Yama")) then
 		if not CheckMasterSword("Yama", 350) or not CheckMasterSword("Tushita", 350) then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Mastery >= 350", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Mastery >= 350", ShowTime = 5 })
 			wait(5)
 			return
 		end
@@ -29066,7 +29066,7 @@ function GetTushita()
 				end
 			end
 		else
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Rip Indra Dont Spawn", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Rip Indra Dont Spawn", ShowTime = 5 })
 			wait(5)
 		end
 	end
@@ -29462,7 +29462,7 @@ GetItemsSection.CreateToggle(
 )
 function autoCraftSharkAnchor()
 	if CheckItemInventory("Shark Anchor") then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Done Shark Anchor", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Done Shark Anchor", ShowTime = 5 })
 		wait(5)
 		return
 	end
@@ -29516,7 +29516,7 @@ GetItemsSection.CreateToggle(
 )
 function AutoYorumini()
 	if CheckItemInventory("Dark Dagger") then
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "u haved Yoru Mini", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "u haved Yoru Mini", ShowTime = 5 })
 		return
 	end
 	local g = CheckNameBoss("rip_indra True Form")
@@ -29911,7 +29911,7 @@ function AutoUpgradeWeapon(R)
 	if m then
 		R = NameMaterials[m]
 		if not R then
-			A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Not Support Material" .. m .. "Sorry", ShowTime = 5 })
+			A.CreateNoti({ Title = "QHuy Hub", Desc = "Not Support Material" .. m .. "Sorry", ShowTime = 5 })
 			wait(5)
 			return
 		end
@@ -30234,7 +30234,7 @@ function AutoCraftinMagnetVol()
 			wait(2)
 		end
 	else
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Done Craft Volcanic Magnet", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Done Craft Volcanic Magnet", ShowTime = 5 })
 		ToggleAutoCraftingVolcanicMagnet:SetStage(false)
 	end
 end
@@ -30323,7 +30323,7 @@ function AutoFindPrehistoric()
 			getgenv().TweenBoat:Pause()
 			getgenv().TweenBoat:Cancel()
 		end
-		A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Prehistoric Island Spawned", ShowTime = 5 })
+		A.CreateNoti({ Title = "QHuy Hub", Desc = "Prehistoric Island Spawned", ShowTime = 5 })
 		ToggleAutoFindPrehistoricIsland:SetStage(false)
 		wait(5)
 	end
@@ -31818,7 +31818,7 @@ spawn(function()
 end)
 a.CreateButton({ Title = "Copy Config" }, function()
 	setclipboard(b((HttpService:JSONDecode(readfile(FolderName .. "/" .. SaveFileName)))))
-	A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Successfully Copy Config", ShowTime = 5 })
+	A.CreateNoti({ Title = "QHuy Hub", Desc = "Successfully Copy Config", ShowTime = 5 })
 end)
 a.CreateBind({ Title = "Toggle GUI", Key = Enum.KeyCode.LeftControl }, function()
 	if getgenv().UIToggled == nil then
@@ -32032,7 +32032,7 @@ if not getgenv().BananaCatMainLoop then
 						if b then
 							SpecialHop(b)
 						else
-							A.CreateNoti({ Title = "Banana Cat Hub", Desc = "Full Sword Legendary", ShowTime = 5 })
+							A.CreateNoti({ Title = "QHuy Hub", Desc = "Full Sword Legendary", ShowTime = 5 })
 						end
 					end
 				end
