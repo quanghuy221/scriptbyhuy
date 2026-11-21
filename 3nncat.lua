@@ -1,4 +1,4 @@
-print("Cam on ban da su dung Banana Hub Cracked by QH Dev (huydev14)! Neu ban phat hien loi xin hay bao cao cho chung toi hoac nguoi lam video nha! Cam on moi nguoi da tin dung!")
+print("Cam on ban da su dung QHuy Hub (huydev14)! Neu ban phat hien loi xin hay bao cao cho chung toi hoac nguoi lam video nha! Cam on moi nguoi da tin dung!")
 
 if getgenv().__BF_LOADED == game.JobId then
 	return getgenv().__BF_RESULT
@@ -746,8 +746,8 @@ getgenv().TopiTranslator = (function()
 	return T
 end)()
 local A =
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/refs/heads/main/zzzz.lua"))()
-Main = guardUI(A.CreateMain({ Title = "Blox Fruit", Desc = " - Cracked by QH Dev " }), "Main")
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/quanghuy221/scriptbyhuy/refs/heads/main/qhdepzaiui.lua"))()
+Main = guardUI(A.CreateMain({ Title = "Blox Fruit", Desc = " - Blox Ftuits " }), "Main")
 PageShop = Main.CreatePage({ Page_Name = "Shop", Page_Title = "Shop" })
 getgenv().Options = A.Options
 SectionShopMisc = PageShop.CreateSection("Misc Shop")
