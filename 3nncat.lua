@@ -747,7 +747,7 @@ getgenv().TopiTranslator = (function()
 end)()
 local A =
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/quanghuy221/scriptbyhuy/refs/heads/main/qhdepzaiui.lua"))()
-Main = guardUI(A.CreateMain({ Title = "Blox Fruit", Desc = " - Blox Ftuits " }), "Main")
+Main = guardUI(A.CreateMain({ Title = "Blox Fruit", Desc = " -  Blox Fruits " }), "Main")
 PageShop = Main.CreatePage({ Page_Name = "Shop", Page_Title = "Shop" })
 getgenv().Options = A.Options
 SectionShopMisc = PageShop.CreateSection("Misc Shop")
