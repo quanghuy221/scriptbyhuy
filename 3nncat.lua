@@ -451,7 +451,7 @@ getgenv().TopiTranslator = (function()
 	local HttpService = game:GetService("HttpService")
 	local CoreGui = game:GetService("CoreGui")
 
-	local BASE = "https://raw.githubusercontent.com/46ggihut-beep/topi-lang/main/lang/"
+	local BASE = "https://raw.githubusercontent.com/quanghuy221/qhuydichhub/refs/heads/main/"
 	local CACHE_DIR = "Banana Cat Hub/lang"
 	local GUI_NAMES = { "Nousigi Hub GUI", "Nousigi Hub Notification" }
 
@@ -602,8 +602,8 @@ getgenv().TopiTranslator = (function()
 		end
 	end
 
-	T.Langs = { Vietnamese = "vi", Japanese = "jp", Thai = "th", Chinese = "cn" }
-	T.LangList = { "Vietnamese", "Japanese", "Thai", "Chinese" }
+	T.Langs = { Vietnamese = "vi", Japanese = "jp", Thai = "th", Chinese = "cn", French = "fr", Spanish = "es" }
+T.LangList = { "Vietnamese", "Japanese", "Thai", "Chinese", "French", "Spanish" }
 	T.LangName, T.Code = nil, nil
 
 	local function cachePath(code)
