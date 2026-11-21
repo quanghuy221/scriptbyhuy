@@ -1,4 +1,4 @@
-print("Cam on ban da su dung QHuy Hub (huydev14)! Neu ban phat hien loi xin hay bao cao cho chung toi hoac nguoi lam video nha! Cam on moi nguoi da tin dung!")
+print("Cam on ban da su dung QHuy Hub by huydev14! Neu ban phat hien loi xin hay bao cao cho chung toi hoac nguoi lam video nha! Cam on moi nguoi da tin dung!")
 
 if getgenv().__BF_LOADED == game.JobId then
 	return getgenv().__BF_RESULT
