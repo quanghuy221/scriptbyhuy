@@ -17521,26 +17521,182 @@ do
 	-- PHẦN 3: AUTO FARM PUMPKIN SNOWMAN
 	-- =====================================================================
 	do
-		local SN_KEY = "Auto Farm Pumpkin Snowman"
+-- =====================================================================
+	-- AUTO FARM PUMPKIN SNOWMAN — SELF-CONTAINED + DEFENSIVE
+	-- =====================================================================
+	local SN_KEY = "Auto Farm Pumpkin Snowman"
 		local SNHOP_KEY = "Auto Hop Find Pumpkin Patch"
 		local SN_GRACE = 6
 		getgenv().__PSnowToken = getgenv().__PSnowToken or 0
 		getgenv().__PSnowHopToken = getgenv().__PSnowHopToken or 0
+		local lastPatchWarn = 0
+		local lastMissingWarn = 0
 
+		-- ============ SELF-CONTAINED FALLBACKS (dùng outer nếu có) ============
+		local function snNormName(s) return (string.lower(tostring(s or "")):gsub("[^%w]", "")) end
+		local function snGetHRP()
+			local ch = game.Players.LocalPlayer.Character
+			return ch and ch:FindFirstChild("HumanoidRootPart")
+		end
+		local function snPivotOf(o)
+			if not o or not o.Parent then return nil end
+			if o:IsA("Model") then
+				local ok, cf = pcall(function() return o:GetBoundingBox() end)
+				if ok and cf then return cf end
+				return o:GetPivot()
+			elseif o:IsA("BasePart") then return o.CFrame end
+			return nil
+		end
+		local function snStackOk()
+			if type(stackOk) == "function" then
+				local ok, r = pcall(stackOk)
+				if ok then return r end
+			end
+			return getgenv().__TrickTreatActive ~= true
+		end
+
+		local snLastEquip = 0
+		local function snEquipMelee()
+			if type(equipMelee) == "function" then
+				local ok = pcall(equipMelee)
+				if ok then return end
+			end
+			if tick() - snLastEquip < 0.3 then return end
+			snLastEquip = tick()
+			pcall(function()
+				local lp = game:GetService("Players").LocalPlayer
+				local char = lp.Character
+				local hum = char and char:FindFirstChildOfClass("Humanoid")
+				local tool = type(NameWeapon) == "function" and NameWeapon("Melee", true) or nil
+				if hum and tool and not hum.Sit and tool.Parent ~= char then hum:EquipTool(tool) end
+			end)
+		end
+
+		local snAttackBusy, snAttackAt = false, 0
+		local snRemotes
+		local function snGetRemotes()
+			if snRemotes then return snRemotes end
+			pcall(function()
+				local Net = game:GetService("ReplicatedStorage").Modules.Net
+				snRemotes = {
+					attack = Net:WaitForChild("RE/RegisterAttack", 5),
+					hit = require(Net):RemoteEvent("RegisterHit", true),
+				}
+			end)
+			return snRemotes
+		end
+		local function snHitParts(p)
+			local hrp = snGetHRP()
+			local parts = {}
+			if not p or not p.Parent or not hrp then return parts end
+			local range = getgenv().__PumpkinHitRange or 30
+			local function add(o)
+				if o:IsA("BasePart") and (o.Position - hrp.Position).Magnitude <= range then parts[#parts + 1] = o end
+			end
+			add(p)
+			for _, d in ipairs(p:GetDescendants()) do add(d) end
+			return parts
+		end
+		local function snHuntAttack(target)
+			if type(pumpkinHuntAttack) == "function" then
+				local ok = pcall(pumpkinHuntAttack, target)
+				if ok then return end
+			end
+			if snAttackBusy or tick() - snAttackAt < 0.12 then return end
+			snAttackBusy = true
+			snAttackAt = tick()
+			getgenv().__PumpkinAttackAt = snAttackAt
+			pcall(function()
+				snEquipMelee()
+				if type(AttackFunction) == "function" then AttackFunction(30) end
+				local ch = game.Players.LocalPlayer.Character
+				local stun = ch and ch:FindFirstChild("Stun")
+				if target and not (stun and stun.Value ~= 0) then
+					local R = snGetRemotes()
+					local parts = snHitParts(target)
+					if R and R.attack and R.hit and #parts > 0 then
+						R.attack:FireServer(0.3)
+						local first = table.remove(parts, 1)
+						local rest = {}
+						for _, part in ipairs(parts) do rest[#rest + 1] = { target, part } end
+						R.hit:FireServer(first, rest)
+					end
+				end
+			end)
+			snAttackBusy = false
+		end
+
+		local SN_JACK_RANGE = (type(JACK_RANGE) == "number") and JACK_RANGE or 800
+		local SN_SIDE_DIST = (type(PUMPKIN_SIDE_DIST) == "number") and PUMPKIN_SIDE_DIST or 5
+		local function snFruitFarmY() return (type(FruitFarmY) == "function") and FruitFarmY() or 15 end
+		local function snBuddhaFarmY() return (type(BuddhaFarmY) == "function") and BuddhaFarmY() or 15 end
+
+		local function snCheckDeps()
+			if tick() - lastMissingWarn < 60 then return end
+			lastMissingWarn = tick()
+			local missing = {}
+			if type(toTarget) ~= "function" then table.insert(missing, "toTarget") end
+			if type(UsedualFlock) ~= "function" then table.insert(missing, "UsedualFlock") end
+			if type(ClickM1) ~= "function" then table.insert(missing, "ClickM1") end
+			if type(IsMobAlive) ~= "function" then table.insert(missing, "IsMobAlive") end
+			if #missing > 0 then
+				warn("[Snowman] MISSING GLOBALS: " .. table.concat(missing, ", ") .. " — bot sẽ không chạy đúng!")
+			end
+		end
+
+		-- ============ FIND PATCH ============
 		local function findPatch()
 			local root = workspace:FindFirstChild("PumpkinHunt")
-			local p = root and root:FindFirstChild("PumpkinPatch")
-			if p and pivotOf(p) then return p end
+			if not root then
+				if tick() - lastPatchWarn > 30 then
+					lastPatchWarn = tick()
+					warn("[Snowman] workspace.PumpkinHunt NOT FOUND")
+				end
+				return nil
+			end
+			local function try(o)
+				if not o then return nil end
+				if snPivotOf(o) then return o end
+				if o:IsA("Folder") or o:IsA("Model") then
+					for _, c in ipairs(o:GetChildren()) do
+						if snPivotOf(c) then return c end
+					end
+					for _, c in ipairs(o:GetDescendants()) do
+						if snPivotOf(c) then return c end
+					end
+				end
+				return nil
+			end
+			local hit = try(root:FindFirstChild("PumpkinPatch"))
+			if hit then return hit end
+			if snPivotOf(root) then return root end
+			for _, c in ipairs(root:GetChildren()) do
+				if snNormName(c.Name):find("patch") then
+					hit = try(c)
+					if hit then return hit end
+				end
+			end
+			for _, c in ipairs(root:GetChildren()) do
+				hit = try(c)
+				if hit then return hit end
+			end
+			if tick() - lastPatchWarn > 30 then
+				lastPatchWarn = tick()
+				local names = {}
+				for _, c in ipairs(root:GetChildren()) do names[#names+1] = c.Name.."("..c.ClassName..")" end
+				warn("[Snowman] PumpkinPatch not found. PumpkinHunt children: " .. table.concat(names, ", "))
+			end
 			return nil
 		end
 
+		-- ============ FIND SNOWMAN ============
 		local function findSnowMob()
-			local hrp = getHRP()
+			local hrp = snGetHRP()
 			local enemies = workspace:FindFirstChild("Enemies")
 			if not hrp or not enemies then return nil end
-			local best, bestD = nil, JACK_RANGE
+			local best, bestD = nil, SN_JACK_RANGE
 			for _, m in ipairs(enemies:GetChildren()) do
-				if normName(m.Name) == "pumpkinsnowman" and IsMobAlive(m) then
+				if snNormName(m.Name) == "pumpkinsnowman" and type(IsMobAlive) == "function" and IsMobAlive(m) then
 					local d = (m.HumanoidRootPart.Position - hrp.Position).Magnitude
 					if d <= bestD then best, bestD = m, d end
 				end
@@ -17548,50 +17704,80 @@ do
 			return best
 		end
 
-		local function snValid(tok) return Settings[SN_KEY] and getgenv().__PSnowToken == tok and stackOk() end
+		local function snValid(tok) return Settings[SN_KEY] and getgenv().__PSnowToken == tok and snStackOk() end
 
 		local function farmSnowMob(mob, tok)
 			repeat
 				task.wait()
 				if not snValid(tok) then return end
-				local hrp = getHRP()
-				if not hrp or not mob:FindFirstChild("HumanoidRootPart") or (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > JACK_RANGE then return end
+				local hrp = snGetHRP()
+				if not hrp or not mob:FindFirstChild("HumanoidRootPart") or (mob.HumanoidRootPart.Position - hrp.Position).Magnitude > SN_JACK_RANGE then return end
 				pcall(function()
-					UsedualFlock()
-					ClickM1(mob)
-					if Settings["Select Weapon"] == "Blox Fruit" then
-						toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, FruitFarmY(), 0))
-					else
-						toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, BuddhaFarmY(), 0))
+					if type(UsedualFlock) == "function" then UsedualFlock() end
+					if type(ClickM1) == "function" then ClickM1(mob) end
+					if type(toTarget) == "function" then
+						if Settings["Select Weapon"] == "Blox Fruit" then
+							toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, snFruitFarmY(), 0))
+						else
+							toTarget(mob.HumanoidRootPart.CFrame * CFrame.new(0, snBuddhaFarmY(), 0))
+						end
 					end
 				end)
-			until not IsMobAlive(mob)
+			until type(IsMobAlive) ~= "function" or not IsMobAlive(mob)
 		end
 
 		local function farmPatch(p, tok)
 			local startT = tick()
 			local standDir
+			local attackStartT = nil
+			local stuckDist, stuckSince = nil, nil
+			local maxRadius = 5
+			if p:IsA("Model") then
+				local ok, ext = pcall(function() return p:GetExtentsSize() end)
+				if ok then maxRadius = math.max(ext.X, ext.Y, ext.Z) / 2 end
+			elseif p:IsA("BasePart") then
+				maxRadius = math.max(p.Size.X, p.Size.Y, p.Size.Z) / 2
+			end
+			local standDist = math.max(SN_SIDE_DIST, maxRadius + 3)
+
 			repeat
 				task.wait()
 				if not snValid(tok) then return end
+				if not p.Parent then return end
 				if findSnowMob() then return end
-				local hrp = getHRP()
-				local cf = pivotOf(p)
+				local hrp = snGetHRP()
+				local cf = snPivotOf(p)
 				if not hrp or not cf then return end
-				equipMelee()
+				snEquipMelee()
 				if not standDir then
 					local d = hrp.Position - cf.Position
 					d = Vector3.new(d.X, 0, d.Z)
 					standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
 				end
-				local stand = CFrame.new(cf.Position + standDir * PUMPKIN_SIDE_DIST)
-				if (hrp.Position - stand.Position).Magnitude <= PUMPKIN_HOLD_TOL then
-					pcall(function() toTarget(hrp.CFrame) end)
-					pumpkinHuntAttack(p)
+				local standPos = Vector3.new(
+					cf.Position.X + standDir.X * standDist,
+					cf.Position.Y + 3,
+					cf.Position.Z + standDir.Z * standDist
+				)
+				local distToCenter = (hrp.Position - cf.Position).Magnitude
+				local surfaceDist = distToCenter - maxRadius
+				if type(toTarget) == "function" then pcall(toTarget, CFrame.new(standPos)) end
+				if surfaceDist <= 10 then
+					if not attackStartT then attackStartT = tick() end
+					snHuntAttack(p)
+					if tick() - attackStartT >= 20 then return end
+					stuckDist, stuckSince = nil, nil
 				else
-					pcall(function() toTarget(stand) end)
+					attackStartT = nil
+					if stuckDist and math.abs(surfaceDist - stuckDist) < 1.5 then
+						if not stuckSince then stuckSince = tick() end
+						if tick() - stuckSince > 15 then return end
+					else
+						stuckSince = nil
+					end
+					stuckDist = surfaceDist
 				end
-			until not p.Parent or tick() - startT > 12
+			until not p.Parent or tick() - startT > 40
 		end
 
 		HalloweenSection.CreateToggle(
@@ -17601,16 +17787,18 @@ do
 				getgenv().__PSnowToken = getgenv().__PSnowToken + 1
 				if not state then return end
 				local tok = getgenv().__PSnowToken
+				snCheckDeps()
 				spawn(function()
-					while snValid(tok) or (Settings[SN_KEY] and getgenv().__PSnowToken == tok) do
+					while Settings[SN_KEY] and getgenv().__PSnowToken == tok do
 						task.wait()
-						pcall(function()
-							if not stackOk() then return end
+						local ok, err = pcall(function()
+							if not snStackOk() then return end
 							local mob = findSnowMob()
 							if mob then farmSnowMob(mob, tok); return end
 							local patch = findPatch()
 							if patch then farmPatch(patch, tok) end
 						end)
+						if not ok then warn("[Snowman] " .. tostring(err)) end
 					end
 				end)
 			end
