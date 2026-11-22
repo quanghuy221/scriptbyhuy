@@ -8062,12 +8062,7 @@ SettingFarmMainSection.CreateToggle(
 		SaveSettings("Bring Mob", I)
 	end
 )
-SettingFarmMainSection.CreateToggle(
-	{ Title = "Reset Teleport [ Beta ]", Desc = nil, Default = Settings["Reset Teleport"] or false },
-	function(I)
-		SaveSettings("Reset Teleport", I)
-	end
-)
+
 SettingFarmMainSection.CreateToggle(
 	{ Title = "Use Submarine Teleport", Desc = nil, Default = Settings["Use Submarine Teleport"] or false },
 	function(I)
