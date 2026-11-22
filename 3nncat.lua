@@ -18773,29 +18773,7 @@ HalloweenSection.CreateButton(
 )
 
 
-		HalloweenSection.CreateToggle(
-			{ 
-				Title = "Auto Store Fruit", 
-				Desc = "Tự động cất trái Random fruit Halloween vào kho", 
-				Default = Settings[STORE_KEY] or false 
-			},
-			function(state)
-				SaveSettings(STORE_KEY, state)
-				if not state then return end
-				spawn(function()
-					while Settings[STORE_KEY] and task.wait(2) do
-						local ok, err = pcall(function()
-							local t = game:GetService("Players").LocalPlayer
-							if StoreFruit then
-								StoreFruit(t.Backpack)
-								StoreFruit(t.Character)
-							end
-						end)
-						if not ok then warn("[AutoStoreFruit] " .. tostring(err)) end
-					end
-				end)
-			end
-		)
+		
 	end
 
 
