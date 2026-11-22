@@ -17408,7 +17408,6 @@ do
 
 		local function farmPumpkin(p)
 			local startT = tick()
-			local standDir
 			local lastAttackT = 0 
 			
 			local size = Vector3.new(10, 10, 10)
@@ -17421,8 +17420,6 @@ do
 			
 			local standCFrame = nil
 			local lastFlyCall = 0
-			local lastDist = math.huge
-			local stuckStart = 0
 
 			repeat
 				task.wait()
@@ -17440,12 +17437,11 @@ do
 				if not hrp or not cf then return end
 				equipMelee()
 				
-				if not standDir then
+				-- Tính toán điểm đứng 1 lần duy nhất
+				if not standCFrame then
 					local d = hrp.Position - cf.Position
 					d = Vector3.new(d.X, 0, d.Z)
-					standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
-				end
-				if not standCFrame then
+					local standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
 					local standPos = Vector3.new(
 						cf.Position.X + standDir.X * standDist,
 						cf.Position.Y, 
@@ -17454,37 +17450,31 @@ do
 					standCFrame = CFrame.new(standPos)
 				end
 				
-				local distToStand = (hrp.Position - standCFrame.Position).Magnitude
 				local distToCenter = (hrp.Position - cf.Position).Magnitude
 				
-				if distToStand > 5 then
-					if math.abs(distToStand - lastDist) < 0.5 then
-						if stuckStart == 0 then stuckStart = tick() end
-					else stuckStart = 0 end
-					lastDist = distToStand
-				else stuckStart, lastDist = 0, distToStand end
-				
-				local isStuck = (stuckStart > 0) and (tick() - stuckStart > 1.5)
-				local canAttack = (distToStand <= PUMPKIN_HOLD_TOL + 3) or (isStuck and distToCenter <= (getgenv().__PumpkinHitRange or 30))
-				
-				if canAttack then
+				-- [SIÊU KHÔN] Nếu ở trong tầm đánh (<= 28 studs) -> ĐỨNG IM ĐÁNH (Không bay lên bay xuống)
+				if distToCenter <= 28 then
+					-- Giữ float nhẹ nhàng tại chỗ để không bị rớt
+					if tick() - lastFlyCall > 0.2 then 
+						lastFlyCall = tick()
+						pcall(toTarget, hrp.CFrame) 
+					end
+					
 					local beforeAt = getgenv().__PumpkinAttackAt
 					pumpkinHuntAttack(p)
 					local afterAt = getgenv().__PumpkinAttackAt
 					if afterAt and afterAt ~= beforeAt then lastAttackT = afterAt end
 				else
+					-- Bay tới điểm đứng
 					if tick() - lastFlyCall > 0.2 then
 						lastFlyCall = tick()
-						local targetCFrame = standCFrame
-						if distToStand > 12 then
-							local highPos = standCFrame.Position + Vector3.new(0, 15, 0)
-							if (hrp.Position - highPos).Magnitude > 5 then targetCFrame = CFrame.new(highPos) end
-						end
-						pcall(function() toTarget(targetCFrame) end)
+						pcall(toTarget, standCFrame)
 					end
 				end
-			until not p.Parent or tick() - startT > 12
-			if p and p.Parent then HWI.skip[p] = tick() + 3 end
+			until not p.Parent or tick() - startT > 5 -- [SIÊU KHÔN] 5 giây không vỡ -> Bỏ qua
+			
+			-- Đưa vào danh sách đen 10s để tìm quả khác
+			if p and p.Parent then HWI.skip[p] = tick() + 10 end
 		end
 
 		HalloweenSection.CreateToggle(
@@ -17506,6 +17496,7 @@ do
 				end)
 			end
 		)
+	end
 
 		HalloweenSection.CreateToggle(
 			{ Title = "Kill Aura Jack O' Lantern", Desc = "Kill Jack within 300 studs (needs Auto Farm Pumpkin Hunt)", Default = Settings["Kill Aura Jack O' Lantern"] or false },
@@ -17810,12 +17801,12 @@ do
 									matched[first], matched[second]=true,true; phase="idle"; cooldown=tick()+0.6
 								else phase="hide"; phaseAt=tick() end
 							elseif phase == "hide" and tick()-phaseAt >= 1.2 then phase="idle"; cooldown=tick()+0.2 end
-						end
+						
 					else currentCards=nil; phase="idle" end
 				end
 				getgenv().__TTMatchingRun=false
-			end)
-		end
+			end
+		end)
 
 		local TT_SKIP_TEXTS = { "still busy with another door", "nobody is home" }
 		local function ttIsBusyText(txt)
