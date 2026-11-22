@@ -17401,9 +17401,13 @@ do
 			until not IsMobAlive(mob)
 		end
 
+
 		local function farmPumpkin(p)
 			local startT = tick()
-			local lastAttackT = 0 
+			local lastAttackT = 0
+			local attackStartT = nil
+			local approachDir = nil
+			local stuckDist, stuckSince = nil, nil
 			
 			local size = Vector3.new(10, 10, 10)
 			if p:IsA("Model") then
@@ -17412,13 +17416,12 @@ do
 			elseif p:IsA("BasePart") then size = p.Size end
 			local maxRadius = math.max(size.X, size.Y, size.Z) / 2
 			local standDist = math.max(PUMPKIN_SIDE_DIST, maxRadius + 3)
-			
-			local standCFrame = nil
-			local lastFlyCall = 0
 
 			repeat
 				task.wait()
 				if not Settings[HW_KEY] or not stackOk() then return end
+
+				if not p.Parent then return end
 				
 				local ch = game.Players.LocalPlayer.Character
 				local stun = ch and ch:FindFirstChild("Stun")
@@ -17432,44 +17435,59 @@ do
 				if not hrp or not cf then return end
 				equipMelee()
 				
-				-- Tính toán điểm đứng 1 lần duy nhất
-				if not standCFrame then
-					local d = hrp.Position - cf.Position
-					d = Vector3.new(d.X, 0, d.Z)
-					local standDir = d.Magnitude > 0.1 and d.Unit or Vector3.new(0, 0, 1)
-					local standPos = Vector3.new(
-						cf.Position.X + standDir.X * standDist,
-						cf.Position.Y, 
-						cf.Position.Z + standDir.Z * standDist
-					)
-					standCFrame = CFrame.new(standPos)
+
+				if not approachDir then
+					local h = Vector3.new(hrp.Position.X - cf.Position.X, 0, hrp.Position.Z - cf.Position.Z)
+					approachDir = h.Magnitude > 0.5 and h.Unit or Vector3.new(0, 0, 1)
 				end
 				
-				local distToCenter = (hrp.Position - cf.Position).Magnitude
+
+				local standPos = Vector3.new(
+					cf.Position.X + approachDir.X * standDist,
+					cf.Position.Y + 3,
+					cf.Position.Z + approachDir.Z * standDist
+				)
 				
-				-- [SIÊU KHÔN] Nếu ở trong tầm đánh (<= 28 studs) -> ĐỨNG IM ĐÁNH (Không bay lên bay xuống)
-				if distToCenter <= 28 then
-					-- Giữ float nhẹ nhàng tại chỗ để không bị rớt
-					if tick() - lastFlyCall > 0.2 then 
-						lastFlyCall = tick()
-						pcall(toTarget, hrp.CFrame) 
-					end
+				local distToCenter = (hrp.Position - cf.Position).Magnitude
+				local surfaceDist = distToCenter - maxRadius
+				
+
+				pcall(toTarget, CFrame.new(standPos))
+				
+
+				if surfaceDist <= 10 then
+					if not attackStartT then attackStartT = tick() end
 					
 					local beforeAt = getgenv().__PumpkinAttackAt
 					pumpkinHuntAttack(p)
 					local afterAt = getgenv().__PumpkinAttackAt
 					if afterAt and afterAt ~= beforeAt then lastAttackT = afterAt end
-				else
-					-- Bay tới điểm đứng
-					if tick() - lastFlyCall > 0.2 then
-						lastFlyCall = tick()
-						pcall(toTarget, standCFrame)
+					
+
+					if tick() - attackStartT >= 20 then
+						HWI.skip[p] = tick() + 15
+						return
 					end
+					
+					stuckDist, stuckSince = nil, nil
+				else
+					attackStartT = nil
+
+					if stuckDist and math.abs(surfaceDist - stuckDist) < 1.5 then
+						if not stuckSince then stuckSince = tick() end
+						if tick() - stuckSince > 15 then
+							HWI.skip[p] = tick() + 15
+							return
+						end
+					else
+						stuckSince = nil
+					end
+					stuckDist = surfaceDist
 				end
-			until not p.Parent or tick() - startT > 5 -- [SIÊU KHÔN] 5 giây không vỡ -> Bỏ qua
+			until not p.Parent or tick() - startT > 40  
 			
-			-- Đưa vào danh sách đen 10s để tìm quả khác
-			if p and p.Parent then HWI.skip[p] = tick() + 10 end
+
+			if p and p.Parent then HWI.skip[p] = tick() + 15 end
 		end
 
 		HalloweenSection.CreateToggle(
