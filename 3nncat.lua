@@ -18893,27 +18893,7 @@ local function SafeCloseSpinner()
 end
 
 
--- =====================================================================
--- PHẦN B: RANDOM DEVIL FRUIT (CODE CŨ CỦA BẠN - ĐÃ TỐI ƯU)
--- =====================================================================
--- (Bạn đặt đoạn này vào trong vòng lặp while của bạn)
-if getgenv().DebugGacha then
-    local sw = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("SpinnerWindow")
-    print("[Gacha] vòng lặp: toggle bật, SpinnerWindow =", sw ~= nil, sw and sw.Enabled)
-end
 
-local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
-local sw = pg and pg:FindFirstChild("SpinnerWindow")
-
-if not sw or not sw.Enabled then
-    -- Chỉ thử quay 1 lần mỗi 3 giây (tránh spam server)
-    if tick() - (getgenv().__RandomFruitLastTry or 0) > 3 then
-        getgenv().__RandomFruitLastTry = tick()
-        pcall(function() RandomFruit() end)
-    end
-elseif sw.Enabled then
-    SafeCloseSpinner()
-end
 
 
 
@@ -18979,6 +18959,38 @@ HalloweenSection.CreateButton(
 )
 
 
+
+HalloweenSection.CreateToggle(
+    { 
+        Title = "Auto Store Fruit Halloween", 
+        Desc = "Tự động store Trái Ác Quỷ Random Sự kiện Halloween",
+        Default = Settings["Auto Store Fruit Halloween"] or false
+    },
+    function(state)
+        SaveSettings("Auto Store Fruit Halloween", state)
+        if not state then return end
+        
+        spawn(function()
+            while Settings["Auto Store Fruit Halloween"] do
+                task.wait(0.5)
+                
+                local lp = game:GetService("Players").LocalPlayer
+                local t = lp
+                
+                pcall(function()
+                    if type(StoreFruit) == "function" and t then
+                        if t:FindFirstChild("Backpack") then
+                            StoreFruit(t.Backpack)
+                        end
+                        if t.Character then
+                            StoreFruit(t.Character)
+                        end
+                    end
+                end)
+            end
+        end)
+    end
+)
 		
 	end
 
@@ -32217,16 +32229,9 @@ if not getgenv().BananaCatMainLoop then
 			local T, T = pcall(function()
 				local T, T = pcall(function()
 	if Settings["Random Devil Fruit"] then
-		if getgenv().DebugGacha then
-			local sw = game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("SpinnerWindow")
-			print("[Gacha] vòng lặp: toggle bật, SpinnerWindow =", sw ~= nil, sw and sw.Enabled)
-		end
-		
-		-- [TỐI ƯU] Lấy PlayerGui và SpinnerWindow 1 lần thay vì gọi liên tục
-		local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
+			local pg = game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui")
 		local sw = pg and pg:FindFirstChild("SpinnerWindow")
 		
-		-- [FIX SPAM COOLDOWN 2H] Chỉ thử quay 1 lần mỗi 3 giây (tránh spam server)
 		if not sw or not sw.Enabled then
 			if tick() - (getgenv().__RandomFruitLastTry or 0) > 3 then
 				getgenv().__RandomFruitLastTry = tick()
@@ -32236,7 +32241,6 @@ if not getgenv().BananaCatMainLoop then
 			Spinner:Close()
 		end
 		
-		-- [FIX ẨN CHỮ TRY AGAIN SOON] Chỉ khởi tạo 1 lần duy nhất
 		if not getgenv().__GachaTextHooked then
 			getgenv().__GachaTextHooked = true
 			local function hideText(obj)
@@ -32244,8 +32248,8 @@ if not getgenv().BananaCatMainLoop then
 					local function check()
 						local txt = string.lower(obj.Text)
 						if string.find(txt, "try again") or string.find(txt, "soon") then
-							obj.TextTransparency = 1 -- Tàng hình chữ
-							obj.Text = ""            -- Xóa sạch chữ
+							obj.TextTransparency = 1
+							obj.Text = ""
 						end
 					end
 					obj:GetPropertyChangedSignal("Text"):Connect(check)
