@@ -180,7 +180,7 @@ tbl3.RegisterOption = function(arg, arg2, arg3)
     return tbl5
 end
 
---// FLUENT GLASS ENGINE & ANIMATION SYSTEM
+--// FLUENT GLASS ENGINE & CLICK JUICE
 local GlassState = {
     MainTransparency = 0.24,
     PanelTransparency = 0.44,
@@ -322,7 +322,7 @@ local function SpawnRipple(container, inputPos, color)
     ripple.Position = UDim2.new(0, lx, 0, ly)
     ripple.Size = UDim2.new(0, 0, 0, 0)
     ripple.BackgroundColor3 = color or getgenv().UIColor["Click Effect Color"] or Color3.new(1, 1, 1)
-    ripple.BackgroundTransparency = 0.50
+    ripple.BackgroundTransparency = 0.48
     ripple.BorderSizePixel = 0
     ripple.ZIndex = container.ZIndex + 6
     Instance.new("UICorner", ripple).CornerRadius = UDim.new(1, 0)
@@ -557,19 +557,21 @@ tbl3.ToggleUI = function()
                         })
                         ActiveToggleTween:Play()
                     end
-                elseif MainWindowScaleRef then
-                    local tw = TweenService:Create(MainWindowScaleRef, TweenInfo.new(math.max(0.12, dur * 0.7), Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                        Scale = GlassState.UIScale * 0.92
-                    })
-                    ActiveToggleTween = tw
-                    tw:Play()
-                    tw.Completed:Connect(function()
-                        if not getgenv().UIToggled and child.Parent then
-                            child.Enabled = false
-                        end
-                    end)
                 else
-                    child.Enabled = false
+                    if MainWindowScaleRef then
+                        local tw = TweenService:Create(MainWindowScaleRef, TweenInfo.new(math.max(0.10, dur * 0.65), Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+                            Scale = GlassState.UIScale * 0.92
+                        })
+                        ActiveToggleTween = tw
+                        tw:Play()
+                        tw.Completed:Connect(function()
+                            if not getgenv().UIToggled and child.Parent then
+                                child.Enabled = false
+                            end
+                        end)
+                    else
+                        child.Enabled = false
+                    end
                 end
             end
         end
@@ -2380,6 +2382,9 @@ tbl3.CreateMain = function(arg)
 
                         CreateLabel = function(arg6)
                             local v10 = tostring(arg6.Title or "Label")
+                            local customBgColor = arg6.Color
+                            local customTextColor = arg6.TextColor
+
                             local frame23 = Instance.new("Frame", frame20)
                             frame23.Name = "LabelFrame"
                             frame23.BackgroundTransparency = 1
@@ -2392,7 +2397,7 @@ tbl3.CreateMain = function(arg)
                             frame24.Position = UDim2.new(0.5, 0, 0, 0)
                             frame24.Size = UDim2.new(1, -12, 0, 28)
                             frame24.AutomaticSize = Enum.AutomaticSize.Y
-                            frame24.BackgroundColor3 = arg6.Color or GlassState.PanelColor
+                            frame24.BackgroundColor3 = customBgColor or GlassState.PanelColor
                             frame24.BackgroundTransparency = arg6.Invisible and 1 or GlassState.CardTransparency
                             Instance.new("UICorner", frame24).CornerRadius = UDim.new(0, 8)
                             local uiStroke6 = CreateGlassStroke(frame24, 1, 0.14)
@@ -2409,23 +2414,23 @@ tbl3.CreateMain = function(arg)
                             textLabel6.TextXAlignment = Enum.TextXAlignment.Left
                             textLabel6.AutomaticSize = Enum.AutomaticSize.Y
                             textLabel6.TextWrapped = true
-                            textLabel6.TextColor3 = arg6.TextColor or GlassState.TextColor
+                            textLabel6.TextColor3 = customTextColor or GlassState.TextColor
                             textLabel6.TextStrokeTransparency = getgenv().UIColor["Text Stroke Transparency"]
                             if arg6.Invisible then textLabel6.TextTransparency = 1 end
                             Instance.new("UIPadding", frame24).PaddingBottom = UDim.new(0, 6)
 
                             RegisterThemeListener(function()
                                 if frame24.Parent and not arg6.Invisible then
-                                    if not arg6.Color then frame24.BackgroundColor3 = GlassState.PanelColor end
+                                    if not customBgColor then frame24.BackgroundColor3 = GlassState.PanelColor end
                                     frame24.BackgroundTransparency = GlassState.CardTransparency
                                 end
-                                if textLabel6.Parent and not arg6.TextColor then textLabel6.TextColor3 = GlassState.TextColor end
+                                if textLabel6.Parent and not customTextColor then textLabel6.TextColor3 = GlassState.TextColor end
                             end)
 
                             local functionCreate = {
                                 SetText = function(text5) textLabel6.Text = text5 end,
                                 GetText = function() return textLabel6.Text end,
-                                SetColor = function(textColor3) textLabel6.TextColor3 = textColor3 end,
+                                SetColor = function(textColor3) customTextColor = textColor3; textLabel6.TextColor3 = textColor3 end,
                                 Highlight = function(arg7)
                                     TweenService:Create(uiStroke6, TweenInfo.new(0.25), {Transparency = 0.15, Color = arg7 or GlassState.AccentColor}):Play()
                                     TweenService:Create(frame24, TweenInfo.new(0.25), {BackgroundTransparency = 0.20}):Play()
@@ -2581,7 +2586,8 @@ tbl3.CreateMain = function(arg)
                                         child.Visible = false
                                     end
                                 end
-                                textBox3.Text = string.lower(textBox3.Text)
+                                local low = string.lower(textBox3.Text)
+                                if textBox3.Text ~= low then textBox3.Text = low end
                             end
 
                             local function fn9()
@@ -2824,7 +2830,7 @@ tbl3.CreateMain = function(arg)
                             end
 
                             if flag5 then
-                                textBox3.Changed:Connect(function() fn8(); fn9() end)
+                                textBox3:GetPropertyChangedSignal("Text"):Connect(function() fn8(); fn9() end)
                             end
 
                             if flag9 and typeof(default) == "table" then
@@ -2977,8 +2983,8 @@ tbl3.CreateMain = function(arg)
                                 end)
                             end)
 
-                            UserInputService.InputBegan:Connect(function(input, gp)
-                                if isBinding or gp then return end
+                            UserInputService.InputBegan:Connect(function(input)
+                                if isBinding or UserInputService:GetFocusedTextBox() then return end
                                 if default == input.UserInputType or default == input.KeyCode then
                                     fn7(default)
                                 end
@@ -3111,7 +3117,7 @@ tbl3.CreateMain = function(arg)
                             local n11 = tonumber(arg6.Min) or 0
                             local n12 = tonumber(arg6.Max) or 100
                             local flag5 = arg6.Precise or false
-                            local n13 = tonumber(arg6.Default) or n11
+                            local n13 = tonumber(arg6.Default) or 0
                             local fn8 = arg7 or function() end
 
                             local frame23 = Instance.new("Frame", frame20)
