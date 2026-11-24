@@ -127,6 +127,14 @@ local genv = getgenv()
 genv.UIColor = getgenv().T1 and tbl or tbl2
 getgenv().UIToggled = false
 
+local function GetUIColor(key, fallback)
+    local uc = getgenv().UIColor
+    if type(uc) == "table" and uc[key] ~= nil then
+        return uc[key]
+    end
+    return fallback
+end
+
 local tbl3 = {}
 tbl3.Options = tbl3.Options or {}
 tbl3._TitleMap = tbl3._TitleMap or {}
@@ -195,12 +203,12 @@ local GlassState = {
     BounceEnabled = true,
     WorldBlurEnabled = false,
     WorldBlurSize = 10,
-    AccentColor = getgenv().UIColor["Title Text Color"],
-    MainColor = getgenv().UIColor["Background Main Color"],
-    PanelColor = getgenv().UIColor["Background 1 Color"],
-    CardColor = getgenv().UIColor["Background 2 Color"],
-    BorderColor = getgenv().UIColor["Border Color"],
-    TextColor = getgenv().UIColor["Text Color"],
+    AccentColor = GetUIColor("Title Text Color", Color3.fromRGB(115, 198, 255)),
+    MainColor = GetUIColor("Background Main Color", Color3.fromRGB(16, 20, 28)),
+    PanelColor = GetUIColor("Background 1 Color", Color3.fromRGB(26, 32, 44)),
+    CardColor = GetUIColor("Background 2 Color", Color3.fromRGB(38, 46, 62)),
+    BorderColor = GetUIColor("Border Color", Color3.fromRGB(140, 175, 220)),
+    TextColor = GetUIColor("Text Color", Color3.fromRGB(238, 242, 248)),
 }
 
 local ThemeListeners = {}
@@ -239,6 +247,10 @@ end
 
 local function SyncUIColorTable()
     local c = getgenv().UIColor
+    if type(c) ~= "table" then
+        c = {}
+        getgenv().UIColor = c
+    end
     local acc = GlassState.AccentColor
     c["Title Text Color"] = acc
     c["Page Selected Color"] = acc
@@ -326,8 +338,8 @@ local function SpawnRipple(container, inputPos, color)
     ripple.AnchorPoint = Vector2.new(0.5, 0.5)
     ripple.Position = UDim2.new(0, lx, 0, ly)
     ripple.Size = UDim2.new(0, 0, 0, 0)
-    ripple.BackgroundColor3 = color or getgenv().UIColor["Click Effect Color"] or Color3.new(1, 1, 1)
-    ripple.BackgroundTransparency = 0.48
+    ripple.BackgroundColor3 = color or GetUIColor("Click Effect Color", Color3.new(1, 1, 1))
+    ripple.BackgroundTransparency = 0.46
     ripple.BorderSizePixel = 0
     ripple.ZIndex = container.ZIndex + 6
     Instance.new("UICorner", ripple).CornerRadius = UDim.new(1, 0)
@@ -516,7 +528,7 @@ btnShadow.AnchorPoint = Vector2.new(0.5, 0.5)
 btnShadow.ZIndex = frame.ZIndex - 1
 
 local imageLabel = Instance.new("ImageLabel", frame)
-imageLabel.Image = getgenv().UIColor["Logo Image"]
+imageLabel.Image = GetUIColor("Logo Image", "rbxassetid://5009915795")
 imageLabel.BackgroundTransparency = 1
 local logoSize = getgenv().UIToggled and (getgenv().T1 and 32 or 38) or (getgenv().T1 and 26 or 30)
 imageLabel.Size = UDim2.new(0, logoSize, 0, logoSize)
@@ -702,11 +714,11 @@ local function fn3(arg)
     imageLabel2.BackgroundTransparency = 1
     imageLabel2.Position = UDim2.new(0, 0, 0.5, -12)
     imageLabel2.Size = UDim2.new(0, 24, 0, 24)
-    imageLabel2.Image = getgenv().UIColor["Logo Image"]
+    imageLabel2.Image = GetUIColor("Logo Image", "rbxassetid://5009915795")
     imageLabel2.ScaleType = Enum.ScaleType.Fit
     Instance.new("UICorner", imageLabel2).CornerRadius = UDim.new(1, 0)
 
-    local col = tbl4.Getcolor(getgenv().UIColor["Title Text Color"])
+    local col = tbl4.Getcolor(GetUIColor("Title Text Color", GlassState.AccentColor))
     local textLabel = Instance.new("TextLabel", frame5)
     textLabel.Name = "TextLabelNoti"
     textLabel.Text = "<font color=\"rgb(" .. col[1] .. "," .. col[2] .. "," .. col[3] .. ")\">QHuy Hub</font> " .. getgenv().TitleNameNoti
@@ -718,7 +730,7 @@ local function fn3(arg)
     textLabel.TextWrapped = true
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
     textLabel.RichText = true
-    textLabel.TextColor3 = getgenv().UIColor["GUI Text Color"]
+    textLabel.TextColor3 = GetUIColor("GUI Text Color", GlassState.TextColor)
 
     local frame6 = Instance.new("Frame", frame5)
     frame6.Name = "CloseContainer"
@@ -738,7 +750,7 @@ local function fn3(arg)
     imageLabel3.Image = "rbxassetid://3926305904"
     imageLabel3.ImageRectOffset = Vector2.new(284, 4)
     imageLabel3.ImageRectSize = Vector2.new(24, 24)
-    imageLabel3.ImageColor3 = getgenv().UIColor["Search Icon Color"]
+    imageLabel3.ImageColor3 = GetUIColor("Search Icon Color", Color3.new(1, 1, 1))
 
     local textButton2 = Instance.new("TextButton", frame6)
     textButton2.BackgroundTransparency = 1
@@ -757,7 +769,7 @@ local function fn3(arg)
         textLabel2.TextSize = 13
         textLabel2.TextXAlignment = Enum.TextXAlignment.Left
         textLabel2.RichText = true
-        textLabel2.TextColor3 = getgenv().UIColor["Text Color"]
+        textLabel2.TextColor3 = GetUIColor("Text Color", GlassState.TextColor)
         textLabel2.AutomaticSize = Enum.AutomaticSize.Y
         textLabel2.TextWrapped = true
     end
@@ -781,10 +793,10 @@ local function fn3(arg)
     }):Play()
 
     textButton2.MouseEnter:Connect(function()
-        TweenService:Create(imageLabel3, TweenInfo.new(0.15), {ImageColor3 = getgenv().UIColor["Search Icon Highlight Color"]}):Play()
+        TweenService:Create(imageLabel3, TweenInfo.new(0.15), {ImageColor3 = GetUIColor("Search Icon Highlight Color", GlassState.AccentColor)}):Play()
     end)
     textButton2.MouseLeave:Connect(function()
-        TweenService:Create(imageLabel3, TweenInfo.new(0.15), {ImageColor3 = getgenv().UIColor["Search Icon Color"]}):Play()
+        TweenService:Create(imageLabel3, TweenInfo.new(0.15), {ImageColor3 = GetUIColor("Search Icon Color", Color3.new(1, 1, 1))}):Play()
     end)
     textButton2.MouseButton1Click:Connect(fn4)
     task.delay(n4, fn4)
@@ -1353,7 +1365,7 @@ tbl3.CreateMain = function(arg, arg2)
     imageLabel2.ScaleType = Enum.ScaleType.Slice
     imageLabel2.SliceCenter = Rect.new(15, 15, 175, 175)
     imageLabel2.SliceScale = 1.3
-    imageLabel2.ImageColor3 = getgenv().UIColor["Title Text Color"]
+    imageLabel2.ImageColor3 = GetUIColor("Title Text Color", GlassState.AccentColor)
     imageLabel2.ImageTransparency = 1
 
     local imageLabel4 = Instance.new("ImageLabel", frame3)
@@ -1435,7 +1447,7 @@ tbl3.CreateMain = function(arg, arg2)
     imageLabel3.AnchorPoint = Vector2.new(0, 0.5)
     imageLabel3.Position = UDim2.new(0, 10, 0.5, 0)
     imageLabel3.Size = UDim2.new(0, 22, 0, 22)
-    imageLabel3.Image = getgenv().UIColor["Logo Image"]
+    imageLabel3.Image = GetUIColor("Logo Image", "rbxassetid://5009915795")
     imageLabel3.ScaleType = Enum.ScaleType.Fit
     Instance.new("UICorner", imageLabel3).CornerRadius = UDim.new(1, 0)
 
@@ -1609,7 +1621,7 @@ tbl3.CreateMain = function(arg, arg2)
     imageLabel6.Size = UDim2.new(0, 14, 0, 14)
     imageLabel6.BackgroundTransparency = 1
     imageLabel6.Image = "rbxassetid://8154282545"
-    imageLabel6.ImageColor3 = getgenv().UIColor["Search Icon Color"]
+    imageLabel6.ImageColor3 = GetUIColor("Search Icon Color", Color3.new(1, 1, 1))
 
     local textBox = Instance.new("TextBox", frame10)
     textBox.Name = "SearchBox"
@@ -1621,7 +1633,7 @@ tbl3.CreateMain = function(arg, arg2)
     textBox.TextSize = 12
     textBox.TextXAlignment = Enum.TextXAlignment.Left
     textBox.PlaceholderText = "Search section or function..."
-    textBox.PlaceholderColor3 = getgenv().UIColor["Placeholder Text Color"]
+    textBox.PlaceholderColor3 = GetUIColor("Placeholder Text Color", Color3.fromRGB(168, 178, 194))
     textBox.TextColor3 = GlassState.TextColor
     textBox.ClearTextOnFocus = false
 
@@ -1629,7 +1641,7 @@ tbl3.CreateMain = function(arg, arg2)
         TweenService:Create(imageLabel6, TweenInfo.new(0.18), {ImageColor3 = GlassState.AccentColor}):Play()
     end)
     textBox.FocusLost:Connect(function()
-        TweenService:Create(imageLabel6, TweenInfo.new(0.18), {ImageColor3 = getgenv().UIColor["Search Icon Color"]}):Play()
+        TweenService:Create(imageLabel6, TweenInfo.new(0.18), {ImageColor3 = GetUIColor("Search Icon Color", Color3.new(1, 1, 1))}):Play()
     end)
 
     local scrollingFrame = Instance.new("ScrollingFrame", frame5)
@@ -1824,6 +1836,9 @@ tbl3.CreateMain = function(arg, arg2)
         frame17.LayoutOrder = layoutOrder2
         frame17.BackgroundTransparency = GlassState.PanelTransparency
 
+        local pageScale = Instance.new("UIScale", frame17)
+        pageScale.Scale = 1
+
         local uiCorner7 = Instance.new("UICorner", frame17)
         uiCorner7.CornerRadius = UDim.new(0, math.max(4, GlassState.CornerRadius - 2))
         CreateGlassStroke(frame17, 1, 0.04)
@@ -1911,7 +1926,7 @@ tbl3.CreateMain = function(arg, arg2)
         imageLabel7.Position = UDim2.new(0.5, 0, 0.5, 0)
         imageLabel7.Size = UDim2.new(0, 14, 0, 14)
         imageLabel7.Image = "rbxassetid://8154282545"
-        imageLabel7.ImageColor3 = getgenv().UIColor["Search Icon Color"]
+        imageLabel7.ImageColor3 = GetUIColor("Search Icon Color", Color3.new(1, 1, 1))
 
         local textButton3 = Instance.new("TextButton", frame19)
         textButton3.Name = "Search Button"
@@ -1930,7 +1945,7 @@ tbl3.CreateMain = function(arg, arg2)
         textBox2.TextSize = 12
         textBox2.TextXAlignment = Enum.TextXAlignment.Left
         textBox2.PlaceholderText = "Search section name..."
-        textBox2.PlaceholderColor3 = getgenv().UIColor["Placeholder Text Color"]
+        textBox2.PlaceholderColor3 = GetUIColor("Placeholder Text Color", Color3.fromRGB(168, 178, 194))
         textBox2.TextColor3 = GlassState.TextColor
         textBox2.ClearTextOnFocus = false
 
@@ -1939,7 +1954,7 @@ tbl3.CreateMain = function(arg, arg2)
             TweenService:Create(imageLabel7, TweenInfo.new(0.15), {ImageColor3 = GlassState.AccentColor}):Play()
         end)
         textButton3.MouseLeave:Connect(function()
-            TweenService:Create(imageLabel7, TweenInfo.new(0.15), {ImageColor3 = getgenv().UIColor["Search Icon Color"]}):Play()
+            TweenService:Create(imageLabel7, TweenInfo.new(0.15), {ImageColor3 = GetUIColor("Search Icon Color", Color3.new(1, 1, 1))}):Play()
         end)
         textButton3.MouseButton1Click:Connect(function()
             flag2 = not flag2
@@ -1959,10 +1974,19 @@ tbl3.CreateMain = function(arg, arg2)
         if layoutOrder == 0 then
             frame15.BackgroundTransparency = 0
             frame12.BackgroundTransparency = 0.55
+            v5 = frame17
         end
 
         textButton2.MouseButton1Click:Connect(function()
-            if uiPageLayout.CurrentPage ~= frame17 then uiPageLayout:JumpTo(frame17) end
+            if uiPageLayout.CurrentPage ~= frame17 then
+                uiPageLayout:JumpTo(frame17)
+                if GlassState.BounceEnabled then
+                    pageScale.Scale = 0.975
+                    TweenService:Create(pageScale, TweenInfo.new(math.max(0.16, GlassState.AnimationSpeed), Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {
+                        Scale = 1
+                    }):Play()
+                end
+            end
             local dur = math.max(0.14, GlassState.AnimationSpeed)
             for _, v11 in next, scrollingFrame:GetChildren() do
                 if v11:FindFirstChild("Frame") and v11.Frame:FindFirstChild("Line") and v11.Frame.Line:FindFirstChild("PageInLine") then
@@ -2183,7 +2207,7 @@ tbl3.CreateMain = function(arg, arg2)
                 local frame27 = Instance.new("Frame", frame25)
                 frame27.Name = "check"
                 frame27.AnchorPoint = Vector2.new(0, 0.5)
-                frame27.BackgroundColor3 = getgenv().UIColor["Toggle Checked Color"]
+                frame27.BackgroundColor3 = GetUIColor("Toggle Checked Color", Color3.fromRGB(245, 250, 255))
                 frame27.Position = default and UDim2.new(1, -19, 0.5, 0) or UDim2.new(0, 3, 0.5, 0)
                 frame27.Size = UDim2.new(0, 16, 0, 16)
                 frame27.ZIndex = 4
@@ -2228,7 +2252,7 @@ tbl3.CreateMain = function(arg, arg2)
                     textLabel6.TextXAlignment = Enum.TextXAlignment.Left
                     textLabel6.RichText = true
                     textLabel6.AutomaticSize = Enum.AutomaticSize.Y
-                    textLabel6.TextColor3 = getgenv().UIColor["Toggle Desc Color"]
+                    textLabel6.TextColor3 = GetUIColor("Toggle Desc Color", Color3.fromRGB(184, 194, 210))
                     textLabel6.LayoutOrder = 2
                 else
                     textLabel6.Text = ""
@@ -2440,7 +2464,7 @@ tbl3.CreateMain = function(arg, arg2)
                 textLabel6.AutomaticSize = Enum.AutomaticSize.Y
                 textLabel6.TextWrapped = true
                 textLabel6.TextColor3 = customTextColor or GlassState.TextColor
-                textLabel6.TextStrokeTransparency = getgenv().UIColor["Text Stroke Transparency"]
+                textLabel6.TextStrokeTransparency = GetUIColor("Text Stroke Transparency", 0.85)
                 if arg6.Invisible then textLabel6.TextTransparency = 1 end
                 Instance.new("UIPadding", frame24).PaddingBottom = UDim.new(0, 6)
 
@@ -2533,7 +2557,7 @@ tbl3.CreateMain = function(arg, arg2)
 
                 if default and table.find(list, default) then stringValue.Value = default end
                 if flag5 then
-                    textBox3.PlaceholderColor3 = getgenv().UIColor["Placeholder Text Color"]
+                    textBox3.PlaceholderColor3 = GetUIColor("Placeholder Text Color", Color3.fromRGB(168, 178, 194))
                     textBox3.PlaceholderText = str2 .. ": " .. tostring(default or "")
                 else
                     textBox3.Text = str2 .. ": " .. tostring(default or "")
@@ -2546,7 +2570,7 @@ tbl3.CreateMain = function(arg, arg2)
                 imageLabel9.Position = UDim2.new(1, -9, 0.5, 0)
                 imageLabel9.Size = UDim2.new(0, 14, 0, 14)
                 imageLabel9.Image = "rbxassetid://6954383209"
-                imageLabel9.ImageColor3 = getgenv().UIColor["Dropdown Icon Color"]
+                imageLabel9.ImageColor3 = GetUIColor("Dropdown Icon Color", Color3.new(1, 1, 1))
 
                 local textButton4 = Instance.new("TextButton", frame25)
                 textButton4.Name = "DropdownButton"
@@ -2642,16 +2666,16 @@ tbl3.CreateMain = function(arg, arg2)
                     tbl11 = {}
 
                     for k, v10 in sortPairs(tbl12) do
-                        if flag6 then table.insert(tbl11, string.lower(k))
-                        elseif flag7 then table.insert(tbl11, string.lower(v10.Title))
-                        else table.insert(tbl11, string.lower(v10)) end
+                        if flag6 then table.insert(tbl11, string.lower(tostring(k)))
+                        elseif flag7 then table.insert(tbl11, string.lower(tostring((type(v10) == "table" and v10.Title) or k or "")))
+                        else table.insert(tbl11, string.lower(tostring(v10))) end
                     end
 
                     if flag6 then
                         for k, v10 in sortPairs(tbl12) do
                             local v11 = v10
                             local frame28 = Instance.new("Frame", frame27)
-                            frame28.Name = string.lower(k); frame28.BackgroundTransparency = 1; frame28.LayoutOrder = 1; frame28.Size = UDim2.new(1, 0, 0, 28)
+                            frame28.Name = string.lower(tostring(k)); frame28.BackgroundTransparency = 1; frame28.LayoutOrder = 1; frame28.Size = UDim2.new(1, 0, 0, 28)
 
                             local frame29 = Instance.new("Frame", frame28)
                             frame29.Name = "SampleItemBG"; frame29.AnchorPoint = Vector2.new(0.5, 0.5); frame29.Position = UDim2.new(0.5, 0, 0.5, 0); frame29.Size = UDim2.new(1, 0, 1, 0)
@@ -2661,7 +2685,7 @@ tbl3.CreateMain = function(arg, arg2)
 
                             local textLabel6 = Instance.new("TextLabel", frame29)
                             textLabel6.Name = "SampleItemTitle"; textLabel6.BackgroundTransparency = 1; textLabel6.Position = UDim2.new(0, 10, 0, 0); textLabel6.Size = UDim2.new(1, -40, 1, 0)
-                            textLabel6.Font = Enum.Font.GothamSemibold; textLabel6.Text = k; textLabel6.TextColor3 = GlassState.TextColor; textLabel6.TextSize = 12.5; textLabel6.TextXAlignment = Enum.TextXAlignment.Left
+                            textLabel6.Font = Enum.Font.GothamSemibold; textLabel6.Text = tostring(k); textLabel6.TextColor3 = GlassState.TextColor; textLabel6.TextSize = 12.5; textLabel6.TextXAlignment = Enum.TextXAlignment.Left
 
                             local imageButton = Instance.new("ImageButton", frame29)
                             imageButton.Name = "SampleItemCheck"; imageButton.AnchorPoint = Vector2.new(1, 0.5); imageButton.BackgroundTransparency = 1; imageButton.Position = UDim2.new(1, -6, 0.5, 0); imageButton.Size = UDim2.new(0, 18, 0, 18); imageButton.ZIndex = 2
@@ -2691,97 +2715,99 @@ tbl3.CreateMain = function(arg, arg2)
                         end
                     elseif flag7 then
                         for k, v10 in sortPairs(tbl12) do
-                            local text5 = tostring(v10.Title) or ""
-                            local n11, n12 = tonumber(v10.Min) or 0, tonumber(v10.Max) or 100
-                            local flag11 = v10.Precise or false
-                            local v11 = tonumber(v10.Default) or n11
+                            if type(v10) == "table" then
+                                local text5 = tostring(v10.Title or k or "")
+                                local n11, n12 = tonumber(v10.Min) or 0, tonumber(v10.Max) or 100
+                                local flag11 = v10.Precise or false
+                                local v11 = tonumber(v10.Default) or n11
 
-                            local frame28 = Instance.new("Frame", frame27)
-                            frame28.Name = string.lower(v10.Title); frame28.BackgroundTransparency = 1; frame28.Size = UDim2.new(1, 0, 0, 50)
+                                local frame28 = Instance.new("Frame", frame27)
+                                frame28.Name = string.lower(text5); frame28.BackgroundTransparency = 1; frame28.Size = UDim2.new(1, 0, 0, 50)
 
-                            local frame29 = Instance.new("Frame", frame28)
-                            frame29.Name = "Background1"; frame29.AnchorPoint = Vector2.new(0.5, 0.5); frame29.Position = UDim2.new(0.5, 0, 0.5, 0); frame29.Size = UDim2.new(1, 0, 1, 0)
-                            frame29.BackgroundColor3 = GlassState.CardColor; frame29.BackgroundTransparency = 0.45
-                            Instance.new("UICorner", frame29).CornerRadius = UDim.new(0, 7)
+                                local frame29 = Instance.new("Frame", frame28)
+                                frame29.Name = "Background1"; frame29.AnchorPoint = Vector2.new(0.5, 0.5); frame29.Position = UDim2.new(0.5, 0, 0.5, 0); frame29.Size = UDim2.new(1, 0, 1, 0)
+                                frame29.BackgroundColor3 = GlassState.CardColor; frame29.BackgroundTransparency = 0.45
+                                Instance.new("UICorner", frame29).CornerRadius = UDim.new(0, 7)
 
-                            local textLabel6 = Instance.new("TextLabel", frame29)
-                            textLabel6.Name = "TextColor"; textLabel6.BackgroundTransparency = 1; textLabel6.Position = UDim2.new(0, 10, 0, 2); textLabel6.Size = UDim2.new(1, -100, 0, 22)
-                            textLabel6.Font = Enum.Font.GothamSemibold; textLabel6.Text = text5; textLabel6.TextSize = 12.5; textLabel6.TextXAlignment = Enum.TextXAlignment.Left; textLabel6.TextColor3 = GlassState.TextColor
+                                local textLabel6 = Instance.new("TextLabel", frame29)
+                                textLabel6.Name = "TextColor"; textLabel6.BackgroundTransparency = 1; textLabel6.Position = UDim2.new(0, 10, 0, 2); textLabel6.Size = UDim2.new(1, -100, 0, 22)
+                                textLabel6.Font = Enum.Font.GothamSemibold; textLabel6.Text = text5; textLabel6.TextSize = 12.5; textLabel6.TextXAlignment = Enum.TextXAlignment.Left; textLabel6.TextColor3 = GlassState.TextColor
 
-                            local frame32 = Instance.new("Frame", frame28)
-                            frame32.Name = "Background2"; frame32.AnchorPoint = Vector2.new(1, 0); frame32.Position = UDim2.new(1, -8, 0, 4); frame32.Size = UDim2.new(0, 78, 0, 20)
-                            frame32.BackgroundColor3 = GlassState.PanelColor; frame32.BackgroundTransparency = 0.25
-                            Instance.new("UICorner", frame32).CornerRadius = UDim.new(0, 5)
+                                local frame32 = Instance.new("Frame", frame28)
+                                frame32.Name = "Background2"; frame32.AnchorPoint = Vector2.new(1, 0); frame32.Position = UDim2.new(1, -8, 0, 4); frame32.Size = UDim2.new(0, 78, 0, 20)
+                                frame32.BackgroundColor3 = GlassState.PanelColor; frame32.BackgroundTransparency = 0.25
+                                Instance.new("UICorner", frame32).CornerRadius = UDim.new(0, 5)
 
-                            local textBox4 = Instance.new("TextBox", frame32)
-                            textBox4.Name = "TextColor"; textBox4.BackgroundTransparency = 1; textBox4.Size = UDim2.new(1, 0, 1, 0); textBox4.Font = Enum.Font.GothamBold; textBox4.Text = ""; textBox4.TextSize = 12; textBox4.TextColor3 = GlassState.AccentColor
+                                local textBox4 = Instance.new("TextBox", frame32)
+                                textBox4.Name = "TextColor"; textBox4.BackgroundTransparency = 1; textBox4.Size = UDim2.new(1, 0, 1, 0); textBox4.Font = Enum.Font.GothamBold; textBox4.Text = ""; textBox4.TextSize = 12; textBox4.TextColor3 = GlassState.AccentColor
 
-                            local frame30 = Instance.new("Frame", frame28)
-                            frame30.Name = "SliderBar"; frame30.AnchorPoint = Vector2.new(0.5, 0.5); frame30.Position = UDim2.new(0.5, 0, 0.5, 13); frame30.Size = UDim2.new(1, -20, 0, 6)
-                            frame30.BackgroundColor3 = Color3.new(1, 1, 1); frame30.BackgroundTransparency = 0.85
-                            Instance.new("UICorner", frame30).CornerRadius = UDim.new(1, 0)
+                                local frame30 = Instance.new("Frame", frame28)
+                                frame30.Name = "SliderBar"; frame30.AnchorPoint = Vector2.new(0.5, 0.5); frame30.Position = UDim2.new(0.5, 0, 0.5, 13); frame30.Size = UDim2.new(1, -20, 0, 6)
+                                frame30.BackgroundColor3 = Color3.new(1, 1, 1); frame30.BackgroundTransparency = 0.85
+                                Instance.new("UICorner", frame30).CornerRadius = UDim.new(1, 0)
 
-                            local frame31 = Instance.new("Frame", frame30)
-                            frame31.Name = "Bar"; frame31.BorderSizePixel = 0; frame31.Size = UDim2.new(0, 0, 1, 0); frame31.BackgroundColor3 = GlassState.AccentColor
-                            Instance.new("UICorner", frame31).CornerRadius = UDim.new(1, 0)
+                                local frame31 = Instance.new("Frame", frame30)
+                                frame31.Name = "Bar"; frame31.BorderSizePixel = 0; frame31.Size = UDim2.new(0, 0, 1, 0); frame31.BackgroundColor3 = GlassState.AccentColor
+                                Instance.new("UICorner", frame31).CornerRadius = UDim.new(1, 0)
 
-                            local thumb = Instance.new("Frame", frame31)
-                            thumb.AnchorPoint = Vector2.new(0.5, 0.5); thumb.Position = UDim2.new(1, 0, 0.5, 0); thumb.Size = UDim2.new(0, 12, 0, 12); thumb.BackgroundColor3 = Color3.new(1, 1, 1)
-                            Instance.new("UICorner", thumb).CornerRadius = UDim.new(1, 0)
+                                local thumb = Instance.new("Frame", frame31)
+                                thumb.AnchorPoint = Vector2.new(0.5, 0.5); thumb.Position = UDim2.new(1, 0, 0.5, 0); thumb.Size = UDim2.new(0, 12, 0, 12); thumb.BackgroundColor3 = Color3.new(1, 1, 1)
+                                Instance.new("UICorner", thumb).CornerRadius = UDim.new(1, 0)
 
-                            local textButton5 = Instance.new("TextButton", frame30)
-                            textButton5.Name = "SliderButton "; textButton5.BackgroundTransparency = 1; textButton5.Position = UDim2.new(0, -6, 0, -8); textButton5.Size = UDim2.new(1, 12, 1, 16); textButton5.Text = ""
-                            textButton5.MouseEnter:Connect(function() TweenService:Create(thumb, TweenInfo.new(0.14), {Size = UDim2.new(0, 15, 0, 15)}):Play() end)
-                            textButton5.MouseLeave:Connect(function() TweenService:Create(thumb, TweenInfo.new(0.14), {Size = UDim2.new(0, 12, 0, 12)}):Play() end)
+                                local textButton5 = Instance.new("TextButton", frame30)
+                                textButton5.Name = "SliderButton "; textButton5.BackgroundTransparency = 1; textButton5.Position = UDim2.new(0, -6, 0, -8); textButton5.Size = UDim2.new(1, 12, 1, 16); textButton5.Text = ""
+                                textButton5.MouseEnter:Connect(function() TweenService:Create(thumb, TweenInfo.new(0.14), {Size = UDim2.new(0, 15, 0, 15)}):Play() end)
+                                textButton5.MouseLeave:Connect(function() TweenService:Create(thumb, TweenInfo.new(0.14), {Size = UDim2.new(0, 12, 0, 12)}):Play() end)
 
-                            local function fn12(default2)
-                                textBox4.Text = tostring(default2); tbl12[k].Default = default2; tbl7[k] = default2
-                            end
-
-                            if v11 then
-                                v11 = math.clamp(v11, math.min(n11, n12), math.max(n11, n12))
-                                frame31.Size = UDim2.new((v11 - n11) / math.max(0.0001, (n12 - n11)), 0, 1, 0)
-                                fn12(v11)
-                            end
-
-                            local flag12, latestVal = false, v11
-                            local function applySubDrag(posX)
-                                local ratio = math.clamp((posX - frame30.AbsolutePosition.X) / math.max(1, frame30.AbsoluteSize.X), 0, 1)
-                                local raw = n11 + (n12 - n11) * ratio
-                                local n15 = flag11 and tonumber(string.format("%.1f", raw)) or math.floor(raw + 0.5)
-                                latestVal = n15
-                                frame31.Size = UDim2.new(ratio, 0, 1, 0)
-                                fn12(n15)
-                                if not flag8 then fn7({Type = "SliderDropdown", KeyName = k, Value = n15, State = table.clone(tbl7)}) end
-                            end
-
-                            textButton5.InputBegan:Connect(function(input)
-                                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                                    flag12 = true; applySubDrag(input.Position.X)
+                                local function fn12(default2)
+                                    textBox4.Text = tostring(default2); tbl12[k].Default = default2; tbl7[k] = default2
                                 end
-                            end)
-                            UserInputService.InputChanged:Connect(function(input)
-                                if flag12 and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-                                    applySubDrag(input.Position.X)
-                                end
-                            end)
-                            UserInputService.InputEnded:Connect(function(input)
-                                if flag12 and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-                                    flag12 = false
-                                    if flag8 then fn7({Type = "SliderDropdown", KeyName = k, Value = latestVal, State = table.clone(tbl7)}) end
-                                end
-                            end)
 
-                            local function fn13(arg9, arg10)
-                                local num4 = tonumber(arg9)
-                                if not num4 then return end
-                                local v12 = math.clamp(num4, math.min(n11, n12), math.max(n11, n12))
-                                frame31.Size = UDim2.new((v12 - n11) / math.max(0.0001, (n12 - n11)), 0, 1, 0)
-                                fn12(v12)
-                                if arg10 then fn7({Type = "SliderDropdown", KeyName = k, Value = v12, State = table.clone(tbl7)}) end
+                                if v11 then
+                                    v11 = math.clamp(v11, math.min(n11, n12), math.max(n11, n12))
+                                    frame31.Size = UDim2.new((v11 - n11) / math.max(0.0001, (n12 - n11)), 0, 1, 0)
+                                    fn12(v11)
+                                end
+
+                                local flag12, latestVal = false, v11
+                                local function applySubDrag(posX)
+                                    local ratio = math.clamp((posX - frame30.AbsolutePosition.X) / math.max(1, frame30.AbsoluteSize.X), 0, 1)
+                                    local raw = n11 + (n12 - n11) * ratio
+                                    local n15 = flag11 and tonumber(string.format("%.1f", raw)) or math.floor(raw + 0.5)
+                                    latestVal = n15
+                                    frame31.Size = UDim2.new(ratio, 0, 1, 0)
+                                    fn12(n15)
+                                    if not flag8 then fn7({Type = "SliderDropdown", KeyName = k, Value = n15, State = table.clone(tbl7)}) end
+                                end
+
+                                textButton5.InputBegan:Connect(function(input)
+                                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                                        flag12 = true; applySubDrag(input.Position.X)
+                                    end
+                                end)
+                                UserInputService.InputChanged:Connect(function(input)
+                                    if flag12 and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                                        applySubDrag(input.Position.X)
+                                    end
+                                end)
+                                UserInputService.InputEnded:Connect(function(input)
+                                    if flag12 and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+                                        flag12 = false
+                                        if flag8 then fn7({Type = "SliderDropdown", KeyName = k, Value = latestVal, State = table.clone(tbl7)}) end
+                                    end
+                                end)
+
+                                local function fn13(arg9, arg10)
+                                    local num4 = tonumber(arg9)
+                                    if not num4 then return end
+                                    local v12 = math.clamp(num4, math.min(n11, n12), math.max(n11, n12))
+                                    frame31.Size = UDim2.new((v12 - n11) / math.max(0.0001, (n12 - n11)), 0, 1, 0)
+                                    fn12(v12)
+                                    if arg10 then fn7({Type = "SliderDropdown", KeyName = k, Value = v12, State = table.clone(tbl7)}) end
+                                end
+                                textBox4.FocusLost:Connect(function() fn13(textBox4.Text, true) end)
+                                tbl8[k] = {Bar = frame31, TextBox = textBox4, Min = n11, Max = n12}
                             end
-                            textBox4.FocusLost:Connect(function() fn13(textBox4.Text, true) end)
-                            tbl8[k] = {Bar = frame31, TextBox = textBox4, Min = n11, Max = n12}
                         end
                     else
                         local function fn12(arg9) return flag9 and table.find(tbl9, arg9) ~= nil end
@@ -2914,7 +2940,8 @@ tbl3.CreateMain = function(arg, arg2)
                         local num = tonumber(arg10); if not num then return end
                         local n11, n12 = v9.Min or 0, v9.Max or 100
                         local default2 = math.clamp(num, math.min(n11, n12), math.max(n11, n12))
-                        tbl7[arg9] = default2; tbl12[arg9].Default = default2
+                        tbl7[arg9] = default2
+                        if type(tbl12[arg9]) == "table" then tbl12[arg9].Default = default2 end
                         v9.Bar.Size = UDim2.new((default2 - n11) / math.max(0.0001, (n12 - n11)), 0, 1, 0)
                         v9.TextBox.Text = tostring(default2)
                         if fn7 then fn7({Type = "SliderDropdown", KeyName = arg9, Value = default2, State = table.clone(tbl7)}) end
@@ -3086,7 +3113,7 @@ tbl3.CreateMain = function(arg, arg2)
                 textBox3.Text = ""
                 textBox3.TextSize = 12.5
                 textBox3.TextXAlignment = Enum.TextXAlignment.Left
-                textBox3.PlaceholderColor3 = getgenv().UIColor["Placeholder Text Color"]
+                textBox3.PlaceholderColor3 = GetUIColor("Placeholder Text Color", Color3.fromRGB(168, 178, 194))
                 textBox3.TextColor3 = GlassState.TextColor
 
                 local frame26 = Instance.new("Frame", frame25)
@@ -3332,4 +3359,5 @@ tbl3.CreateNoti({
 
 return tbl3
 
---cc
+
+--qh
