@@ -135,6 +135,12 @@ local function GetUIColor(key, fallback)
     return fallback
 end
 
+local function SetTruncate(lbl)
+    pcall(function()
+        lbl.TextTruncate = Enum.TextTruncate.AtEnd
+    end)
+end
+
 local tbl3 = {}
 tbl3.Options = tbl3.Options or {}
 tbl3._TitleMap = tbl3._TitleMap or {}
@@ -1473,7 +1479,7 @@ tbl3.CreateMain = function(arg, arg2)
     textLabel.Font = Enum.Font.GothamBold
     textLabel.RichText = true
     textLabel.TextSize = 15
-    textLabel.TextTruncate = Enum.TextTruncate.AtEnd
+    SetTruncate(textLabel)
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
     textLabel.TextColor3 = GlassState.TextColor
 
@@ -1614,7 +1620,7 @@ tbl3.CreateMain = function(arg, arg2)
     textLabel2.Font = Enum.Font.GothamBold
     textLabel2.Text = text
     textLabel2.TextSize = 13
-    textLabel2.TextTruncate = Enum.TextTruncate.AtEnd
+    SetTruncate(textLabel2)
     textLabel2.TextXAlignment = Enum.TextXAlignment.Left
     textLabel2.TextColor3 = GlassState.TextColor
 
@@ -1838,7 +1844,7 @@ tbl3.CreateMain = function(arg, arg2)
         textLabel3.Font = Enum.Font.GothamSemibold
         textLabel3.Text = text2
         textLabel3.TextSize = 13
-        textLabel3.TextTruncate = Enum.TextTruncate.AtEnd
+        SetTruncate(textLabel3)
         textLabel3.TextXAlignment = Enum.TextXAlignment.Left
         textLabel3.TextColor3 = GlassState.TextColor
 
@@ -1888,7 +1894,7 @@ tbl3.CreateMain = function(arg, arg2)
         textLabel4.Font = Enum.Font.GothamBold
         textLabel4.Text = text3
         textLabel4.TextSize = 15
-        textLabel4.TextTruncate = Enum.TextTruncate.AtEnd
+        SetTruncate(textLabel4)
         textLabel4.TextXAlignment = Enum.TextXAlignment.Left
         textLabel4.TextColor3 = GlassState.TextColor
 
@@ -2077,7 +2083,7 @@ tbl3.CreateMain = function(arg, arg2)
             textLabel5.Font = Enum.Font.GothamBold
             textLabel5.Text = text4
             textLabel5.TextSize = 13
-            textLabel5.TextTruncate = Enum.TextTruncate.AtEnd
+            SetTruncate(textLabel5)
             textLabel5.TextXAlignment = Enum.TextXAlignment.Left
             textLabel5.TextColor3 = arg5 or GlassState.AccentColor:Lerp(Color3.new(1, 1, 1), 0.25)
 
@@ -2375,7 +2381,7 @@ tbl3.CreateMain = function(arg, arg2)
                 textLabel6.Font = Enum.Font.GothamSemibold
                 textLabel6.Text = title or "Button"
                 textLabel6.TextSize = 13
-                textLabel6.TextTruncate = Enum.TextTruncate.AtEnd
+                SetTruncate(textLabel6)
                 textLabel6.TextXAlignment = Enum.TextXAlignment.Left
                 textLabel6.TextColor3 = GlassState.TextColor
 
@@ -2723,7 +2729,7 @@ tbl3.CreateMain = function(arg, arg2)
 
                             local textLabel6 = Instance.new("TextLabel", frame29)
                             textLabel6.Name = "SampleItemTitle"; textLabel6.BackgroundTransparency = 1; textLabel6.Position = UDim2.new(0, 10, 0, 0); textLabel6.Size = UDim2.new(1, -40, 1, 0)
-                            textLabel6.Font = Enum.Font.GothamSemibold; textLabel6.Text = tostring(k); textLabel6.TextColor3 = GlassState.TextColor; textLabel6.TextSize = 12.5; textLabel6.TextXAlignment = Enum.TextXAlignment.Left
+                            textLabel6.Font = Enum.Font.GothamSemibold; textLabel6.Text = tostring(k); textLabel6.TextColor3 = GlassState.TextColor; textLabel6.TextSize = 12.5; SetTruncate(textLabel6); textLabel6.TextXAlignment = Enum.TextXAlignment.Left
 
                             local imageButton = Instance.new("ImageButton", frame29)
                             imageButton.Name = "SampleItemCheck"; imageButton.AnchorPoint = Vector2.new(1, 0.5); imageButton.BackgroundTransparency = 1; imageButton.Position = UDim2.new(1, -6, 0.5, 0); imageButton.Size = UDim2.new(0, 18, 0, 18); imageButton.ZIndex = 2
@@ -2769,7 +2775,7 @@ tbl3.CreateMain = function(arg, arg2)
 
                                 local textLabel6 = Instance.new("TextLabel", frame29)
                                 textLabel6.Name = "TextColor"; textLabel6.BackgroundTransparency = 1; textLabel6.Position = UDim2.new(0, 10, 0, 2); textLabel6.Size = UDim2.new(1, -100, 0, 22)
-                                textLabel6.Font = Enum.Font.GothamSemibold; textLabel6.Text = text5; textLabel6.TextSize = 12.5; textLabel6.TextXAlignment = Enum.TextXAlignment.Left; textLabel6.TextColor3 = GlassState.TextColor
+                                textLabel6.Font = Enum.Font.GothamSemibold; textLabel6.Text = text5; textLabel6.TextSize = 12.5; SetTruncate(textLabel6); textLabel6.TextXAlignment = Enum.TextXAlignment.Left; textLabel6.TextColor3 = GlassState.TextColor
 
                                 local frame32 = Instance.new("Frame", frame28)
                                 frame32.Name = "Background2"; frame32.AnchorPoint = Vector2.new(1, 0); frame32.Position = UDim2.new(1, -8, 0, 4); frame32.Size = UDim2.new(0, 78, 0, 20)
@@ -2883,7 +2889,7 @@ tbl3.CreateMain = function(arg, arg2)
 
                                 local textLabel6 = Instance.new("TextLabel", frame29)
                                 textLabel6.Name = "SampleItemTitle"; textLabel6.BackgroundTransparency = 1; textLabel6.Position = UDim2.new(0, flag9 and 30 or 10, 0, 0); textLabel6.Size = UDim2.new(1, flag9 and -60 or -40, 1, 0)
-                                textLabel6.Font = Enum.Font.GothamSemibold; textLabel6.Text = v10; textLabel6.TextColor3 = GlassState.TextColor; textLabel6.TextSize = 12.5; textLabel6.TextXAlignment = Enum.TextXAlignment.Left
+                                textLabel6.Font = Enum.Font.GothamSemibold; textLabel6.Text = v10; textLabel6.TextColor3 = GlassState.TextColor; textLabel6.TextSize = 12.5; SetTruncate(textLabel6); textLabel6.TextXAlignment = Enum.TextXAlignment.Left
 
                                 local textButton5 = Instance.new("TextButton", frame28)
                                 textButton5.Name = "SampleItemButton"; textButton5.BackgroundTransparency = 1; textButton5.Size = UDim2.new(1, 0, 1, 0); textButton5.Text = ""; textButton5.ZIndex = 3
@@ -3033,6 +3039,7 @@ tbl3.CreateMain = function(arg, arg2)
                 textLabel6.Font = Enum.Font.GothamSemibold
                 textLabel6.Text = text5
                 textLabel6.TextSize = 13
+                SetTruncate(textLabel6)
                 textLabel6.TextXAlignment = Enum.TextXAlignment.Left
                 textLabel6.TextColor3 = GlassState.TextColor
 
@@ -3131,6 +3138,7 @@ tbl3.CreateMain = function(arg, arg2)
                 textLabel6.Font = Enum.Font.GothamSemibold
                 textLabel6.Text = text5
                 textLabel6.TextSize = 13
+                SetTruncate(textLabel6)
                 textLabel6.TextXAlignment = Enum.TextXAlignment.Left
                 textLabel6.TextColor3 = GlassState.TextColor
 
@@ -3245,6 +3253,7 @@ tbl3.CreateMain = function(arg, arg2)
                 textLabel6.Text = text5
                 textLabel6.TextSize = 13
                 textLabel6.RichText = true
+                SetTruncate(textLabel6)
                 textLabel6.TextXAlignment = Enum.TextXAlignment.Left
                 textLabel6.TextColor3 = GlassState.TextColor
 
@@ -3401,4 +3410,5 @@ tbl3.CreateNoti({
 }, true)
 
 return tbl3
---2
+
+--3
