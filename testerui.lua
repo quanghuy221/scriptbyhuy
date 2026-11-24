@@ -211,6 +211,11 @@ local GlassState = {
     TextColor = GetUIColor("Text Color", Color3.fromRGB(238, 242, 248)),
 }
 
+local function GetContrastText(bgColor)
+    local lum = (0.299 * bgColor.r) + (0.587 * bgColor.g) + (0.114 * bgColor.b)
+    return lum > 0.72 and Color3.fromRGB(22, 26, 34) or Color3.fromRGB(255, 255, 255)
+end
+
 local ThemeListeners = {}
 local function RegisterThemeListener(listenerFn)
     table.insert(ThemeListeners, listenerFn)
@@ -282,8 +287,8 @@ end
 local function ApplyGlassTheme()
     SyncUIColorTable()
     for i = #ThemeListeners, 1, -1 do
-        local ok = pcall(ThemeListeners[i])
-        if not ok then
+        local ok, keep = pcall(ThemeListeners[i])
+        if not ok or keep == false then
             table.remove(ThemeListeners, i)
         end
     end
@@ -313,7 +318,7 @@ local function CreateGlassStroke(parent, thickness, transparencyOffset)
     })
 
     RegisterThemeListener(function()
-        if not stroke.Parent then return end
+        if not stroke.Parent then return false end
         stroke.Transparency = math.clamp(GlassState.BorderTransparency + (transparencyOffset or 0), 0, 1)
         grad.Color = ColorSequence.new({
             ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
@@ -385,6 +390,7 @@ local function AttachClickJuice(triggerButton, visualTarget, opts)
 
     local isHovered, isPressed = false, false
     local function playScale(targetScale, style, spdMult)
+        if not uiScale.Parent then return end
         if not GlassState.BounceEnabled then
             uiScale.Scale = 1
             return
@@ -397,7 +403,7 @@ local function AttachClickJuice(triggerButton, visualTarget, opts)
     triggerButton.MouseEnter:Connect(function()
         isHovered = true
         if not isPressed then playScale(hoverScale, Enum.EasingStyle.Quad, 0.65) end
-        if hoverOverlay then
+        if hoverOverlay and hoverOverlay.Parent then
             TweenService:Create(hoverOverlay, TweenInfo.new(math.max(0.08, GlassState.AnimationSpeed * 0.7), Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
                 BackgroundTransparency = hoverGlowAlpha
             }):Play()
@@ -407,7 +413,7 @@ local function AttachClickJuice(triggerButton, visualTarget, opts)
     triggerButton.MouseLeave:Connect(function()
         isHovered, isPressed = false, false
         playScale(1, Enum.EasingStyle.Quad, 0.75)
-        if hoverOverlay then
+        if hoverOverlay and hoverOverlay.Parent then
             TweenService:Create(hoverOverlay, TweenInfo.new(math.max(0.08, GlassState.AnimationSpeed * 0.7), Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
                 BackgroundTransparency = 1
             }):Play()
@@ -454,7 +460,12 @@ local function fn(arg, arg2)
             v2 = input
         end
     end)
-    UserInputService.InputChanged:Connect(function(input)
+    local dragConn
+    dragConn = UserInputService.InputChanged:Connect(function(input)
+        if not arg.Parent or not arg2.Parent then
+            dragConn:Disconnect()
+            return
+        end
         if input == v2 and dragging then
             local n = input.Position - position
             local targetPos = UDim2.new(position2.X.Scale, position2.X.Offset + n.X, position2.Y.Scale, position2.Y.Offset + n.Y)
@@ -538,7 +549,8 @@ imageLabel.ScaleType = Enum.ScaleType.Fit
 
 AttachClickJuice(textButton, frame, {HoverScale = 1.09, PressScale = 0.88, HoverTransparency = 0.85})
 RegisterThemeListener(function()
-    if frame.Parent then frame.BackgroundColor3 = GlassState.MainColor end
+    if not frame.Parent then return false end
+    frame.BackgroundColor3 = GlassState.MainColor
 end)
 
 local MainWindowScaleRef = nil
@@ -841,11 +853,10 @@ local function BuildSettingsOverlay(mainContainer, settingsIcon, settingsTrigger
     settingsScale.Scale = 0.96
 
     RegisterThemeListener(function()
-        if settingsOverlay.Parent then
-            settingsOverlay.BackgroundColor3 = GlassState.MainColor:Lerp(GlassState.PanelColor, 0.45)
-            settingsOverlay.BackgroundTransparency = math.clamp(GlassState.MainTransparency * 0.85, 0.06, 0.85)
-            settingsCorner.CornerRadius = UDim.new(0, math.max(4, GlassState.CornerRadius - 1))
-        end
+        if not settingsOverlay.Parent then return false end
+        settingsOverlay.BackgroundColor3 = GlassState.MainColor:Lerp(GlassState.PanelColor, 0.45)
+        settingsOverlay.BackgroundTransparency = math.clamp(GlassState.MainTransparency * 0.85, 0.06, 0.85)
+        settingsCorner.CornerRadius = UDim.new(0, math.max(4, GlassState.CornerRadius - 1))
     end)
 
     local sHeader = Instance.new("Frame", settingsOverlay)
@@ -879,7 +890,7 @@ local function BuildSettingsOverlay(mainContainer, settingsIcon, settingsTrigger
     sCloseBtn.Font = Enum.Font.GothamBold
     sCloseBtn.Text = "Done"
     sCloseBtn.TextSize = 12
-    sCloseBtn.TextColor3 = Color3.new(1, 1, 1)
+    sCloseBtn.TextColor3 = GetContrastText(GlassState.AccentColor)
     sCloseBtn.ZIndex = 33
     AttachClickJuice(sCloseBtn, sCloseHolder, {HoverScale = 1.06, PressScale = 0.94})
 
@@ -901,9 +912,11 @@ local function BuildSettingsOverlay(mainContainer, settingsIcon, settingsTrigger
     end)
 
     RegisterThemeListener(function()
-        if sTitle.Parent then sTitle.TextColor3 = GlassState.TextColor end
-        if sCloseHolder.Parent then sCloseHolder.BackgroundColor3 = GlassState.AccentColor end
-        if sScroll.Parent then sScroll.ScrollBarImageColor3 = GlassState.AccentColor end
+        if not settingsOverlay.Parent then return false end
+        sTitle.TextColor3 = GlassState.TextColor
+        sCloseHolder.BackgroundColor3 = GlassState.AccentColor
+        sCloseBtn.TextColor3 = GetContrastText(GlassState.AccentColor)
+        sScroll.ScrollBarImageColor3 = GlassState.AccentColor
     end)
 
     local settingsOpen = false
@@ -943,7 +956,8 @@ local function BuildSettingsOverlay(mainContainer, settingsIcon, settingsTrigger
         hdr.TextColor3 = GlassState.AccentColor
         hdr.ZIndex = 32
         RegisterThemeListener(function()
-            if hdr.Parent then hdr.TextColor3 = GlassState.AccentColor end
+            if not hdr.Parent then return false end
+            hdr.TextColor3 = GlassState.AccentColor
         end)
     end
 
@@ -1031,12 +1045,15 @@ local function BuildSettingsOverlay(mainContainer, settingsIcon, settingsTrigger
                 updateFromInput(input.Position.X)
             end
         end)
-        UserInputService.InputChanged:Connect(function(input)
+        local c1, c2
+        c1 = UserInputService.InputChanged:Connect(function(input)
+            if not row.Parent then c1:Disconnect(); c2:Disconnect(); return end
             if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                 updateFromInput(input.Position.X)
             end
         end)
-        UserInputService.InputEnded:Connect(function(input)
+        c2 = UserInputService.InputEnded:Connect(function(input)
+            if not row.Parent then c1:Disconnect(); c2:Disconnect(); return end
             if dragging and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
                 dragging = false
                 TweenService:Create(knob, TweenInfo.new(0.15), {Size = UDim2.new(0, 12, 0, 12)}):Play()
@@ -1044,13 +1061,12 @@ local function BuildSettingsOverlay(mainContainer, settingsIcon, settingsTrigger
         end)
 
         RegisterThemeListener(function()
-            if row.Parent then
-                row.BackgroundColor3 = GlassState.CardColor
-                row.BackgroundTransparency = math.clamp(GlassState.CardTransparency, 0.15, 0.82)
-                lbl.TextColor3 = GlassState.TextColor
-                valLbl.TextColor3 = GlassState.AccentColor
-                fill.BackgroundColor3 = GlassState.AccentColor
-            end
+            if not row.Parent then return false end
+            row.BackgroundColor3 = GlassState.CardColor
+            row.BackgroundTransparency = math.clamp(GlassState.CardTransparency, 0.15, 0.82)
+            lbl.TextColor3 = GlassState.TextColor
+            valLbl.TextColor3 = GlassState.AccentColor
+            fill.BackgroundColor3 = GlassState.AccentColor
         end)
         return setVal
     end
@@ -1114,12 +1130,11 @@ local function BuildSettingsOverlay(mainContainer, settingsIcon, settingsTrigger
 
         btn.MouseButton1Click:Connect(function() setToggle(not state, true) end)
         RegisterThemeListener(function()
-            if row.Parent then
-                row.BackgroundColor3 = GlassState.CardColor
-                row.BackgroundTransparency = math.clamp(GlassState.CardTransparency, 0.15, 0.82)
-                lbl.TextColor3 = GlassState.TextColor
-                if state then pill.BackgroundColor3 = GlassState.AccentColor end
-            end
+            if not row.Parent then return false end
+            row.BackgroundColor3 = GlassState.CardColor
+            row.BackgroundTransparency = math.clamp(GlassState.CardTransparency, 0.15, 0.82)
+            lbl.TextColor3 = GlassState.TextColor
+            if state then pill.BackgroundColor3 = GlassState.AccentColor end
         end)
         return setToggle
     end
@@ -1350,7 +1365,8 @@ tbl3.CreateMain = function(arg, arg2)
     mainScale.Scale = GlassState.UIScale
     MainWindowScaleRef = mainScale
     RegisterThemeListener(function()
-        if mainScale.Parent and getgenv().UIToggled then mainScale.Scale = GlassState.UIScale end
+        if not mainScale.Parent then return false end
+        if getgenv().UIToggled then mainScale.Scale = GlassState.UIScale end
     end)
 
     local imageLabel2 = Instance.new("ImageLabel", frame3)
@@ -1410,7 +1426,7 @@ tbl3.CreateMain = function(arg, arg2)
     uiCorner2.Name = "MainCorner"
 
     RegisterThemeListener(function()
-        if not imageLabel4.Parent then return end
+        if not imageLabel4.Parent then return false end
         imageLabel4.BackgroundColor3 = GlassState.MainColor
         imageLabel4.BackgroundTransparency = GlassState.MainTransparency
         imageLabel5.ImageTransparency = GlassState.ShadowTransparency
@@ -1457,7 +1473,7 @@ tbl3.CreateMain = function(arg, arg2)
     textLabel.Font = Enum.Font.GothamBold
     textLabel.RichText = true
     textLabel.TextSize = 15
-    textLabel.TextWrapped = true
+    textLabel.TextTruncate = Enum.TextTruncate.AtEnd
     textLabel.TextXAlignment = Enum.TextXAlignment.Left
     textLabel.TextColor3 = GlassState.TextColor
 
@@ -1474,8 +1490,9 @@ tbl3.CreateMain = function(arg, arg2)
     uiStroke2.Color = Color3.new(0, 0, 0)
 
     RegisterThemeListener(function()
-        if frame9.Parent then frame9.BackgroundColor3 = GlassState.BorderColor end
-        if textLabel.Parent then updateMainTitleText() end
+        if not textLabel.Parent then return false end
+        frame9.BackgroundColor3 = GlassState.BorderColor
+        updateMainTitleText()
     end)
 
     --// Top-Right Settings + Minimize
@@ -1541,8 +1558,11 @@ tbl3.CreateMain = function(arg, arg2)
     minTrigger.MouseButton1Click:Connect(function() tbl3.ToggleUI() end)
 
     RegisterThemeListener(function()
-        if settingsBtnHolder.Parent then settingsBtnHolder.BackgroundColor3 = GlassState.CardColor; settingsIcon.ImageColor3 = GlassState.TextColor end
-        if minBtnHolder.Parent then minBtnHolder.BackgroundColor3 = GlassState.CardColor; minLabel.TextColor3 = GlassState.TextColor end
+        if not settingsBtnHolder.Parent then return false end
+        settingsBtnHolder.BackgroundColor3 = GlassState.CardColor
+        settingsIcon.ImageColor3 = GlassState.TextColor
+        minBtnHolder.BackgroundColor3 = GlassState.CardColor
+        minLabel.TextColor3 = GlassState.TextColor
     end)
 
     pcall(BuildSettingsOverlay, imageLabel4, settingsIcon, settingsTrigger)
@@ -1594,6 +1614,7 @@ tbl3.CreateMain = function(arg, arg2)
     textLabel2.Font = Enum.Font.GothamBold
     textLabel2.Text = text
     textLabel2.TextSize = 13
+    textLabel2.TextTruncate = Enum.TextTruncate.AtEnd
     textLabel2.TextXAlignment = Enum.TextXAlignment.Left
     textLabel2.TextColor3 = GlassState.TextColor
 
@@ -1660,7 +1681,7 @@ tbl3.CreateMain = function(arg, arg2)
     uiListLayout2.Padding = UDim.new(0, 5)
 
     RegisterThemeListener(function()
-        if not frame5.Parent then return end
+        if not frame5.Parent then return false end
         frame5.BackgroundTransparency = GlassState.PanelTransparency
         frame5.BackgroundColor3 = GlassState.PanelColor
         sideCorner.CornerRadius = UDim.new(0, math.max(4, GlassState.CornerRadius - 2))
@@ -1694,7 +1715,8 @@ tbl3.CreateMain = function(arg, arg2)
     end)
 
     RegisterThemeListener(function()
-        if uiPageLayout.Parent then uiPageLayout.TweenTime = math.max(0.10, GlassState.AnimationSpeed * 1.15) end
+        if not uiPageLayout.Parent then return false end
+        uiPageLayout.TweenTime = math.max(0.10, GlassState.AnimationSpeed * 1.15)
     end)
 
     --// Global Search
@@ -1816,6 +1838,7 @@ tbl3.CreateMain = function(arg, arg2)
         textLabel3.Font = Enum.Font.GothamSemibold
         textLabel3.Text = text2
         textLabel3.TextSize = 13
+        textLabel3.TextTruncate = Enum.TextTruncate.AtEnd
         textLabel3.TextXAlignment = Enum.TextXAlignment.Left
         textLabel3.TextColor3 = GlassState.TextColor
 
@@ -1865,6 +1888,7 @@ tbl3.CreateMain = function(arg, arg2)
         textLabel4.Font = Enum.Font.GothamBold
         textLabel4.Text = text3
         textLabel4.TextSize = 15
+        textLabel4.TextTruncate = Enum.TextTruncate.AtEnd
         textLabel4.TextXAlignment = Enum.TextXAlignment.Left
         textLabel4.TextColor3 = GlassState.TextColor
 
@@ -1892,15 +1916,16 @@ tbl3.CreateMain = function(arg, arg2)
         end)
 
         RegisterThemeListener(function()
-            if frame12.Parent then frame12.BackgroundColor3 = GlassState.CardColor; frame15.BackgroundColor3 = GlassState.AccentColor; textLabel3.TextColor3 = GlassState.TextColor end
-            if frame17.Parent then
-                frame17.BackgroundColor3 = GlassState.PanelColor
-                frame17.BackgroundTransparency = GlassState.PanelTransparency
-                uiCorner7.CornerRadius = UDim.new(0, math.max(4, GlassState.CornerRadius - 2))
-                updatePageGrad()
-                textLabel4.TextColor3 = GlassState.TextColor
-                scrollingFrame2.ScrollBarImageColor3 = GlassState.AccentColor
-            end
+            if not frame17.Parent then return false end
+            frame12.BackgroundColor3 = GlassState.CardColor
+            frame15.BackgroundColor3 = GlassState.AccentColor
+            textLabel3.TextColor3 = GlassState.TextColor
+            frame17.BackgroundColor3 = GlassState.PanelColor
+            frame17.BackgroundTransparency = GlassState.PanelTransparency
+            uiCorner7.CornerRadius = UDim.new(0, math.max(4, GlassState.CornerRadius - 2))
+            updatePageGrad()
+            textLabel4.TextColor3 = GlassState.TextColor
+            scrollingFrame2.ScrollBarImageColor3 = GlassState.AccentColor
         end)
 
         local frame18 = Instance.new("Frame", frame17)
@@ -1911,6 +1936,7 @@ tbl3.CreateMain = function(arg, arg2)
         frame18.Position = UDim2.new(1, -2, 0, 2)
         frame18.Size = UDim2.new(0, 24, 0, 24)
         frame18.ClipsDescendants = true
+        frame18.ZIndex = 5
         Instance.new("UICorner", frame18).CornerRadius = UDim.new(0, 6)
         CreateGlassStroke(frame18, 1, 0.12)
 
@@ -1918,6 +1944,7 @@ tbl3.CreateMain = function(arg, arg2)
         frame19.Name = "SearchFrame"
         frame19.BackgroundTransparency = 1
         frame19.Size = UDim2.new(0, 24, 0, 24)
+        frame19.ZIndex = 6
 
         local imageLabel7 = Instance.new("ImageLabel", frame19)
         imageLabel7.Name = "SearchIcon"
@@ -1927,12 +1954,14 @@ tbl3.CreateMain = function(arg, arg2)
         imageLabel7.Size = UDim2.new(0, 14, 0, 14)
         imageLabel7.Image = "rbxassetid://8154282545"
         imageLabel7.ImageColor3 = GetUIColor("Search Icon Color", Color3.new(1, 1, 1))
+        imageLabel7.ZIndex = 6
 
         local textButton3 = Instance.new("TextButton", frame19)
         textButton3.Name = "Search Button"
         textButton3.BackgroundTransparency = 1
         textButton3.Size = UDim2.new(1, 0, 1, 0)
         textButton3.Text = ""
+        textButton3.ZIndex = 7
         AttachClickJuice(textButton3, frame18, {HoverScale = 1.06, PressScale = 0.94})
 
         local textBox2 = Instance.new("TextBox", frame18)
@@ -1948,6 +1977,7 @@ tbl3.CreateMain = function(arg, arg2)
         textBox2.PlaceholderColor3 = GetUIColor("Placeholder Text Color", Color3.fromRGB(168, 178, 194))
         textBox2.TextColor3 = GlassState.TextColor
         textBox2.ClearTextOnFocus = false
+        textBox2.ZIndex = 6
 
         local flag2 = false
         textButton3.MouseEnter:Connect(function()
@@ -2047,6 +2077,7 @@ tbl3.CreateMain = function(arg, arg2)
             textLabel5.Font = Enum.Font.GothamBold
             textLabel5.Text = text4
             textLabel5.TextSize = 13
+            textLabel5.TextTruncate = Enum.TextTruncate.AtEnd
             textLabel5.TextXAlignment = Enum.TextXAlignment.Left
             textLabel5.TextColor3 = arg5 or GlassState.AccentColor:Lerp(Color3.new(1, 1, 1), 0.25)
 
@@ -2063,14 +2094,15 @@ tbl3.CreateMain = function(arg, arg2)
             })
 
             RegisterThemeListener(function()
-                if frame20.Parent then
-                    frame20.BackgroundColor3 = GlassState.CardColor
-                    frame20.BackgroundTransparency = math.clamp(GlassState.CardTransparency + 0.08, 0.15, 0.88)
-                    uiCorner9.CornerRadius = UDim.new(0, math.max(4, GlassState.CornerRadius - 2))
-                    updateSecGrad()
+                if not frame20.Parent then return false end
+                frame20.BackgroundColor3 = GlassState.CardColor
+                frame20.BackgroundTransparency = math.clamp(GlassState.CardTransparency + 0.08, 0.15, 0.88)
+                uiCorner9.CornerRadius = UDim.new(0, math.max(4, GlassState.CornerRadius - 2))
+                updateSecGrad()
+                if not arg5 then
+                    textLabel5.TextColor3 = GlassState.AccentColor:Lerp(Color3.new(1, 1, 1), 0.25)
+                    frame22.BackgroundColor3 = GlassState.AccentColor
                 end
-                if textLabel5.Parent and not arg5 then textLabel5.TextColor3 = GlassState.AccentColor:Lerp(Color3.new(1, 1, 1), 0.25) end
-                if frame22.Parent and not arg5 then frame22.BackgroundColor3 = GlassState.AccentColor end
             end)
 
             local n10, flag4 = nil, false
@@ -2267,14 +2299,13 @@ tbl3.CreateMain = function(arg, arg2)
                 AttachClickJuice(textButton4, frame28, {HoverScale = 1.012, PressScale = 0.978, HoverTransparency = 0.91, RippleTarget = frame28})
 
                 RegisterThemeListener(function()
-                    if frame28.Parent then
-                        frame28.BackgroundColor3 = GlassState.PanelColor
-                        frame28.BackgroundTransparency = GlassState.CardTransparency
-                        textLabel7.TextColor3 = GlassState.TextColor
-                        if default then
-                            frame25.BackgroundColor3 = GlassState.AccentColor
-                            pillStroke.Color = GlassState.AccentColor:Lerp(Color3.new(1, 1, 1), 0.35)
-                        end
+                    if not frame28.Parent then return false end
+                    frame28.BackgroundColor3 = GlassState.PanelColor
+                    frame28.BackgroundTransparency = GlassState.CardTransparency
+                    textLabel7.TextColor3 = GlassState.TextColor
+                    if default then
+                        frame25.BackgroundColor3 = GlassState.AccentColor
+                        pillStroke.Color = GlassState.AccentColor:Lerp(Color3.new(1, 1, 1), 0.35)
                     end
                 end)
 
@@ -2344,6 +2375,7 @@ tbl3.CreateMain = function(arg, arg2)
                 textLabel6.Font = Enum.Font.GothamSemibold
                 textLabel6.Text = title or "Button"
                 textLabel6.TextSize = 13
+                textLabel6.TextTruncate = Enum.TextTruncate.AtEnd
                 textLabel6.TextXAlignment = Enum.TextXAlignment.Left
                 textLabel6.TextColor3 = GlassState.TextColor
 
@@ -2366,6 +2398,7 @@ tbl3.CreateMain = function(arg, arg2)
                     ColorSequenceKeypoint.new(1, Color3.fromRGB(210, 220, 235)),
                 })
 
+                local contrastCol = GetContrastText(GlassState.AccentColor)
                 local textButton4 = Instance.new("TextButton", frame26)
                 textButton4.Name = "Button"
                 textButton4.BackgroundTransparency = 1
@@ -2374,9 +2407,10 @@ tbl3.CreateMain = function(arg, arg2)
                 textButton4.Font = Enum.Font.GothamBold
                 textButton4.Text = "Click"
                 textButton4.TextSize = 12
-                textButton4.TextColor3 = Color3.new(1, 1, 1)
+                textButton4.TextColor3 = contrastCol
                 textButton4.ZIndex = frame26.ZIndex + 3
 
+                local iconLblRef = nil
                 if icon then
                     if typeof(icon) == "string" and string.find(icon, "rbxassetid://") == 1 then
                         local imageLabel10 = Instance.new("ImageLabel", frame26)
@@ -2397,7 +2431,8 @@ tbl3.CreateMain = function(arg, arg2)
                         iconLbl.Font = Enum.Font.GothamBold
                         iconLbl.Text = tostring(icon)
                         iconLbl.TextSize = 13
-                        iconLbl.TextColor3 = Color3.new(1, 1, 1)
+                        iconLbl.TextColor3 = contrastCol
+                        iconLblRef = iconLbl
                         textButton4.Text = "Click"
                         textButton4.TextXAlignment = Enum.TextXAlignment.Left
                         textButton4.Position = UDim2.new(0, 32, 0, 0)
@@ -2415,12 +2450,14 @@ tbl3.CreateMain = function(arg, arg2)
                 textButton4.MouseButton1Down:Connect(function() task.defer(fn7) end)
 
                 RegisterThemeListener(function()
-                    if frame24.Parent then
-                        frame24.BackgroundColor3 = GlassState.PanelColor
-                        frame24.BackgroundTransparency = GlassState.CardTransparency
-                        textLabel6.TextColor3 = GlassState.TextColor
-                        frame26.BackgroundColor3 = GlassState.AccentColor
-                    end
+                    if not frame24.Parent then return false end
+                    local cText = GetContrastText(GlassState.AccentColor)
+                    frame24.BackgroundColor3 = GlassState.PanelColor
+                    frame24.BackgroundTransparency = GlassState.CardTransparency
+                    textLabel6.TextColor3 = GlassState.TextColor
+                    frame26.BackgroundColor3 = GlassState.AccentColor
+                    textButton4.TextColor3 = cText
+                    if iconLblRef then iconLblRef.TextColor3 = cText end
                 end)
 
                 arg6.FunctionCreate = {GetText = function() return textLabel6 end}
@@ -2469,11 +2506,12 @@ tbl3.CreateMain = function(arg, arg2)
                 Instance.new("UIPadding", frame24).PaddingBottom = UDim.new(0, 6)
 
                 RegisterThemeListener(function()
-                    if frame24.Parent and not arg6.Invisible then
+                    if not frame24.Parent then return false end
+                    if not arg6.Invisible then
                         if not customBgColor then frame24.BackgroundColor3 = GlassState.PanelColor end
                         frame24.BackgroundTransparency = GlassState.CardTransparency
                     end
-                    if textLabel6.Parent and not customTextColor then textLabel6.TextColor3 = GlassState.TextColor end
+                    if not customTextColor then textLabel6.TextColor3 = GlassState.TextColor end
                 end)
 
                 local functionCreate = {
@@ -2606,7 +2644,8 @@ tbl3.CreateMain = function(arg, arg2)
                 frame27.Name = "ScrollContainer"
                 frame27.BackgroundTransparency = 1
                 frame27.Position = UDim2.new(0, 6, 0, 6)
-                frame27.Size = UDim2.new(1, -14, 1, -6)
+                frame27.Size = UDim2.new(1, -14, 0, 0)
+                frame27.AutomaticSize = Enum.AutomaticSize.Y
 
                 local uiListLayout5 = Instance.new("UIListLayout", frame27)
                 uiListLayout5.Name = "ScrollContainerList"
@@ -2617,14 +2656,13 @@ tbl3.CreateMain = function(arg, arg2)
                 end)
 
                 RegisterThemeListener(function()
-                    if frame24.Parent then
-                        frame24.BackgroundColor3 = GlassState.PanelColor
-                        frame24.BackgroundTransparency = GlassState.CardTransparency
-                        frame25.BackgroundColor3 = GlassState.CardColor
-                        frame25.BackgroundTransparency = math.clamp(GlassState.CardTransparency - 0.08, 0.12, 0.85)
-                        textBox3.TextColor3 = GlassState.TextColor
-                        scrollingFrame3.ScrollBarImageColor3 = GlassState.AccentColor
-                    end
+                    if not frame24.Parent then return false end
+                    frame24.BackgroundColor3 = GlassState.PanelColor
+                    frame24.BackgroundTransparency = GlassState.CardTransparency
+                    frame25.BackgroundColor3 = GlassState.CardColor
+                    frame25.BackgroundTransparency = math.clamp(GlassState.CardTransparency - 0.08, 0.12, 0.85)
+                    textBox3.TextColor3 = GlassState.TextColor
+                    scrollingFrame3.ScrollBarImageColor3 = GlassState.AccentColor
                 end)
 
                 local flag10 = false
@@ -2785,12 +2823,15 @@ tbl3.CreateMain = function(arg, arg2)
                                         flag12 = true; applySubDrag(input.Position.X)
                                     end
                                 end)
-                                UserInputService.InputChanged:Connect(function(input)
+                                local sc1, sc2
+                                sc1 = UserInputService.InputChanged:Connect(function(input)
+                                    if not frame28.Parent then sc1:Disconnect(); sc2:Disconnect(); return end
                                     if flag12 and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                                         applySubDrag(input.Position.X)
                                     end
                                 end)
-                                UserInputService.InputEnded:Connect(function(input)
+                                sc2 = UserInputService.InputEnded:Connect(function(input)
+                                    if not frame28.Parent then sc1:Disconnect(); sc2:Disconnect(); return end
                                     if flag12 and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
                                         flag12 = false
                                         if flag8 then fn7({Type = "SliderDropdown", KeyName = k, Value = latestVal, State = table.clone(tbl7)}) end
@@ -3039,7 +3080,9 @@ tbl3.CreateMain = function(arg, arg2)
                     end)
                 end)
 
-                UserInputService.InputBegan:Connect(function(input)
+                local bindConn
+                bindConn = UserInputService.InputBegan:Connect(function(input)
+                    if not frame23.Parent then bindConn:Disconnect(); return end
                     if isBinding or UserInputService:GetFocusedTextBox() then return end
                     if default == input.UserInputType or default == input.KeyCode then
                         fn7(default)
@@ -3047,13 +3090,12 @@ tbl3.CreateMain = function(arg, arg2)
                 end)
 
                 RegisterThemeListener(function()
-                    if frame24.Parent then
-                        frame24.BackgroundColor3 = GlassState.PanelColor
-                        frame24.BackgroundTransparency = GlassState.CardTransparency
-                        textLabel6.TextColor3 = GlassState.TextColor
-                        frame25.BackgroundColor3 = GlassState.CardColor
-                        textButton4.TextColor3 = GlassState.AccentColor
-                    end
+                    if not frame24.Parent then return false end
+                    frame24.BackgroundColor3 = GlassState.PanelColor
+                    frame24.BackgroundTransparency = GlassState.CardTransparency
+                    textLabel6.TextColor3 = GlassState.TextColor
+                    frame25.BackgroundColor3 = GlassState.CardColor
+                    textButton4.TextColor3 = GlassState.AccentColor
                 end)
             end
 
@@ -3149,14 +3191,13 @@ tbl3.CreateMain = function(arg, arg2)
                 end)
 
                 RegisterThemeListener(function()
-                    if frame24.Parent then
-                        frame24.BackgroundColor3 = GlassState.PanelColor
-                        frame24.BackgroundTransparency = GlassState.CardTransparency
-                        textLabel6.TextColor3 = GlassState.TextColor
-                        frame25.BackgroundColor3 = GlassState.CardColor
-                        textBox3.TextColor3 = GlassState.TextColor
-                        frame26.BackgroundColor3 = GlassState.AccentColor
-                    end
+                    if not frame24.Parent then return false end
+                    frame24.BackgroundColor3 = GlassState.PanelColor
+                    frame24.BackgroundTransparency = GlassState.CardTransparency
+                    textLabel6.TextColor3 = GlassState.TextColor
+                    frame25.BackgroundColor3 = GlassState.CardColor
+                    textBox3.TextColor3 = GlassState.TextColor
+                    frame26.BackgroundColor3 = GlassState.AccentColor
                 end)
 
                 local tbl7 = {}
@@ -3296,12 +3337,15 @@ tbl3.CreateMain = function(arg, arg2)
                         flag6 = true; updateSliderDrag(input.Position.X)
                     end
                 end)
-                UserInputService.InputChanged:Connect(function(input)
+                local sl1, sl2
+                sl1 = UserInputService.InputChanged:Connect(function(input)
+                    if not frame23.Parent then sl1:Disconnect(); sl2:Disconnect(); return end
                     if flag6 and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                         updateSliderDrag(input.Position.X)
                     end
                 end)
-                UserInputService.InputEnded:Connect(function(input)
+                sl2 = UserInputService.InputEnded:Connect(function(input)
+                    if not frame23.Parent then sl1:Disconnect(); sl2:Disconnect(); return end
                     if flag6 and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
                         flag6 = false
                     end
@@ -3319,15 +3363,14 @@ tbl3.CreateMain = function(arg, arg2)
                 textBox3.FocusLost:Connect(function() fn10(textBox3.Text) end)
 
                 RegisterThemeListener(function()
-                    if frame24.Parent then
-                        frame24.BackgroundColor3 = GlassState.PanelColor
-                        frame24.BackgroundTransparency = GlassState.CardTransparency
-                        textLabel6.TextColor3 = GlassState.TextColor
-                        frame27.BackgroundColor3 = GlassState.CardColor
-                        textBox3.TextColor3 = GlassState.AccentColor
-                        frame26.BackgroundColor3 = GlassState.AccentColor
-                        knobGlow.Color = GlassState.AccentColor
-                    end
+                    if not frame24.Parent then return false end
+                    frame24.BackgroundColor3 = GlassState.PanelColor
+                    frame24.BackgroundTransparency = GlassState.CardTransparency
+                    textLabel6.TextColor3 = GlassState.TextColor
+                    frame27.BackgroundColor3 = GlassState.CardColor
+                    textBox3.TextColor3 = GlassState.AccentColor
+                    frame26.BackgroundColor3 = GlassState.AccentColor
+                    knobGlow.Color = GlassState.AccentColor
                 end)
 
                 local tbl7 = {
@@ -3358,3 +3401,4 @@ tbl3.CreateNoti({
 }, true)
 
 return tbl3
+--2
